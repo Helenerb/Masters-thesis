@@ -2,8 +2,8 @@
 data {
   int<lower=0> T;
   int<lower=0> X;
-  real Y[(X+1)*(T+1)];
-  real E[(X+1)*(T+1)];
+  matrix[X,T] Y;
+  matrix[X,T] E;
 }
 
 // The parameters accepted by the model. Our model
@@ -42,6 +42,7 @@ model {
   kappa[2:T] ~ normal(phi + kappa[1:T-1], 1/sqrt(tau_kappa)); 
   epsilon ~ normal(0, 1/sqrt(tau_epsilon))
   
-  Y ~ poisson_log(E .* eta);  // elementwise multiplocation
+  // We might have to explicitly handle the matrix format
+  Y ~ poisson_log(E .* eta);  // elementwise multiplication
 }
 
