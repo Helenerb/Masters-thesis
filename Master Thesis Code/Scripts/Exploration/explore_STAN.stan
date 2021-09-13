@@ -1,15 +1,4 @@
-//
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
-//
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
-//
-
-// The input data is a vector 'y' of length 'N'.
+// Information about the program
 data {
   int<lower=0> T;
   int<lower=0> X;
@@ -18,34 +7,41 @@ data {
 }
 
 // The parameters accepted by the model. Our model
-// accepts two parameters 'mu' and 'sigma'.
+// accepts the parameters tau_alpha, tau_beta, tau_kappa, tau_epsilon, phi, 
+// alpha, beta_raw, kappa_raw, epsilon. 
 parameters {
-  real tau_alpha;
-  real tau_beta;
-  real tau_kappa;
-  real tau_gamma;
-  // real tau_epsilon;
+  real tau_alpha;  // precision of random walk, alpha
+  real tau_beta;   // precision of normal distribution of beta
+  real tau_kappa;  // precision of random walk, kappa
+  // real tau_gamma;
+  real tau_epsilon;
+  real phi;        // drift of random walk, kappa
   
   vector[X] alpha;
   vector[X-1] beta_raw;  // one of the methods for sum-to-zero/unit
   vector[T-1] kappa_raw;  // will sum-to-zero
-  vector[(T+1)*(X+1) -1 ] gamma_raw;  // will sum-to-zero
-  vector[(T+1)*(X+1)] epsilon;
+  // vector[T*X -1 ] gamma_raw;  // will sum-to-zero
+  // vector[T*X] epsilon;
+  matrix[X,T] epsilon;
 }
 
 transformed parameters {
   vector[X] beta = append_row(beta_raw, 1 - sum(beta_raw));
-  vector[T] kappa = append_row(kappa_raw, -sum(kappa_raw));
-  vector[(X+1)*(T+1)] gamma = append_row(gamma_raw, -sum(gamma_raw));
-  vector[(T+1)*(X+1)] eta;
-  // TODO: give eta the correct value --> on vector form. 
-  // eta = alpha + beta*kappa + gamma + epsilon
+  row_vector[T] kappa = append_row(kappa_raw, -sum(kappa_raw));
+  // vector[X*T] gamma = append_row(gamma_raw, -sum(gamma_raw));
+  //vector[T*X] eta = alpha + beta*kappa + epsilon; // unsure if this is correct implementation
+  matrix[X,T] eta = rep_array(alpha, T) + beta*kappa + epsilon;
 }
 
-// The model to be estimated. We model the output
-// 'y' to be normally distributed with mean 'mu'
-// and standard deviation 'sigma'.
 model {
-  //TODO: Y ~ poisson(eta);
+  // hyperpriors: use default distributions
+  
+  // prior distributions
+  alpha[2:X] ~ normal(alpha[1:X-1], 1/sqrt(tau_alpha));
+  beta ~ normal(0, 1/sqrt(tau_beta));
+  kappa[2:T] ~ normal(phi + kappa[1:T-1], 1/sqrt(tau_kappa)); 
+  epsilon ~ normal(0, 1/sqrt(tau_epsilon))
+  
+  Y ~ poisson_log(E .* eta);  // elementwise multiplocation
 }
 
