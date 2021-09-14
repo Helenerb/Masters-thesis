@@ -64,4 +64,16 @@ fit <- stan(
   init = intit_f
 )
 
+print(fit)
+plot(fit)
+fit_df <- as.data.frame(fit)
+fit_summary <- summary(fit)
+print(fit_summary$summary)
+fir_summary_df <- as.data.frame(fit_summary$summary)
 
+summary_alpha <- fir_summary_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('alpha', parameter)) %>%
+  filter(!grepl('sigma_alpha', parameter)) %>%
+  extract(parameter, into="index", regex="([0-9]+)")
+  
