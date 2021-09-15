@@ -88,6 +88,14 @@ palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
                    '#3290c1',
                    '#5d8060', '#D7B36A', '#826133', '#A85150')
 
+p.int <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of intercept", y = " ", title = "Intercept - inlabru")
+p.int
+
 data.alpha = cbind(res.inlabru$summary.random$alpha, alpha.true = alpha_true[res.inlabru$summary.random$alpha$ID])
 p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
@@ -97,7 +105,7 @@ p.alpha <- ggplot(data = data.alpha, aes(x = ID)) +
                      values = palette.basis ) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
-  labs(title="Alpha", x = "x", y='')
+  labs(title="Alpha - inlabru", x = "x", y='')
 
 p.alpha
 
@@ -110,7 +118,7 @@ p.beta <- ggplot(data = data.beta, aes(x = ID)) +
                      values = palette.basis ) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
-  labs(x = "x", y = "beta", title = "Beta")
+  labs(x = "x", y = "beta", title = "Beta - inlabru")
 
 p.beta
 
@@ -124,16 +132,17 @@ p.kappa <- ggplot(data = data.kappa, aes(x = ID)) +
                      values = palette.basis ) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
-  labs(x = "t", y = "kappa", title = "Kappa")
+  labs(x = "t", y = "kappa", title = "Kappa - inlabru")
 
 p.kappa
 
 p.phi <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
   geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
-  geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill="Estimated")) + 
+  geom_vline(aes(xintercept = phi_true, color="True", fill="True")) +
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of phi", y = " ", title = "Phi")
+  labs(x = "Value of phi", y = " ", title = "Phi - inlabru")
 p.phi
 
 data.eta <- data.frame({eta.sim = res.inlabru$summary.linear.predictor$mean[1:N]}) %>%
@@ -142,6 +151,12 @@ p.eta <- ggplot(data = data.eta) +
   geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
   labs(x="Estimated eta", y="True value for eta", title = "Eta")
 p.eta
+
+p.eta.2 <- ggplot(data = data.eta) +
+  geom_point(aes(x=data$xt, y = eta.sim, color="Estimated")) +
+  geom_point(data=data, aes(x=xt, y = eta, color="True")) +
+  labs(x=" ", y="Eta", title="Eta- inlabru")
+p.eta.2
 
 #   ----   Implement the model in STAN   ---- 
 
@@ -185,8 +200,8 @@ summary_alpha <- fir_summary_df %>%
 
 plot_alpa <- ggplot(data=summary_alpha) +
   geom_point(aes(x=index, y=mean, color="estimated")) + 
-  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
-  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
   geom_point(aes(x=index, y=true_alpha, color="true value")) +
   ggtitle("Alpha")
 plot_alpa  
@@ -201,10 +216,10 @@ summary_beta <- fir_summary_df %>%
 
 plot_beta <- ggplot(data=summary_beta) +
   geom_point(aes(x=index, y=mean, color="estimated")) + 
-  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
-  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha = 0.5) +
   geom_point(aes(x=index, y=true_beta, color="true value")) +
-  ggtitle("Beta")
+  ggtitle("Beta -STAN")
 plot_beta
 
 # look at kappa
@@ -218,11 +233,11 @@ summary_kappa <- fir_summary_df %>%
 
 plot_kappa <- ggplot(data=summary_kappa) +
   geom_point(aes(x=index, y=mean, color="estimated")) + 
-  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
-  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
-  geom_point(aes(x=index, y=true_kappa, color="true value")) +
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+  #geom_point(aes(x=index, y=true_kappa, color="true value")) +
   geom_point(aes(x=index, y=kappa_drifted, color="true with drift"))+
-  ggtitle("Kappa")
+  ggtitle("Kappa; time effect with drift - STAN")
 plot_kappa
 
 # look at eta
@@ -235,8 +250,52 @@ summary_eta <- fir_summary_df %>%
 
 plot_eta <- ggplot(data=summary_eta) +
   geom_point(aes(x=index, y=mean, color="estimated")) + 
-  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
-  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
   geom_point(aes(x=index, y=true_eta, color="true value")) +
-  ggtitle("Eta")
+  ggtitle("Eta - STAN")
 plot_eta
+
+
+#   ----   estimated hyperparameters by inlabru and STAN compared   ----
+
+p.prec.alpha <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                         filter(Precision.for.alpha.x < 35)) + 
+  geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
+  geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+  geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[1])), color=palette.basis[2]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for alpha - inlabru")
+p.prec.alpha
+# two values above 200
+
+p.prec.beta <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                        filter(Precision.for.beta.x < 200)) + 
+  geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Inlabru"), alpha = 0.4) + 
+  geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[2], color = "Inlabru", fill = "Inlabru")) + 
+  geom_vline(aes(xintercept = tau.beta, color = "True value", fill = "True value")) + 
+  geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[2]), color="STAN")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for beta - inlabru")
+p.prec.beta
+# two values above 1000
+
+p.prec.kappa <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                         filter(Precision.for.kappa.x < 175)) + 
+  geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
+  geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+  geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[3])), color=palette.basis[2]) + 
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa - inlabru")
+p.prec.kappa
+# two values above 1000
+
+p.prec.epsilon <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                           filter(Precision.for.epsilon.x < 150000)) + 
+  geom_area(aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, fill = "Inlabru"), alpha = 0.4) + 
+  geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[4], color = "Inlabru", fill = "Inlabru")) + 
+  geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[4]), color="STAN")) +
+  geom_vline(aes(xintercept = tau.epsilon, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of precision", y = " ", title = "Precision for epsilon - inlabru")
+p.prec.epsilon
