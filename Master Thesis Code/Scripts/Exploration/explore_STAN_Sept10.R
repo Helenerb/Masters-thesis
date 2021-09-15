@@ -3,6 +3,7 @@
 
 library("rstan")
 library(tidyverse)
+library(ggplot2)
 
 # setting up data for testing:
 T = 10  # number of time steps
@@ -57,12 +58,14 @@ fit <- stan(
   file="explore_STAN.stan",
   data = exploration_data,
   chains=4,
-  warmup = 2000,
-  iter = 10000,
+  warmup = 5000,
+  iter = 20000,
   refresh = 500,
-  seed=123,
-  init = intit_f
+  seed=123#,
+  #init = intit_f
 )
+
+pairs(fit, pars=c("alpha[1]", "beta[1]", "kappa[1]", "phi", "eta[1]"), condition = "accept_stat__")
 
 print(fit)
 plot(fit)
@@ -71,9 +74,70 @@ fit_summary <- summary(fit)
 print(fit_summary$summary)
 fir_summary_df <- as.data.frame(fit_summary$summary)
 
+# look at alpha
 summary_alpha <- fir_summary_df %>%
   rownames_to_column("parameter") %>%
   filter(grepl('alpha', parameter)) %>%
   filter(!grepl('sigma_alpha', parameter)) %>%
-  extract(parameter, into="index", regex="([0-9]+)")
-  
+  extract(parameter, into="index", regex="([0-9]+)") %>%
+  mutate(index = parse_number(index)) %>%
+  mutate(true_alpha = true_alpha[index])
+
+plot_alpa <- ggplot(data=summary_alpha) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_point(aes(x=index, y=true_alpha, color="true value")) +
+  ggtitle("Alpha")
+plot_alpa  
+
+# look at beta
+summary_beta <- fir_summary_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('beta', parameter)) %>%
+  filter(!grepl('sigma_beta', parameter)) %>%
+  extract(parameter, into="index", regex="([0-9]+)") %>%
+  mutate(index = parse_number(index)) %>%
+  mutate(true_beta = true_beta[index])
+
+plot_beta <- ggplot(data=summary_beta) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_point(aes(x=index, y=true_beta, color="true value")) +
+  ggtitle("Beta")
+plot_beta
+
+# look at kappa
+summary_kappa <- fir_summary_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('kappa', parameter)) %>%
+  filter(!grepl('sigma_kappa', parameter)) %>%
+  extract(parameter, into="index", regex="([0-9]+)") %>%
+  mutate(index = parse_number(index)) %>%
+  mutate(true_kappa = true_kappa[index])
+
+plot_kappa <- ggplot(data=summary_kappa) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_point(aes(x=index, y=true_kappa, color="true value")) +
+  ggtitle("Kappa")
+plot_kappa
+
+# look at eta
+summary_eta <- fir_summary_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('eta', parameter)) %>%
+  filter(!grepl('beta', parameter)) %>%
+  extract(parameter, into="index", regex="([0-9]+)") %>%
+  mutate(index = parse_number(index)) %>%
+  mutate(true_eta = true_data$eta)
+
+plot_eta <- ggplot(data=summary_eta) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated")) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated")) +
+  geom_point(aes(x=index, y=true_eta, color="true value")) +
+  ggtitle("Eta")
+plot_eta
