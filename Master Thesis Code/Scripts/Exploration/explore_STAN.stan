@@ -60,6 +60,6 @@ model {
   
   // We might have to explicitly handle the matrix format
   //Y ~ poisson_log(E .* eta);  // elementwise multiplication
-  target += poisson_log_lpmf(Y | log(E) .* eta);
+  target += poisson_log_lpmf(Y | log(E) + eta);
 }
 
