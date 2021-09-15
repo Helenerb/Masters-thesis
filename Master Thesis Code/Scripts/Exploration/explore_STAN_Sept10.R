@@ -1,9 +1,15 @@
 # script used for exploring the STAN library for modelling with
 # Hamiltonian MC
 
+# Note: The configuration in this script has convergence issues, 
+# and displays identifiability problems. Return to figure out why. 
+
 library("rstan")
 library(tidyverse)
 library(ggplot2)
+
+library(INLA)
+library(inlabru)
 
 # setting up data for testing:
 T = 10  # number of time steps
@@ -31,8 +37,104 @@ true_data = obs %>%
   mutate(eta = alpha + beta*kappa + epsilon) %>%
   mutate(E = rep(1000, 100)) %>%
   mutate(rate = E*exp(eta)) %>%
-  mutate(Y = rpois(100,rate))
-  
+  mutate(Y = rpois(100,rate)) %>%
+  mutate(x.c = x) %>%
+  mutate(t.c = t) %>%
+  mutate(xts = seq_along(x))
+
+#   ---- For comparison - run the analysis with inlabru   ---- 
+pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+
+A.mat = matrix(1, nrow = 1, ncol = 10) 
+e.vec = 1
+
+#in general: unsure about scale.model...
+# also unsure about the ~-1
+comp.inlabru = ~ -1 +
+  alpha(x, model = "rw1", values = 1:X, constr = FALSE, hyper = pc.prior, scale.model = TRUE) + # ikke helt sikker på om du skal ha med scale.model...
+  beta(x.c, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) +
+  phi(t, model = "linear", prec.linear = 1) +
+  kappa(t.c, model = "rw1", values = 1:T, constr = TRUE, hyper = pc.prior, scale.model = TRUE) +
+  epsilon(xts, model = "iid", hyper = pc.prior)
+
+formula = Y ~ -1 + alpha + beta*phi + beta*kappa + epsilon
+likelihood = like(formula = formula, family = "poisson", data = true_data, E = true_data$E)
+
+c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)
+
+results.inlabru = bru(components = comp.inlabru,
+               likelihood,
+               options = list(verbose = F,
+                              bru_verbose = 1, 
+                              num.threads = "1:1",
+                              control.compute = c.c,
+                              control.predictor = list(link = 1),  # The log link function
+                              bru_max_iter = 20
+               ))
+
+# plot the results:
+
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1',
+                   '#5d8060', '#D7B36A', '#826133', '#A85150')
+
+data.alpha = cbind(results.inlabru$summary.random$alpha, alpha.true = true_alpha[results.inlabru$summary.random$alpha$ID])
+p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(title="Alpha", x = "x", y='')
+
+p.alpha
+
+data.beta = cbind(results.inlabru$summary.random$beta, beta.true = true_beta[results.inlabru$summary.random$beta$ID])
+p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "x", y = "beta", title = "Beta")
+
+p.beta
+
+data.kappa = cbind(results.inlabru$summary.random$kappa, kappa.true = true_kappa[results.inlabru$summary.random$kappa$ID]) %>%
+  mutate(kappa.drifted = mean + ID*results.inlabru$summary.fixed$mean[1])
+
+p.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+  geom_point(aes(y = kappa.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+  geom_point(aes(y = kappa.drifted, color="Estimated drift")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "t", y = "kappa", title = "Kappa")
+
+p.kappa
+
+p.phi <- ggplot(data.frame(results.inlabru$marginals.fixed)) + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = results.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill = "Estimated")) + 
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of phi", y = " ", title = "Phi")
+p.phi
+
+data.eta <- data.frame({eta.sim = results.inlabru$summary.linear.predictor$mean[1:100]}) %>%
+  mutate(true.eta = true_data$eta)
+p.eta <- ggplot(data = data.eta) +
+  geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
+  labs(x="Estimated eta", y="True value for eta", title = "Eta")
+p.eta
+
 # Generate input data in the form of a named list:
 
 exploration_data <- list(
