@@ -264,7 +264,7 @@ p.prec.alpha <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
   geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
   geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
   geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[1])), color=palette.basis[2]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for alpha - inlabru")
+  labs(x = "Value of precision", y = " ", title = "Precision for alpha - comparison")
 p.prec.alpha
 # two values above 200
 
@@ -276,7 +276,7 @@ p.prec.beta <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
   geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[2]), color="STAN")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of precision", y = " ", title = "Precision for beta - inlabru")
+  labs(x = "Value of precision", y = " ", title = "Precision for beta - comparsion")
 p.prec.beta
 # two values above 1000
 
@@ -285,7 +285,7 @@ p.prec.kappa <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
   geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
   geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
   geom_vline(aes(xintercept = 1/sqrt(fir_summary_df$mean[3])), color=palette.basis[2]) + 
-  labs(x = "Value of precision", y = " ", title = "Precision for kappa - inlabru")
+  labs(x = "Value of precision", y = " ", title = "Precision for kappa - comparison")
 p.prec.kappa
 # two values above 1000
 
@@ -297,5 +297,83 @@ p.prec.epsilon <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
   geom_vline(aes(xintercept = tau.epsilon, color = "True value", fill = "True value")) + 
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of precision", y = " ", title = "Precision for epsilon - inlabru")
+  labs(x = "Value of precision", y = " ", title = "Precision for epsilon - comparison")
 p.prec.epsilon
+
+#   ----   plot results together   ---- 
+
+p.int.c <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+  geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Inlabru")) + 
+  geom_vline(data = fir_summary_df, aes(xintercept = mean[6], color = "STAN")) +
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of intercept", y = " ", title = "Intercept - comparison")
+p.int.c
+
+p.alpha.c <- ggplot(data = data.alpha, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+  geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
+  geom_point(data = summary_alpha, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
+  geom_line(data = summary_alpha, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+  geom_line(data = summary_alpha, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+  geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(title="Alpha - comparison", x = "x", y='')
+
+p.alpha.c
+
+p.beta.c <- ggplot(data = data.beta, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+  geom_point(data = summary_beta, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
+  geom_line(data = summary_beta, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+  geom_line(data = summary_beta, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+  geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+  geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "x", y = "beta", title = "Beta - comparison")
+p.beta.c
+
+p.kappa.c <- ggplot(data = data.kappa, aes(x = ID)) + 
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+  geom_point(aes(y = kappa.true, color = "True undrifted", fill = "True undrifted")) + 
+  geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
+  geom_point(data = summary_kappa, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
+  geom_line(data = summary_kappa, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+  geom_line(data = summary_kappa, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+  geom_point(data = summary_kappa, aes(x = index, y = kappa_drifted, color = "True drifted", fill = "True drifted")) +
+  scale_color_manual(name = "",
+                     values = palette.basis ) +
+  scale_fill_manual(name = "",
+                    values = palette.basis ) +
+  labs(x = "t", y = "kappa", title = "Kappa - comparison")
+
+p.kappa.c
+
+p.phi.c <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  geom_area(aes(x = phi.x, y = phi.y, fill = "Inlabru"), alpha = 0.4) + 
+  geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Inlabru", fill="Inlabru")) + 
+  geom_vline(aes(xintercept = phi_true, color="True", fill="True")) +
+  geom_vline(data=fir_summary_df, aes(xintercept=mean[5], color="STAN", fill="STAN")) + 
+  geom_vline(data=fir_summary_df, aes(xintercept=`2.5%`[5], color="STAN", fill="STAN"), alpha=0.5) +
+  geom_vline(data=fir_summary_df, aes(xintercept=`97.5%`[5], color="STAN", fill="STAN"), alpha=0.5) +
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) +
+  labs(x = "Value of phi", y = " ", title = "Phi - comparison")
+p.phi.c
+
+p.eta.c <- ggplot(data = data.eta) +
+  geom_point(aes(x=data$xt, y = eta.sim, color="Inlabru")) +
+  geom_point(data=data, aes(x=xt, y = eta, color="True")) +
+  geom_point(data=summary_eta, aes(x=index, y=mean, color="STAN")) +
+  scale_color_manual(name = " ", values = palette.basis) + 
+  labs(x=" ", y="Eta", title="Eta- comparison")
+p.eta.c
+
+
