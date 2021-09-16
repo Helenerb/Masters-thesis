@@ -175,12 +175,21 @@ fit <- stan(
   chains=4,
   warmup = 1000,
   iter = 10000,
-  refresh = 500,
+  refresh = 1000,
   seed=123
 )
 
+traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
+                      "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" ))
+
+traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
+                      "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
+                      "kappa[9]", "kappa[10]" ))
+
+traceplot(fit)
+
 #   ----   View results from model fitting using STAN   ----
-pairs(fit, pars=c("alpha[1]", "beta[1]", "kappa[1]", "phi", "eta[1]"), condition = "accept_stat__")
+pairs(fit, pars=c("sigma_alpha", "sigma_beta", "sigma_kappa", "sigma_epsilon", "phi", "intercept", "alpha[1]", "beta[1]", "kappa[1]", "phi", "eta[1]"))
 
 print(fit)
 plot(fit)
