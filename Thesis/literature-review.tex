@@ -1,0 +1,76 @@
+\newpage
+\section{Literature Review - by Paper}
+
+\subsection{\textcite{LeeCarter1992}}The original paper of \textcite{LeeCarter1992}. 
+
+\subsection{\textcite{HUNT_Villegas_2015}}
+Describes identifiability issues with cohort-extended Lee-Carter models. Connects this to the common two-step estimation procedure. Discusses lack of robustness in the full cohort-extended models in single-step estimation procedures (the closest procedure to our Bayesian model?). 
+
+\subsection{\textcite{BEUTNER_2017}}
+Describes identifiability issues in cohort-extended Lee-Carter models, attempts to prove that there is identifiability under some assumptions for so-called plug-in models.
+  
+\subsection{\textcite{fung_peters_shevchenko_2017}}
+Describes Bayesian state space Lee-Carter models. Does not consider cohort extensions thoroughly in this paper, but refers to \textcite{fung_peters_shevchenko_2019} that discusses this. Focus on implementing volality of the error term (heteroscedaticity). Some interesting discussion on previous Bayesian vs frequentist (usually two-step) procedures, and also discusses downsides of the MCMC approach for Bayesian inference. 
+
+\subsection{\textcite{Currie_2016}} 
+Uses the gnm (Generalized Non-Linear Model) library in $\texttt{R}$ to fit Lee-Carter and Renshaw-Haberman mortality models, when they are formulated as gnm´s (which seems to be quite close to our formulation). They assume Poisson distributed deaths, with a log link function for the force of mortality. They do not include an error term in the linear predictor. The implementation in gnm seems quite similar to the inlabru implementation, but not Bayesian (at least no priors are given). They report of convergence issues with the Renshaw-Haberman (cohort) model. In Section 8, they discuss the challenges of forecasting with cohort-based models; argues that one should not forecast age, period and cohort effects independently as they are not independent.
+
+\subsection{\textcite{hunt_blake_2020}}
+Paper containing proof that age-period-cohort models on the form
+\begin{equation}
+    \eta_{x,t} = \alpha_x + \sum_{i=1}^{N}\beta_x^{(i)}\kappa_t^{(i)} + \gamma_{t-x}
+\end{equation}
+does not have any identifiability issues that is not also present in the corresponding age-period model, as long as the $\beta_x^{(i)}$ is non-parametric. I find it a little difficult to understand whether this applies to $\alpha_x$ as well - in any case, we will choose a non-parametric prior for $\alpha_x$ as well. Also discusses independence of projected period and cohort effects?
+  
+\subsection{\textcite{Hunt_blake_2021}}
+First impression: interesting discussion of uncertainty in cohort parameters. Discusses properties of cohort effects, for instance that $\mathbb{E}[\gamma_c]=0$ and that the cohort effects should be treated as independent of the period effects - in contrast to the discussion of \textcite{Currie_2016}. Raises an important key issue; the different cohort effects are estimated based on different amounts of data. Fewer observations of younger cohorts. Argues that estimates of cohort effects based on historical data should not be treated as known with some parameter uncertainty, but as an initial estimate of an ongoing process. They argue that the cohort effect should have the following properties:
+\begin{itemize}
+    \item The cohort effects should embody genuine lifelong mortality effects, and should not be a misclassification of age- or period effects. \textcite{Hunt_blake_2021} have solved this through a two-step procedure where age and period effects are fitted first, we should not have to worry about it since we use an identifiable non-parametric model. 
+    \item Cohort parameters should lack trends, such that $\mathbb{E}[\gamma_{t-x}] = 0$. \textcite{Hunt_blake_2021} ensure this by choosing identifiability constraints that eliminate polynomial trends of first and second order. Again, I don´t think we have to worry about this. Although, this desired property does support the choice of a drift-less random walk to model the cohort effect. 
+    \item The cohort effects should be stationary; the variability from the expected zero mean should not change with time (birth year). This property seems to simply be inspired by the argument that there is no apparent reason for the cohort effect to be non-stationary.
+    \item The projected cohort effects should be independent of the projected period effects. This is discussed more thoroughly in \textcite{hunt_blake_2020}, and is in opposition (I think) to what is argued by \textcite{Currie_2016}. 
+    \item The cohort projection should take "unusual" cohorts into account, for instance those with birth year during the war. Unusual mortality rates for these cohorts seems to be an effect of poor quality of data rather than of actual cohort effects. I do not think this will be very relevant for our data. 
+\end{itemize}
+They do point one flaw of the single-step fit-and-project procedure, which is that it might be less suitable if we want to use the fitted model for different data sets where other time series models might be more appropriate? (I don´t really see this point, it is in footnote of page S240. How would we use the model from one data set to fit values for another data set? Isn´t this model quite data-specific?) 
+\subsubsection{Data Generating Process for Cohorts}
+To incorporate uncertainty about recent cohorts, \textcite{Hunt_blake_2021} specifies the underlying "data generating process" of the cohort mortality. They introduce the following quantities:
+\begin{itemize}
+    \item 
+\end{itemize}
+
+\subsection{\textcite{Wong_Forster_2018}}:
+Discusses Bayesian inference with the Poisson Lee-Carter model, where an error term for overdispersion is added. Discusses the added ability to correctly estimate uncertainty in the estimation when this extra term is included. Uses MCMC for model fitting, goes through this procedure thoroughly. Possible to use some of this procedure in our research? Does not include cohort effects, but discusses their presence in some of their results, and refers to future work on this topic. 
+
+\section{Literature Review - by Topic}
+
+\subsection{Model Fromulation - Different Versions of Cohort-Extended Lee-Carter Model}
+
+\subsection{Error Terms - Handling Uncertainty and Volality}
+
+\subsection{Choices of Prior Distributions}
+
+\subsection{Projection of Period and Cohort Effects}
+
+\subsection{Choices of Constraints}
+
+\subsection{Discussion about Identifiability}
+
+
+The following papers models assumes the number of deaths to be Poisson distributed:
+\begin{itemize}
+    \item \textcite{Czado_2005}
+    \item \textcite{Cairns_2009}
+    \item \textcite{Wong_Forster_2018}
+    \item \textcite{HUNT_Villegas_2015}
+\end{itemize}
+
+The following papers follow a Bayesian approach:
+\begin{itemize}
+    \item \textcite{Hunt_blake_2021}
+    \item \textcite{Wong_Forster_2018}
+\end{itemize}
+
+I still need to read through and consider the relevance of the following papers:
+\begin{itemize}
+    \item \textcite{Cairns_2009}
+\end{itemize}

@@ -1,6 +1,57 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 
+%   ----   General set-up   ----
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}  % loads additional fonts and symbols
+\usepackage{bm}
+\usepackage{url}
+\usepackage{appendix}
+
+\NeedsTeXFormat{LaTeX2e}
+% \ProvidesPackage{probset_style}  % No hits on google
+
+\usepackage[norsk,english]{babel}
+\PassOptionsToPackage{T1}{fontenc}
+	\RequirePackage{fontenc}
+\PassOptionsToPackage{utf8}{inputenc}
+	\RequirePackage{inputenc}	
+\RequirePackage{microtype}  % Subliminal refinements towards typogrpahical perfection. Optimizes spaces in typing?
+\RequirePackage{csquotes}
+% \RequirePackage{textcase}  % Easier upper and lowercase text when text is combined with maths (?)
+
+% Setting the font here:
+%\usepackage[charter]{mathdesign}
+%\usepackage{XCharter}
+
+%\DeclareMathSizes{10}{10}{8.5}{7.5}
+%\RequirePackage[hmargin=2.5cm,vmargin=3cm,twoside,bindingoffset=0cm]{geometry}
+%\PassOptionsToPackage{onehalfspacing,nodisplayskipstretch}{setspace}
+%\RequirePackage{setspace}
+%\RequirePackage{multicol}
+%\columnsep=18pt
+%\RequirePackage{lastpage}
+
+%   ----   Numbering   ----
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
+%   ----   Bibliography   ----   
+\usepackage[style=authoryear, backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+\usepackage[nottoc]{tocbibind}
+\setlength{\bibitemsep}{.5\baselineskip}
+
+%   ----   Figures   ----
+\usepackage{caption}
+\usepackage{subcaption}
+% Unsure whether to use the following:
+% \captionsetup[table]{justification=centering,singlelinecheck=false}
+
+%   ----   Imports   ----
+\usepackage{import}
+
 \title{Masters Thesis}
 \author{Helene Randi Behrens}
 \date{September 2021}
@@ -10,5 +61,24 @@
 \maketitle
 
 \section*{Abstract}
+
+% Table of contents
+\clearpage\tableofcontents
+
+% Main body of thesis:
+\clearpage\pagenumbering{arabic}
+\import{}{literature-review.tex}
+
+% Reference list
+\clearpage
+\section*{References}
+\addcontentsline{toc}{section}{References}
+\printbibliography[heading=none]
+
+% Appendix
+\begin{appendices}
+\clearpage
+\import{}{appendix.tex}
+\end{appendices}
 
 \end{document}
