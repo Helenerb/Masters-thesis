@@ -45,6 +45,114 @@ plots$p.eta.2
 plots$p.eta.t
 plots$p.eta.x
 
+#   ----   Perform similar analysis in STAN   ----   
+library("rstan")
+
+input_stan.lc <- list(
+  X=length(unique(obs.lc$x)),
+  T=length(unique(obs.lc$t)),
+  x=(obs.lc$x + 1),
+  t=(obs.lc$t + 1),
+  ts = obs.lc$t,
+  E = obs.lc$E,
+  Y = obs.lc$Y
+)
+
+fit <- stan(
+  file="stan_analysis_lc.stan",
+  data = input_stan.lc,
+  chains=2,
+  warmup = 1000,
+  iter = 10000,
+  refresh = 200,
+  seed=123
+)
+
+#   ----   plot stan results   ---- 
+
+traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
+                      "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" ))
+
+traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
+                      "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
+                      "kappa[9]", "kappa[10]" ))
+
+traceplot(fit)
+
+print(fit)
+plot(fit)
+fit_summary.stan.lc <- summary(fit)
+print(fit_summary.stan.lc$summary)
+stan_lc_df <- as.data.frame(fit_summary.stan.lc$summary)
+
+# look at alpha
+summary_alpha <- stan_lc_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('alpha', parameter)) %>%
+  filter(!grepl('sigma_alpha', parameter)) %>%
+  filter(!grepl('alpha_raw', parameter)) %>%
+  mutate(index = parse_number(parameter)) %>%
+  mutate(true_alpha = alpha_true[index])
+
+plot_alpa <- ggplot(data=summary_alpha) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+  geom_point(aes(x=index, y=true_alpha, color="true value")) +
+  ggtitle("Alpha")
+plot_alpa  
+
+# look at beta
+summary_beta <- stan_lc_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('beta', parameter)) %>%
+  filter(!grepl('sigma_beta', parameter)) %>%
+  mutate(index = parse_number(parameter)) %>%
+  mutate(true_beta = beta_true[index])
+
+plot_beta <- ggplot(data=summary_beta) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha = 0.5) +
+  geom_point(aes(x=index, y=true_beta, color="true value")) +
+  ggtitle("Beta -STAN")
+plot_beta
+
+# look at kappa
+summary_kappa <- stan_lc_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('kappa', parameter)) %>%
+  filter(!grepl('sigma_kappa', parameter)) %>%
+  mutate(index = parse_number(parameter)) %>%
+  mutate(true_kappa = kappa_true[index]) %>%
+  mutate(kappa_drifted = true_kappa + phi_true*index)
+
+plot_kappa <- ggplot(data=summary_kappa) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+  #geom_point(aes(x=index, y=true_kappa, color="true value")) +
+  geom_point(aes(x=index, y=kappa_drifted, color="true with drift"))+
+  ggtitle("Kappa; time effect with drift - STAN")
+plot_kappa
+
+# look at eta
+summary_eta <- stan_lc_df %>%
+  rownames_to_column("parameter") %>%
+  filter(grepl('eta', parameter)) %>%
+  filter(!grepl('beta', parameter)) %>%
+  mutate(index = parse_number(parameter)) %>%
+  mutate(true_eta = data$eta)
+
+plot_eta <- ggplot(data=summary_eta) +
+  geom_point(aes(x=index, y=mean, color="estimated")) + 
+  geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+  geom_point(aes(x=index, y=true_eta, color="true value")) +
+  ggtitle("Eta - STAN")
+plot_eta
+
+
 
 #    ----   Old code: don´t know if you still need it yet.   ----
 
