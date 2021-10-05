@@ -119,7 +119,6 @@ plot.inlabru.vs.underlying.v5 <- function(res.inlabru, underlying.effects){
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
     geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
     geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
-    geom_point(aes(y = mean + res.inlabru$summary.fixed$mean[1], fill = "Estimated + intercept", color = "Estimated + intercept")) +
     scale_color_manual(name = "",
                        values = palette.basis ) +
     scale_fill_manual(name = "",
@@ -161,7 +160,7 @@ plot.inlabru.vs.underlying.v5 <- function(res.inlabru, underlying.effects){
   p.intercept <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
     geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
     geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill="Estimated")) + 
-    #geom_vline(aes(xintercept = underlying.effects$.true, color="True", fill="True")) +
+    geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
     scale_color_manual(name = " ", values = palette.basis) + 
     scale_fill_manual(name = " ", values = palette.basis) +
     labs(x = "Value of phi", y = " ", title = "Intercept - inlabru")

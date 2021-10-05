@@ -1,62 +1,40 @@
 source("configuration_v1.R")
 
-underlying.effects <- configuration.v7()
+# configuration without cohort effect
+underlying.effects.lc <- configuration.v5()
 
-obs <- underlying.effects$obs
+obs.lc <- underlying.effects.lc$obs
 
-nx = length(unique(obs$x))
-nt = length(unique(obs$t))
-nc = length(unique(obs$c))
+# cohfiguration with cohort effect
+underlying.effects.lc.cohort <- configuration.v7()
 
-#   ----   Inlabru model fitting   ----
+obs.lc.cohort <- underlying.effects.lc.cohort$obs
 
-A.mat = matrix(1, nrow = 1, ncol = nx)  #  helper values for constraining of beta
-e.vec = 1  #  helper values for constraining of beta
+source("inlabru_analyses.R")
 
-pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
-loggamma.prior <- list(prec = list(prio = 'loggamma', param = c(1,1)))  # only template! Find correct values!
+res.inlabru.lc.1 <- inlabru.lc.1(obs.lc)
 
-# comp = ~ -1 +
-#   Int(1) +
-#   alpha(x, model = "rw1", values=unique(obs$x), hyper = pc.prior, constr = TRUE) +
-#   phi(t, model = "linear", prec.linear = 1) +
-#   beta(x.c, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) +
-#   kappa(t.c, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = pc.prior) +
-#   gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = pc.prior) +
-#   epsilon(xt, model = "iid", hyper = pc.prior)
-
-comp = ~ -1 +
-  Int(1) + 
-  alpha(x, model = "rw1", values=unique(obs$x), hyper = pc.prior, constr = TRUE) +
-  phi(t, model = "linear", prec.linear = 1) +
-  beta(x.c, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) +
-  kappa(t.c, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = pc.prior) +
-  gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = pc.prior) +
-  epsilon(xt, model = "iid", hyper = pc.prior)
-
-#formula = Y ~ -1 +  Int + alpha + beta*phi + beta*kappa + gamma + epsilon
-
-#formula = Y ~  Int + alpha + beta*phi + beta*kappa + gamma + epsilon
-formula = Y ~ Int + alpha + beta*phi + beta*kappa + gamma + epsilon
-
-likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
-
-c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
-
-res.inlabru = bru(components = comp,
-                  likelihood, 
-                  options = list(verbose = F,
-                                 bru_verbose = 1, 
-                                 num.threads = "1:1",
-                                 control.compute = c.c,
-                                 bru_max_iter=30,
-                                 control.predictor = list(link = 1)
-                  ))
+res.inlabru.lc.cohort.1 <- inlabru.lc.cohort.1(obs.lc.cohort)
 
 #   ----   plotting results of inlabru fit   ----
 source("plot_inlabru_vs_underlying.R")
 
-plots <- plot.inlabru.vs.underlying.v1(res.inlabru, underlying.effects)
+# plotting results from run with cohort effects:
+plots.lc.cohort <- plot.inlabru.vs.underlying.v1(res.inlabru.lc.cohort.1,
+                                                 underlying.effects.lc.cohort)
+plots.lc.cohort$p.alpha
+plots.lc.cohort$p.beta
+plots.lc.cohort$p.phi
+plots.lc.cohort$p.intercept
+plots.lc.cohort$p.kappa
+plots.lc.cohort$p.eta
+plots.lc.cohort$p.eta.2
+plots.lc.cohort$p.eta.t
+plots.lc.cohort$p.eta.x
+plots.lc.cohort$p.gamma
+
+# plotting results from run with cohort effects:
+plots <- plot.inlabru.vs.underlying.v5(res.inlabru.lc.1, underlying.effects.lc)
 plots$p.alpha
 plots$p.beta
 plots$p.phi
@@ -66,7 +44,9 @@ plots$p.eta
 plots$p.eta.2
 plots$p.eta.t
 plots$p.eta.x
-plots$p.gamma
+
+
+#    ----   Old code: don´t know if you still need it yet.   ----
 
 obs <- underlying.effects$obs
 

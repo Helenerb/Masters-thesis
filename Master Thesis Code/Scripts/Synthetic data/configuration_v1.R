@@ -280,6 +280,7 @@ configuration.v4 <- function(){
 
 configuration.v5 <- function(){
   # version of v4 with 0-indexed t and x
+  # with alpha centered around zero and separate age intercept
   
   #   ----   Setiting seed for reproductiveness   ----
   
@@ -293,7 +294,10 @@ configuration.v5 <- function(){
   
   #   ----   Definining underlying effects   ----
   
-  alpha.true = 3.9*cos(((1:nx + 30)* pi)/50) - 4
+  alpha.true = 3.9*cos(((1:nx + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)
+  
+  age.intercept.true = - 4
   
   phi.true = -1
   
@@ -317,21 +321,22 @@ configuration.v5 <- function(){
   
   obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
     mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
     mutate(beta = beta.true[x]) %>%
     mutate(kappa = kappa.true[t]) %>%
     mutate(phi.t = phi.true*(t-1)) %>%
     mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
     mutate(E = at.risk) %>%
-    mutate(eta = alpha + beta*phi.t + beta*kappa + epsilon) %>%
+    mutate(eta = age.intercept + alpha + beta*phi.t + beta*kappa + epsilon) %>%
     mutate(Y = rpois(length(x), E*exp(eta))) %>%
     mutate(xt = seq_along(x)) %>%
     mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
-    mutate(c = t-x) %>%
     mutate(x.c = x, t.c = t)
   
   underlying.effects <- list(
     obs = obs,
     alpha.true = alpha.true,
+    age.intercept.true= age.intercept.true,
     beta.true = beta.true,
     kappa.true = kappa.true,
     phi.true = phi.true,
@@ -444,7 +449,6 @@ configuration.v7 <- function(){
   alpha.true = alpha.true - mean(alpha.true)  # center around zero
   
   age.intercept.true = -4
-  #age.intercept.true = 0
   
   phi.true = -1
   
