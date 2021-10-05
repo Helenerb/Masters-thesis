@@ -14,9 +14,19 @@ A.mat = matrix(1, nrow = 1, ncol = nx)  #  helper values for constraining of bet
 e.vec = 1  #  helper values for constraining of beta
 
 pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+loggamma.prior <- list(prec = list(prio = 'loggamma', param = c(1,1)))  # only template! Find correct values!
+
+# comp = ~ -1 +
+#   Int(1) +
+#   alpha(x, model = "rw1", values=unique(obs$x), hyper = pc.prior, constr = TRUE) +
+#   phi(t, model = "linear", prec.linear = 1) +
+#   beta(x.c, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) +
+#   kappa(t.c, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = pc.prior) +
+#   gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = pc.prior) +
+#   epsilon(xt, model = "iid", hyper = pc.prior)
 
 comp = ~ -1 +
-  Int(1) +
+  Int(1) + 
   alpha(x, model = "rw1", values=unique(obs$x), hyper = pc.prior, constr = TRUE) +
   phi(t, model = "linear", prec.linear = 1) +
   beta(x.c, model = "iid", extraconstr = list(A = A.mat, e = e.vec), hyper = pc.prior) +
@@ -24,7 +34,10 @@ comp = ~ -1 +
   gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = pc.prior) +
   epsilon(xt, model = "iid", hyper = pc.prior)
 
-formula = Y ~  Int + alpha + beta*phi + beta*kappa + gamma + epsilon
+#formula = Y ~ -1 +  Int + alpha + beta*phi + beta*kappa + gamma + epsilon
+
+#formula = Y ~  Int + alpha + beta*phi + beta*kappa + gamma + epsilon
+formula = Y ~ Int + alpha + beta*phi + beta*kappa + gamma + epsilon
 
 likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
 
