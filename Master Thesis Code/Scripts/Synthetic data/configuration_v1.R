@@ -345,6 +345,72 @@ configuration.v5 <- function(){
   return(underlying.effects)
 }
 
+configuration.v9 <- function(){
+  # version of v7 with fewer period and age steps
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 324
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16  # number of age groups
+  nt = 20  # number of time steps
+  
+  #   ----   Definining underlying effects   ----
+  
+  alpha.true = 3.9*cos(((1:nx*5 + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)
+  
+  age.intercept.true = - 4
+  
+  phi.true = -1
+  
+  tau.beta.true = 30000
+  
+  beta.true = rnorm(nx, mean=0, sd=sqrt(1/tau.beta.true))
+  beta.true = beta.true - mean(beta.true) + 1/nx
+  
+  tau.kappa.true = 0.5
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true = kappa.true - mean(kappa.true)
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 10**6/nx
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
+    mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
+    mutate(beta = beta.true[x]) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = age.intercept + alpha + beta*phi.t + beta*kappa + epsilon) %>%
+    mutate(Y = rpois(length(x), E*exp(eta))) %>%
+    mutate(xt = seq_along(x)) %>%
+    mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
+    mutate(x.c = x, t.c = t)
+  
+  underlying.effects <- list(
+    obs = obs,
+    alpha.true = alpha.true[unique(obs$x) + 1],
+    age.intercept.true= age.intercept.true,
+    beta.true = beta.true[unique(obs$x) + 1],
+    kappa.true = kappa.true[unique(obs$t) + 1],
+    phi.true = phi.true,
+    at.risk = at.risk
+  )
+  return(underlying.effects)
+}
+
 
 configuration.v6 <- function(){
   # version of v5 with cohort effect, 0- indexed 
@@ -596,6 +662,8 @@ configuration.v8 <- function(){
 }
 
 
+
+
 plot.underlying.effects <- function(u.e){
   
   palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
@@ -725,15 +793,15 @@ plot.underlying.effects.age.period <- function(u.e){
 # u.e.v4 <- configuration.v4() 
 # 
 
-# u.e.v7 <- configuration.v7()
-# plots.v2 <- plot.underlying.effects.age.period(u.e.v7)
-# plots.v2$p.8
-# plots.v2$p.beta
-# plots.v2$p.eta.stepwise
-# plots.v2$p.eta.stepwise.t
-# plots.v2$p.1
-# plots.v2$p.2
-# plots.v2$p.6
-# plots.v2$p.kappa.phi
-# plots.v2$p.kappa
-# plots.v2$p.gamma
+u.e.v7 <- configuration.v9()
+plots.v2 <- plot.underlying.effects.age.period(u.e.v7)
+plots.v2$p.8
+plots.v2$p.beta
+plots.v2$p.eta.stepwise
+plots.v2$p.eta.stepwise.t
+plots.v2$p.1
+plots.v2$p.2
+plots.v2$p.6
+plots.v2$p.kappa.phi
+plots.v2$p.kappa
+plots.v2$p.gamma
