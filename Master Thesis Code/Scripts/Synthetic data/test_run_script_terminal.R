@@ -1,5 +1,5 @@
 # Test script for running R from terminal
-require('ggplot2')
+install.packages("ggplot2")
 
 min.dataframe <- data.frame(a = 1:10, b = 1:10*3) 
 
