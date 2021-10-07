@@ -50,7 +50,7 @@ transformed parameters {
   //vector[X] beta = append_row(beta_raw, 1 - sum(beta_raw));
   
   vector[X] alpha = alpha_raw - mean(alpha_raw);
-  vector[X] beta = beta_raw - mean(beta_raw) + 1/80.0;
+  vector[X] beta = beta_raw - mean(beta_raw) + 1/16.0;
   vector[T] kappa = kappa_raw - mean(kappa_raw);
   
   // split kappa into driftless rw and linear term
@@ -74,6 +74,7 @@ model {
   target += normal_lpdf(alpha_raw[2:X] | alpha_raw[1:X-1], 1/sqrt(tau_alpha));
   target += normal_lpdf(beta_raw | 0, 1/sqrt(tau_beta));
   
+  # perhaps give less informative prior? Might slow down inference?
   target += normal_lpdf(phi | 0, 1);  //  normal prior for linear term
   
   // add starting point for kappa

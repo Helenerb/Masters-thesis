@@ -406,7 +406,10 @@ configuration.v9 <- function(){
     beta.true = beta.true[unique(obs$x) + 1],
     kappa.true = kappa.true[unique(obs$t) + 1],
     phi.true = phi.true,
-    at.risk = at.risk
+    at.risk = at.risk,
+    tau.beta.true = tau.beta.true,
+    tau.kappa.true = tau.kappa.true,
+    tau.epsilon.true= tau.epsilon.true
   )
   return(underlying.effects)
 }

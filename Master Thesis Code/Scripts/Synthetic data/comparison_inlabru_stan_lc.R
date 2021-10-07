@@ -4,37 +4,15 @@ source("configuration_v1.R")
 
 # configuration without cohort effect
 #underlying.effects.lc <- configuration.v5()
-underlying.effects.lc <- configuration.v9()
+underlying.effects.lc <- configuration.v9()  #  config with coarser grid
 
 obs.lc <- underlying.effects.lc$obs
 
-# cohfiguration with cohort effect
-underlying.effects.lc.cohort <- configuration.v7()
-
-obs.lc.cohort <- underlying.effects.lc.cohort$obs
-
 source("inlabru_analyses.R")
-
 res.inlabru.lc.1 <- inlabru.lc.1(obs.lc)
-
-res.inlabru.lc.cohort.1 <- inlabru.lc.cohort.1(obs.lc.cohort)
 
 #   ----   plotting results of inlabru fit   ----
 source("plot_inlabru_vs_underlying.R")
-
-# plotting results from run with cohort effects:
-plots.lc.cohort <- plot.inlabru.vs.underlying.v1(res.inlabru.lc.cohort.1,
-                                                 underlying.effects.lc.cohort)
-plots.lc.cohort$p.alpha
-plots.lc.cohort$p.beta
-plots.lc.cohort$p.phi
-plots.lc.cohort$p.intercept
-plots.lc.cohort$p.kappa
-plots.lc.cohort$p.eta
-plots.lc.cohort$p.eta.2
-plots.lc.cohort$p.eta.t
-plots.lc.cohort$p.eta.x
-plots.lc.cohort$p.gamma
 
 # plotting results from run with cohort effects:
 plots <- plot.inlabru.vs.underlying.v5(res.inlabru.lc.1, underlying.effects.lc)
@@ -61,29 +39,26 @@ input_stan.lc <- list(
   Y = obs.lc$Y
 )
 
-# fit <- stan(
-#   file="stan_analysis_lc.stan",
-#   data = input_stan.lc,
-#   chains=4,
-#   warmup = 1000,
-#   iter = 4000,
-#   refresh = 200,
-#   seed=123
-# )
-
 # save workspace image 
 #save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc.RData")
+save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v3.RData")
 # load workspace image
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc.RData")
 
-# attempt with testin-stan file with fewer runs - try to speed computations up!
+# information variables for workspace:
+workspace_information <- list(
+  stan.file = "stan_analysis_lc_v3.stan",
+  chains = "4",
+  warmup = "2000",
+  iter = "15000"
+)
 
 fit <- stan(
-  file="stan_analysis_lc_v2.stan",
+  file="stan_analysis_lc_v3.stan",
   data = input_stan.lc,
   chains=4,
   warmup = 2000,
-  iter = 6000,
+  iter = 15000,
   refresh = 100,
   seed=123
 )
@@ -98,9 +73,22 @@ traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
 traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
                       "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
                       "kappa[9]", "kappa[10]" ))
+
 traceplot(fit, pars=c("beta[1]", "beta[2]", "beta[3]", "beta[4]",
                       "beta[5]", "beta[6]", "beta[7]", "beta[8]",
                       "beta[9]", "beta[10]" ))
+
+traceplot(fit, pars=c("alpha[1]", "alpha[3]", "alpha[11]", "alpha[13]",
+                      "alpha[5]", "alpha[15]", "alpha[7]", "alpha[8]",
+                      "alpha[12]", "alpha[10]" ))
+
+traceplot(fit, pars=c("alpha_raw[1]", "alpha_raw[3]", "alpha_raw[11]", "alpha_raw[13]",
+                      "alpha_raw[5]", "alpha_raw[15]", "alpha_raw[7]", "alpha_raw[8]",
+                      "alpha_raw[12]", "alpha_raw[10]" ))
+
+traceplot(fit, pars=c("beta_raw[1]", "beta_raw[3]", "beta_raw[11]", "beta_raw[13]",
+                      "beta_raw[5]", "beta_raw[15]", "beta_raw[7]", "beta_raw[8]",
+                      "beta_raw[12]", "beta_raw[10]" ))
 
 traceplot(fit)
 
@@ -193,6 +181,136 @@ plot_eta <- ggplot(data=summary_eta) +
   geom_line(aes(x=index, y=true_eta, color="true value"), alpha = 0.5) +
   ggtitle("Eta - STAN")
 plot_eta
+
+###    ----   Comparing results from inlabru and STAN   ----
+
+plot.comparison <- function(underlying.effects.lc, res.inlabru,
+                            fit_summary.stan.lc, summary_alpha,
+                            summary_beta, summary_kappa, summary_eta){
+  
+  obs <- underlying.effects.lc$obs
+  alpha_true <- underlying.effects.lc$alpha.true
+  beta_true <- underlying.effects.lc$beta.true
+  kappa_true <- underlying.effects.lc$kappa.true
+  phi_true <- underlying.effects.lc$phi.true
+  intercept_true <- underlying.effects.lc$age.intercept.true
+  tau.beta <- underlying.effects.lc$tau.beta.true
+  tau.epsilon <- underlying.effects.lc$tau.epsilon.true
+
+  p.prec.alpha <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                           filter(Precision.for.alpha.x < 35)) + 
+    geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y),fill = palette.basis[1], alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[1]), color = palette.basis[1]) + 
+    geom_vline(aes(xintercept = 1/sqrt(fit_summary.stan.lc$mean[1])), color=palette.basis[2]) + 
+    labs(x = "Value of precision", y = " ", title = "Precision for alpha - comparison")
+  
+  p.prec.beta <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                          filter(Precision.for.beta.x < 200)) + 
+    geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, fill = "Inlabru"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[2], color = "Inlabru", fill = "Inlabru")) + 
+    geom_vline(aes(xintercept = tau.beta, color = "True value", fill = "True value")) + 
+    geom_vline(aes(xintercept = 1/sqrt(fit_summary.stan.lc$mean[2]), color="STAN")) + 
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) +
+    labs(x = "Value of precision", y = " ", title = "Precision for beta - comparsion")
+  
+  p.prec.kappa <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                           filter(Precision.for.kappa.x < 175)) + 
+    geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y), alpha = 0.4, fill = palette.basis[1]) + 
+    geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[3]), color = palette.basis[1]) + 
+    geom_vline(aes(xintercept = 1/sqrt(fit_summary.stan.lc$mean[3])), color=palette.basis[2]) + 
+    labs(x = "Value of precision", y = " ", title = "Precision for kappa - comparison")
+  
+  p.prec.epsilon <- ggplot(data.frame(res.inlabru$marginals.hyperpar) %>%
+                             filter(Precision.for.epsilon.x < 150000)) + 
+    geom_area(aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, fill = "Inlabru"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.hyperpar, aes(xintercept = mean[4], color = "Inlabru", fill = "Inlabru")) + 
+    geom_vline(aes(xintercept = 1/sqrt(fit_summary.stan.lc$mean[4]), color="STAN")) +
+    geom_vline(aes(xintercept = tau.epsilon, color = "True value", fill = "True value")) + 
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) +
+    labs(x = "Value of precision", y = " ", title = "Precision for epsilon - comparison")
+  
+  #   ----   plot results together   ---- 
+  
+  p.int.c <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+    geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Inlabru")) + 
+    geom_vline(data = fit_summary.stan.lc, aes(xintercept = mean[6], color = "STAN")) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) +
+    labs(x = "Value of intercept", y = " ", title = "Intercept - comparison")
+  
+  p.alpha.c <- ggplot(data = data.alpha, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
+    geom_point(data = summary_alpha, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
+    geom_line(data = summary_alpha, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_line(data = summary_alpha, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(title="Alpha - comparison", x = "x", y='')
+  
+  p.beta.c <- ggplot(data = data.beta, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data = summary_beta, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
+    geom_line(data = summary_beta, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_line(data = summary_beta, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+    geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(x = "x", y = "beta", title = "Beta - comparison")
+  
+  p.kappa.c <- ggplot(data = data.kappa, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(aes(y = kappa.true, color = "True undrifted", fill = "True undrifted")) + 
+    geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
+    geom_point(data = summary_kappa, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
+    geom_line(data = summary_kappa, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_line(data = summary_kappa, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_point(data = summary_kappa, aes(x = index, y = kappa_drifted, color = "True drifted", fill = "True drifted")) +
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(x = "t", y = "kappa", title = "Kappa - comparison")
+  
+  p.phi.c <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+    geom_area(aes(x = phi.x, y = phi.y, fill = "Inlabru"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Inlabru", fill="Inlabru")) + 
+    geom_vline(aes(xintercept = phi_true, color="True", fill="True")) +
+    geom_vline(data=fit_summary.stan.lc, aes(xintercept=mean[5], color="STAN", fill="STAN")) + 
+    geom_vline(data=fit_summary.stan.lc, aes(xintercept=`2.5%`[5], color="STAN", fill="STAN"), alpha=0.5) +
+    geom_vline(data=fit_summary.stan.lc, aes(xintercept=`97.5%`[5], color="STAN", fill="STAN"), alpha=0.5) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) +
+    labs(x = "Value of phi", y = " ", title = "Phi - comparison")
+  
+  p.eta.c <- ggplot(data = data.eta) +
+    geom_point(aes(x=data$xt, y = eta.sim, color="Inlabru")) +
+    geom_point(data=data, aes(x=xt, y = eta, color="True")) +
+    geom_point(data=summary_eta, aes(x=index, y=mean, color="STAN")) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    labs(x=" ", y="Eta", title="Eta- comparison")
+  
+  plots <- list(p.prec.alpha = p.prec.alpha, 
+                p.prec.beta.compared = p.prec.beta, 
+                p.prec.kappa.compared = p.prec.kappa,
+                p.prec.epsilon.compared = p.prec.epsilon,
+                p.alpha.compared = p.alpha.c,
+                p.beta.compared = p.beta.c,
+                p.kappa.compared = p.kappa.c,
+                p.intercept.compared = p.int.c,
+                p.phi.compared = p.phi.c,
+                p.eta.compared = p.eta.c)
+}
+
 
 
 #    ----   Old code: don´t know if you still need it yet.   ----
