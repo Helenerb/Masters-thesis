@@ -2,7 +2,7 @@
 # by inlabru and STAN. 
 
 setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
-source("configuration_v1.R")
+source("configurations_synthetic_data.R")
 
 # cohfiguration with cohort effect
 underlying.effects.lc.cohort <- configuration.v7()  ##  TODO: change to config with coarser grid?

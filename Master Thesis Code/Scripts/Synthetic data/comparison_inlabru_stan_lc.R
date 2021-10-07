@@ -1,15 +1,34 @@
 setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
 
-source("configuration_v1.R")
+source("configurations_synthetic_data.R")
+
+# where should figures produced in this script be stored
+path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v9 - informative kappa prior'
 
 # configuration without cohort effect
 #underlying.effects.lc <- configuration.v5()
-underlying.effects.lc <- configuration.v9()  #  config with coarser grid
+#underlying.effects.lc <- configuration.v9()  #  config with coarser grid
+#underlying.effects.lc <- configuration.v10()  # config with coarser grid and larger variance in beta
+#underlying.effects.lc <- configuration.v11()  # config with coarser grid, larger variance in beta and steeper phi (compared to alpha)
+#underlying.effects.lc <- configuration.v11.1()
+#underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
+#underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
+#underlying.effects.lc <- configuration.v14()
+underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
 obs.lc <- underlying.effects.lc$obs
 
 source("inlabru_analyses.R")
-res.inlabru.lc.1 <- inlabru.lc.1(obs.lc)
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_variance_prior(obs.lc)})
+
+print("Runtime for inlabru: ")
+print(runtime.inlabru)
+
+#res.inlabru.lc.1 <- inlabru.lc.pc_priors(obs.lc)
+#res.inlabru.lc.1 <- inlabru.lc.kappa_pc_prior(obs.lc)
+#res.inlabru.lc.1 <- inlabru.lc.kappa_high_variance_prior(obs.lc)
+
+#res.inlabru.lc.1 <- inlabru.lc.1(obs.lc)
 
 #   ----   plotting results of inlabru fit   ----
 source("plot_inlabru_vs_underlying.R")
@@ -36,29 +55,53 @@ input_stan.lc <- list(
   t=(obs.lc$t + 1),
   ts = obs.lc$t,
   E = obs.lc$E,
-  Y = obs.lc$Y
+  Y = obs.lc$Y,
+  nx = length(unique(obs.lc$x)),
+  nt = length(unique(obs.lc$t))
 )
 
 # save workspace image 
 #save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc.RData")
-save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v3.RData")
+
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v9.RData")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v9.RData")  # configuration v9 uninformative priors
+
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v9_informative_priors.RData")
+
+save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v15.RData")
+
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v3.RData")
 # load workspace image
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc.RData")
 
 # information variables for workspace:
 workspace_information <- list(
-  stan.file = "stan_analysis_lc_v3.stan",
+  stan.file = "stan_analysis_lc_v4.stan",
   chains = "4",
-  warmup = "2000",
-  iter = "15000"
+  warmup = "1000",
+  iter = "10000",
+  configuration = "v15",
+  type_of_prior = "loggamma, less informative on kappa"
 )
 
+# fit <- stan(
+#   file="stan_analysis_lc_v3.stan",
+#   data = input_stan.lc,
+#   chains=4,
+#   warmup = 2000,
+#   iter = 15000,
+#   refresh = 100,
+#   seed=123
+# )
+
+# with more informative prior on kappa:
+
 fit <- stan(
-  file="stan_analysis_lc_v3.stan",
+  file="stan_analysis_lc_v4.stan",
   data = input_stan.lc,
   chains=4,
-  warmup = 2000,
-  iter = 15000,
+  warmup = 1000,
+  iter = 10000,
   refresh = 100,
   seed=123
 )
@@ -67,30 +110,40 @@ pairs(fit, pars=c("tau_alpha", "phi", "intercept", "eta[1]"))
 
 #   ----   plot stan results   ---- 
 
-traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
-                      "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" ))
+save.comparison.plots(traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
+                                            "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" )),
+                      'trace_eta.png', path.to.folder)
 
-traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
-                      "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
-                      "kappa[9]", "kappa[10]" ))
+save.comparison.plots(traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
+                                            "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
+                                            "kappa[9]", "kappa[10]" )),
+                      'trace_kappa.png', path.to.folder)
 
-traceplot(fit, pars=c("beta[1]", "beta[2]", "beta[3]", "beta[4]",
-                      "beta[5]", "beta[6]", "beta[7]", "beta[8]",
-                      "beta[9]", "beta[10]" ))
+save.comparison.plots(traceplot(fit, pars=c("beta[1]", "beta[2]", "beta[3]", "beta[4]",
+                                            "beta[5]", "beta[6]", "beta[7]", "beta[8]",
+                                            "beta[9]", "beta[10]" )),
+                      'trace_beta.png', path.to.folder)
 
-traceplot(fit, pars=c("alpha[1]", "alpha[3]", "alpha[11]", "alpha[13]",
-                      "alpha[5]", "alpha[15]", "alpha[7]", "alpha[8]",
-                      "alpha[12]", "alpha[10]" ))
 
-traceplot(fit, pars=c("alpha_raw[1]", "alpha_raw[3]", "alpha_raw[11]", "alpha_raw[13]",
-                      "alpha_raw[5]", "alpha_raw[15]", "alpha_raw[7]", "alpha_raw[8]",
-                      "alpha_raw[12]", "alpha_raw[10]" ))
+save.comparison.plots(traceplot(fit, pars=c("alpha[1]", "alpha[3]", "alpha[11]", "alpha[13]",
+                                            "alpha[5]", "alpha[15]", "alpha[7]", "alpha[8]",
+                                            "alpha[12]", "alpha[10]" )),
+                      'trace_alpha.png', path.to.folder)
 
-traceplot(fit, pars=c("beta_raw[1]", "beta_raw[3]", "beta_raw[11]", "beta_raw[13]",
-                      "beta_raw[5]", "beta_raw[15]", "beta_raw[7]", "beta_raw[8]",
-                      "beta_raw[12]", "beta_raw[10]" ))
+save.comparison.plots(traceplot(fit, pars=c("alpha_raw[1]", "alpha_raw[3]", "alpha_raw[11]", "alpha_raw[13]",
+                                            "alpha_raw[5]", "alpha_raw[15]", "alpha_raw[7]", "alpha_raw[8]",
+                                            "alpha_raw[12]", "alpha_raw[10]" )),
+                      'trace_alpha_raw.png', path.to.folder)
 
-traceplot(fit)
+save.comparison.plots(traceplot(fit, pars=c("beta_raw[1]", "beta_raw[3]", "beta_raw[11]", "beta_raw[13]",
+                                            "beta_raw[5]", "beta_raw[15]", "beta_raw[7]", "beta_raw[8]",
+                                            "beta_raw[12]", "beta_raw[10]" )),
+                      'trace_beta_raw.png', path.to.folder)
+
+save.comparison.plots(traceplot(fit),
+                      'general_trace.png', path.to.folder)
+
+
 
 stan_plot(fit, pars = c("intercept", "phi"))
 stan_plot(fit, pars = c("tau_alpha", "tau_beta", "tau_kappa", "tau_epsilon"))
@@ -162,8 +215,7 @@ plot_kappa <- ggplot(data=summary_kappa) +
   geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
   geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
   geom_point(aes(x=index, y=true_kappa, color="true value")) +
-  geom_point(aes(x = index, y = kappa_drifted, color = "true drifted")) +
-  ggtitle("Kappa; time effect with drift - STAN")
+  ggtitle("Kappa - STAN")
 plot_kappa
 
 # look at eta
@@ -187,6 +239,8 @@ plot_eta
 plot.comparison <- function(underlying.effects.lc, res.inlabru,
                             fit_summary.stan.lc, summary_alpha,
                             summary_beta, summary_kappa, summary_eta){
+  palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                     '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
   
   obs <- underlying.effects.lc$obs
   alpha_true <- underlying.effects.lc$alpha.true
@@ -237,16 +291,19 @@ plot.comparison <- function(underlying.effects.lc, res.inlabru,
     geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
     geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Inlabru")) + 
     geom_vline(data = fit_summary.stan.lc, aes(xintercept = mean[6], color = "STAN")) +
+    geom_vline(data = obs, aes(xintercept = intercept_true, color = "True value")) + 
     scale_color_manual(name = " ", values = palette.basis) + 
     scale_fill_manual(name = " ", values = palette.basis) +
     labs(x = "Value of intercept", y = " ", title = "Intercept - comparison")
   
+  
+  data.alpha = cbind(res.inlabru$summary.random$alpha, alpha.true = alpha_true[res.inlabru$summary.random$alpha$ID + 1])
   p.alpha.c <- ggplot(data = data.alpha, aes(x = ID)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
     geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
-    geom_point(data = summary_alpha, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
-    geom_line(data = summary_alpha, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
-    geom_line(data = summary_alpha, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_point(data = summary_alpha, aes(x = index - 1, y = mean, color = "STAN", fill = "STAN")) +
+    geom_line(data = summary_alpha, aes(x = index - 1, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_line(data = summary_alpha, aes(x = index - 1, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
     geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
     scale_color_manual(name = "",
                        values = palette.basis ) +
@@ -254,11 +311,12 @@ plot.comparison <- function(underlying.effects.lc, res.inlabru,
                       values = palette.basis ) +
     labs(title="Alpha - comparison", x = "x", y='')
   
+  data.beta = cbind(res.inlabru$summary.random$beta, beta.true = beta_true[res.inlabru$summary.random$beta$ID + 1])
   p.beta.c <- ggplot(data = data.beta, aes(x = ID)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
-    geom_point(data = summary_beta, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
-    geom_line(data = summary_beta, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
-    geom_line(data = summary_beta, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_point(data = summary_beta, aes(x = index - 1, y = mean, color = "STAN", fill = "STAN")) +
+    geom_line(data = summary_beta, aes(x = index - 1, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_line(data = summary_beta, aes(x = index - 1, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
     geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
     geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
     scale_color_manual(name = "",
@@ -267,14 +325,14 @@ plot.comparison <- function(underlying.effects.lc, res.inlabru,
                       values = palette.basis ) +
     labs(x = "x", y = "beta", title = "Beta - comparison")
   
+  data.kappa = cbind(res.inlabru$summary.random$kappa, kappa.true = kappa_true[res.inlabru$summary.random$kappa$ID + 1])
   p.kappa.c <- ggplot(data = data.kappa, aes(x = ID)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
     geom_point(aes(y = kappa.true, color = "True undrifted", fill = "True undrifted")) + 
     geom_point(aes(y = mean, color = "Inlabru", fill = "Inlabru")) + 
-    geom_point(data = summary_kappa, aes(x = index, y = mean, color = "STAN", fill = "STAN")) +
-    geom_line(data = summary_kappa, aes(x = index, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
-    geom_line(data = summary_kappa, aes(x = index, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
-    geom_point(data = summary_kappa, aes(x = index, y = kappa_drifted, color = "True drifted", fill = "True drifted")) +
+    geom_point(data = summary_kappa, aes(x = index - 1, y = mean, color = "STAN", fill = "STAN")) +
+    geom_line(data = summary_kappa, aes(x = index - 1, y = `2.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
+    geom_line(data = summary_kappa, aes(x = index - 1, y = `97.5%`, color = "STAN", fill = "STAN"), alpha = 0.6) +
     scale_color_manual(name = "",
                        values = palette.basis ) +
     scale_fill_manual(name = "",
@@ -292,12 +350,48 @@ plot.comparison <- function(underlying.effects.lc, res.inlabru,
     scale_fill_manual(name = " ", values = palette.basis) +
     labs(x = "Value of phi", y = " ", title = "Phi - comparison")
   
+  data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
+    mutate(inlabru.975 = res.inlabru$summary.linear.predictor$`0.975quant`[1:length(obs$eta)]) %>%
+    mutate(inlabru.025 = res.inlabru$summary.linear.predictor$`0.025quant`[1:length(obs$eta)]) %>%
+    mutate(true.eta = obs$eta) %>%
+    mutate(eta.stan = summary_eta$mean) %>%
+    mutate(stan.975 = summary_eta$`2.5%`) %>%
+    mutate(stan.025 = summary_eta$`97.5%`) %>%
+    mutate(x = obs$x, t = obs$t, xt = obs$xt)
+  
+  print(res.inlabru$summary.linear.predictor)
+  print(res.inlabru$summary.linear.predictor$`0.025quant`[1:length(obs$eta)])
+  print(res.inlabru$summary.linear.predictor$`0.975quant`[1:length(obs$eta)])
+  print(data.eta)
+  
   p.eta.c <- ggplot(data = data.eta) +
-    geom_point(aes(x=data$xt, y = eta.sim, color="Inlabru")) +
-    geom_point(data=data, aes(x=xt, y = eta, color="True")) +
-    geom_point(data=summary_eta, aes(x=index, y=mean, color="STAN")) +
+    geom_point(aes(x=obs$xt, y = eta.sim, color="Inlabru")) +
+    geom_point(data=summary_eta, aes(x=index - 1, y=mean, color="STAN")) +
+    geom_point(data=obs, aes(x=xt, y = eta, color="True value")) +
     scale_color_manual(name = " ", values = palette.basis) + 
     labs(x=" ", y="Eta", title="Eta- comparison")
+  
+  p.eta.t <- ggplot(data = data.eta) + 
+    geom_line(aes(x = x, y = eta.sim, color = "Inlabru")) +
+    geom_line(aes(x = x, y = inlabru.975, color = "Inlabru"), alpha = 0.5) +
+    geom_line(aes(x = x, y = inlabru.025, color = "Inlabru"), alpha = 0.5) +
+    geom_line(aes(x = x, y = eta.stan, color = "STAN")) +
+    geom_line(aes(x = x, y = stan.975, color = "STAN"), alpha = 0.5) +
+    geom_line(aes(x = x, y = stan.025, color = "STAN"), alpha = 0.5) +
+    geom_line(aes(x = x, y = true.eta, color = "True")) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
+    facet_wrap(~t)
+  
+  p.eta.x <- ggplot(data = data.eta) + 
+    geom_line(aes(x = t, y = eta.sim, color = "Inlabru")) +
+    geom_line(aes(x = t, y = inlabru.975, color = "Inlabru"), alpha = 0.5) +
+    geom_line(aes(x = t, y = inlabru.025, color = "Inlabru"), alpha = 0.5) +
+    geom_line(aes(x = t, y = eta.stan, color = "STAN")) +
+    geom_line(aes(x = t, y = stan.975, color = "STAN"), alpha = 0.5) +
+    geom_line(aes(x = t, y = stan.025, color = "STAN"), alpha = 0.5) +
+    geom_line(aes(x = t, y = true.eta, color = "True")) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
+    facet_wrap(~x)
   
   plots <- list(p.prec.alpha = p.prec.alpha, 
                 p.prec.beta.compared = p.prec.beta, 
@@ -308,9 +402,55 @@ plot.comparison <- function(underlying.effects.lc, res.inlabru,
                 p.kappa.compared = p.kappa.c,
                 p.intercept.compared = p.int.c,
                 p.phi.compared = p.phi.c,
-                p.eta.compared = p.eta.c)
+                p.eta.compared = p.eta.c,
+                p.eta.compared.t = p.eta.t,
+                p.eta.compared.x = p.eta.x)
 }
 
+plots.comparison <- plot.comparison(underlying.effects.lc, res.inlabru.lc.1, 
+                                    stan_lc_df, summary_alpha,
+                                    summary_beta, summary_kappa, summary_eta)
+
+plots.comparison$p.prec.alpha
+plots.comparison$p.prec.beta.compared
+plots.comparison$p.prec.kappa.compared
+plots.comparison$p.prec.epsilon.compared
+
+plots.comparison$p.alpha.compared
+plots.comparison$p.beta.compared
+plots.comparison$p.kappa.compared
+plots.comparison$p.intercept.compared
+plots.comparison$p.phi.compared
+plots.comparison$p.eta.compared
+plots.comparison$p.eta.compared.t
+plots.comparison$p.eta.compared.x
+
+save.comparison.plots <- function(plot, name, path){
+  #'plot: <gg object>
+  #'name: <string>  on the format '<name>.png'
+  #'
+  ggsave(name,
+         plot = plot,
+         device = "png",
+         path = path,
+         height = 5, width = 8, 
+         dpi = "retina"
+  )
+}
+
+save.comparison.plots(plots.comparison$p.prec.alpha, 'prec_alpha.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.beta.compared, 'prec_beta.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.kappa.compared, 'prec_kappa.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.epsilon.compared, 'prec_epsilon.png', path.to.folder)
+
+save.comparison.plots(plots.comparison$p.alpha.compared, 'alpha.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.beta.compared, 'beta.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.kappa.compared, 'kappa.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.intercept.compared, 'intercept.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.phi.compared, 'phi.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.eta.compared, 'eta.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.eta.compared.t, 'eta_t.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.eta.compared.x, 'eta_x.png', path.to.folder)
 
 
 #    ----   Old code: don´t know if you still need it yet.   ----
