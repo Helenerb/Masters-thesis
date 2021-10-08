@@ -3,18 +3,18 @@ setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthet
 source("configurations_synthetic_data.R")
 
 # where should figures produced in this script be stored
-path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v9 - informative kappa prior'
+path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v10 - corect beta stan'
 
 # configuration without cohort effect
 #underlying.effects.lc <- configuration.v5()
 #underlying.effects.lc <- configuration.v9()  #  config with coarser grid
-#underlying.effects.lc <- configuration.v10()  # config with coarser grid and larger variance in beta
+underlying.effects.lc <- configuration.v10()  # config with coarser grid and larger variance in beta
 #underlying.effects.lc <- configuration.v11()  # config with coarser grid, larger variance in beta and steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v11.1()
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
 #underlying.effects.lc <- configuration.v14()
-underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
+#underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -68,7 +68,7 @@ input_stan.lc <- list(
 
 #save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v9_informative_priors.RData")
 
-save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v15.RData")
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v15.RData")
 
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v3.RData")
 # load workspace image
@@ -78,9 +78,9 @@ save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code
 workspace_information <- list(
   stan.file = "stan_analysis_lc_v4.stan",
   chains = "4",
-  warmup = "1000",
-  iter = "10000",
-  configuration = "v15",
+  warmup = "2000",
+  iter = "20000",
+  configuration = "v10",
   type_of_prior = "loggamma, less informative on kappa"
 )
 
@@ -100,11 +100,26 @@ fit <- stan(
   file="stan_analysis_lc_v4.stan",
   data = input_stan.lc,
   chains=4,
-  warmup = 1000,
-  iter = 10000,
+  warmup = 2000,
+  iter = 20000,
   refresh = 100,
   seed=123
 )
+
+save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v10.RData")
+
+fit <- stan(
+  file="stan_analysis_lc_v4.stan",
+  data = input_stan.lc,
+  chains=6,
+  warmup = 10000,
+  iter = 50000,
+  refresh = 100,
+  seed=123
+)
+
+save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v10.RData")
+
 
 pairs(fit, pars=c("tau_alpha", "phi", "intercept", "eta[1]"))
 
@@ -365,9 +380,9 @@ plot.comparison <- function(underlying.effects.lc, res.inlabru,
   print(data.eta)
   
   p.eta.c <- ggplot(data = data.eta) +
-    geom_point(aes(x=obs$xt, y = eta.sim, color="Inlabru")) +
-    geom_point(data=summary_eta, aes(x=index - 1, y=mean, color="STAN")) +
-    geom_point(data=obs, aes(x=xt, y = eta, color="True value")) +
+    geom_line(aes(x=obs$xt, y = eta.sim, color="Inlabru")) +
+    geom_line(data=summary_eta, aes(x=index - 1, y=mean, color="STAN")) +
+    geom_line(data=obs, aes(x=xt, y = eta, color="True value")) +
     scale_color_manual(name = " ", values = palette.basis) + 
     labs(x=" ", y="Eta", title="Eta- comparison")
   
@@ -429,28 +444,35 @@ save.comparison.plots <- function(plot, name, path){
   #'plot: <gg object>
   #'name: <string>  on the format '<name>.png'
   #'
-  ggsave(name,
+  ggsave(paste(name, '.png', sep=""),
          plot = plot,
          device = "png",
          path = path,
          height = 5, width = 8, 
          dpi = "retina"
   )
+  ggsave(paste(name, '.pdf', sep=""),
+         plot = plot,
+         device = "pdf",
+         path = path,
+         height = 5, width = 8, 
+         dpi = "retina"
+  )
 }
 
-save.comparison.plots(plots.comparison$p.prec.alpha, 'prec_alpha.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.prec.beta.compared, 'prec_beta.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.prec.kappa.compared, 'prec_kappa.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.prec.epsilon.compared, 'prec_epsilon.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.alpha, 'prec_alpha', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.beta.compared, 'prec_beta', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.kappa.compared, 'prec_kappa', path.to.folder)
+save.comparison.plots(plots.comparison$p.prec.epsilon.compared, 'prec_epsilon', path.to.folder)
 
-save.comparison.plots(plots.comparison$p.alpha.compared, 'alpha.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.beta.compared, 'beta.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.kappa.compared, 'kappa.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.intercept.compared, 'intercept.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.phi.compared, 'phi.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.eta.compared, 'eta.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.eta.compared.t, 'eta_t.png', path.to.folder)
-save.comparison.plots(plots.comparison$p.eta.compared.x, 'eta_x.png', path.to.folder)
+save.comparison.plots(plots.comparison$p.alpha.compared, 'alpha', path.to.folder)
+save.comparison.plots(plots.comparison$p.beta.compared, 'beta', path.to.folder)
+save.comparison.plots(plots.comparison$p.kappa.compared, 'kappa', path.to.folder)
+save.comparison.plots(plots.comparison$p.intercept.compared, 'intercept', path.to.folder)
+save.comparison.plots(plots.comparison$p.phi.compared, 'phi', path.to.folder)
+save.comparison.plots(plots.comparison$p.eta.compared, 'eta', path.to.folder)
+save.comparison.plots(plots.comparison$p.eta.compared.t, 'eta_t', path.to.folder)
+save.comparison.plots(plots.comparison$p.eta.compared.x, 'eta_x', path.to.folder)
 
 
 #    ----   Old code: don´t know if you still need it yet.   ----

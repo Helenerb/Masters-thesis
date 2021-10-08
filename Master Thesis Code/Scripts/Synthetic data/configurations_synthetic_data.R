@@ -1277,7 +1277,7 @@ plot.underlying.effects.age.period <- function(u.e){
   return(plots)
 }
 
-u.e.v11 <- configuration.v15()
+u.e.v11 <- configuration.v9()
 plots <- plot.underlying.effects.age.period(u.e.v11)
 plots$p.8
 plots$p.beta

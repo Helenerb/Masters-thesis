@@ -55,7 +55,7 @@ transformed parameters {
   //vector[X] beta = append_row(beta_raw, 1 - sum(beta_raw));
   
   vector[X] alpha = alpha_raw - mean(alpha_raw);
-  vector[X] beta = beta_raw - mean(beta_raw) + 1/nt;
+  vector[X] beta = beta_raw - mean(beta_raw) + 1/nx;  // You found an error!!! 
   vector[T] kappa = kappa_raw - mean(kappa_raw);
   
   // split kappa into driftless rw and linear term
