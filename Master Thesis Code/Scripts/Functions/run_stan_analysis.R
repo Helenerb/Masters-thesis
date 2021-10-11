@@ -38,7 +38,7 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   if(markov){
     .libPaths("~/Documents/R_libraries")
     setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
-    output.path <- 'Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output'
+    output.path <- '~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output'
   }
   
   source("configurations_synthetic_data.R")
