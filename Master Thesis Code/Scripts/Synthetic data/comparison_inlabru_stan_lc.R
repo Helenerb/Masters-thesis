@@ -39,14 +39,14 @@ runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_varian
 samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
 
 phi.plus.kappa <- function(){
-  t = 0:19
+  t = 0:49
   res = kappa + phi*t
   return(res)
 }
 
 posterior <- inla.posterior.sample.eval(fun = phi.plus.kappa, samples=samps)
 
-posterior.df <- data.frame(t = 1:20,
+posterior.df <- data.frame(t = 1:50,
                            mean = apply(posterior, 1, mean),
                            q1 = apply(posterior, 1, quantile, 0.025),
                            q2 = apply(posterior, 1, quantile, 0.975)) %>%

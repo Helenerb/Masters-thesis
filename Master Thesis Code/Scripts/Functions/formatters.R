@@ -27,13 +27,14 @@ format_population_data <- function(path_to_data, path_to_output){
     pivot_longer(c(total, male, female), names_to = "sex", values_to="population")
   
   save(population, file=path_to_output)
+  return(population)
 }
 
 #' Formats raw cancer mortality data (made for lung or stomach cancer) 
 #' 
 #'@param path_to_data ("<filename>.xlsx") location of raw data in xlsx file
 #'@param path_to_output ("<filename>.Rda") location of output dataframe
-format_cancer_data -> function(path_to_data, path_to_output){
+format_cancer_data <- function(path_to_data, path_to_output){
   cancer.data  <- read_excel(path_to_data) %>%
     rename(sex = "...1") %>% rename(age = "...2") %>%
     mutate(age = replace(age, age == "85", "85 +")) %>%
@@ -56,5 +57,6 @@ format_cancer_data -> function(path_to_data, path_to_output){
     mutate("mortality rate" = cases/population)
   
   save(cancer, file=path_to_output)
+  return(cancer)
 }
 
