@@ -127,4 +127,4 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   
 }
 
-run_stan_analysis(stan_program="stan_analysis_lc_v4.stan", chains=2, warmup=100, iter= 200, markov = FALSE)
+run_stan_analysis(stan_program="stan_analysis_lc_v4.stan", chains=2, warmup=100, iter= 200, markov = TRUE)
