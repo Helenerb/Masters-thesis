@@ -50,15 +50,15 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   library("rstan")
   
   input_stan.lc <- list(
-    X=length(unique(obs.lc$x)),
-    T=length(unique(obs.lc$t)),
-    x=(obs.lc$x + 1),
-    t=(obs.lc$t + 1),
-    ts = obs.lc$t,
-    E = obs.lc$E,
-    Y = obs.lc$Y,
-    nx = length(unique(obs.lc$x)),
-    nt = length(unique(obs.lc$t))
+    X=length(unique(obs$x)),
+    T=length(unique(obs$t)),
+    x=(obs$x + 1),
+    t=(obs$t + 1),
+    ts = obs$t,
+    E = obs$E,
+    Y = obs$Y,
+    nx = length(unique(obs$x)),
+    nt = length(unique(obs$t))
   )
   
   run_info <- list(
