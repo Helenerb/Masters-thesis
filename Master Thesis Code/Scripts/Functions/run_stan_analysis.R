@@ -46,7 +46,8 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   
   source("configurations_synthetic_data.R")
   
-  data = configuration.v10()
+  #data = configuration.v10()
+  data = configuration.v5()
   
   obs <- data$obs
   
