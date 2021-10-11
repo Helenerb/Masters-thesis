@@ -39,6 +39,9 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
     .libPaths("~/Documents/R_libraries")
     setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
     output.path <- '~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output'
+  } else {
+    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
+    output.path <- '~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output'
   }
   
   source("configurations_synthetic_data.R")
@@ -87,12 +90,12 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   
   save(stan_lc_df, file=file.path(results.path, paste('stan_', data$config_name, '_.Rda', sep = "")))
   
-  figures.path <- file.path(output.path, 'Figures',data$name)
+  figures.path <- file.path(output.path, 'Figures',data$config_name)
   
   # Saving trace plots etc:
-  save.figure(traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
-                                              "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" )),
-                        'trace_eta', figures.path)
+  trace.eta <- traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
+                                     "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" ))
+  save.figure(trace.eta,'trace_eta', figures.path)
   
   save.figure(traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
                                               "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
@@ -124,4 +127,4 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   
 }
 
-run_stan_analysis(stan_program="stan_analysis_lc_v4.stan", chains=2, warmup=100, iter= 200)
+run_stan_analysis(stan_program="stan_analysis_lc_v4.stan", chains=2, warmup=100, iter= 200, markov = FALSE)
