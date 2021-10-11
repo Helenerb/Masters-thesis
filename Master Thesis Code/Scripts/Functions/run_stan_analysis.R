@@ -87,7 +87,7 @@ run_stan_analysis <- function(stan_program, chains = 4, warmup = 1000,
   
   save(stan_lc_df, file=file.path(results.path, paste('stan_', data$config_name, '_.Rda', sep = "")))
   
-  figures.path <- file.path(output.path, '/Figures/',data$name)
+  figures.path <- file.path(output.path, 'Figures',data$name)
   
   # Saving trace plots etc:
   save.figure(traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
