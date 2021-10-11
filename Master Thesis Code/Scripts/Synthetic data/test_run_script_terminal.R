@@ -1,6 +1,8 @@
 # Test script for running R from terminal
 #install.packages("ggplot2")
+
 .libPaths("~/Documents/R_libraries")  # path to libraries when running from markov. 
+library("ggplot2")
 
 min.dataframe <- data.frame(a = 1:10, b = 1:10*3) 
 
