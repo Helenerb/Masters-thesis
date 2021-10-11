@@ -434,7 +434,76 @@ configuration.v10 <- function(){
   
   age.intercept.true = - 4
   
-  phi.true = -1
+  phi.true = -1 # used to be -1
+  
+  tau.beta.true = 1000
+  
+  beta.true = rnorm(nx, mean=0, sd=sqrt(1/tau.beta.true))
+  beta.true = beta.true - mean(beta.true) + 1/nx
+  
+  tau.kappa.true = 0.05
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true = kappa.true - mean(kappa.true)
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 10**6/nx
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
+    mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
+    mutate(beta = beta.true[x]) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = age.intercept + alpha + beta*phi.t + beta*kappa + epsilon) %>%
+    mutate(Y = rpois(length(x), E*exp(eta))) %>%
+    mutate(xt = seq_along(x)) %>%
+    mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
+    mutate(x.c = x, t.c = t)
+  
+  underlying.effects <- list(
+    obs = obs,
+    alpha.true = alpha.true[unique(obs$x) + 1],
+    age.intercept.true= age.intercept.true,
+    beta.true = beta.true[unique(obs$x) + 1],
+    kappa.true = kappa.true[unique(obs$t) + 1],
+    phi.true = phi.true,
+    at.risk = at.risk,
+    tau.beta.true = tau.beta.true,
+    tau.kappa.true = tau.kappa.true,
+    tau.epsilon.true= tau.epsilon.true
+  )
+  return(underlying.effects)
+}
+
+configuration.v10.1 <- function(){
+  # version of v9 with more erratic beta
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 324
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16  # number of age groups
+  nt = 20  # number of time steps
+  
+  #   ----   Definining underlying effects   ----
+  
+  alpha.true = 3.9*cos(((1:nx*5 + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)
+  
+  age.intercept.true = - 4
+  
+  phi.true = -1 # used to be -1
   
   tau.beta.true = 1000
   
@@ -899,6 +968,56 @@ configuration.v15 <- function(){
   return(underlying.effects)
 }
 
+configuration.v16 <- function(){
+  # this configuration is the configuration that you used in the project thesis.
+  # This runs nicely (fingers crossed)
+  
+  seed = 324
+  set.seed(seed)
+  
+  nx = 10
+  nt = 10
+  
+  #N = 500
+  N = nx*nt
+  
+  at.risk = 1000
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt))
+  #obs = data.frame(x = sample(1:nx, N, replace = TRUE), t = sample(1:nx, N, replace = TRUE))
+  
+  #  Standard deviation of 0.1 for the iid effects (beta)
+  tau.beta = 1/0.1**2
+  
+  #  Standard deviation of 0.01 for the noise 
+  tau.epsilon = 1/0.01**2
+  
+  kappa_true = 0.3*cos((1:nt)*pi/5)
+  kappa_true = kappa_true - mean(kappa_true)  #  sum to zero
+  
+  # change this into an effect of x
+  alpha_true = cos(((1:nx - 3)* pi)/6)
+  alpha_true = alpha_true - mean(alpha_true)  # sum to zero
+  
+  phi_true = -0.5  
+  
+  #  sample synthetic data:
+  beta_true = rnorm(nx, 0, sqrt(1/tau.beta))
+  beta_true = 1/nx + beta_true - mean(beta_true)   # sum to one
+  
+  data <- obs %>%
+    mutate(alpha = alpha_true[x]) %>%
+    mutate(beta = beta_true[x]) %>%
+    mutate(phi = phi_true) %>%
+    mutate(phi.t = phi*t) %>%
+    mutate(kappa = kappa_true[t]) %>%
+    mutate(epsilon = rnorm(N, mean=0, sd = sqrt(1/tau.epsilon))) %>%
+    mutate(x.c = x, t.c = t, xt = seq_along(x)) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = alpha + beta*phi.t + beta*kappa + epsilon) %>%
+    mutate(Y = rpois(N, E*exp(eta)))
+}
+
 
 configuration.v6 <- function(){
   # version of v5 with cohort effect, 0- indexed 
@@ -1152,6 +1271,7 @@ configuration.v8 <- function(){
 
 
 
+
 plot.underlying.effects <- function(u.e){
   
   palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
@@ -1277,7 +1397,7 @@ plot.underlying.effects.age.period <- function(u.e){
   return(plots)
 }
 
-u.e.v11 <- configuration.v9()
+u.e.v11 <- configuration.v10()
 plots <- plot.underlying.effects.age.period(u.e.v11)
 plots$p.8
 plots$p.beta

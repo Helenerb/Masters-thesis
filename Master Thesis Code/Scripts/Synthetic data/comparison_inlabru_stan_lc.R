@@ -2,24 +2,86 @@ setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthet
 
 source("configurations_synthetic_data.R")
 
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
+
 # where should figures produced in this script be stored
-path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v10 - corect beta stan'
+path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v9'
 
 # configuration without cohort effect
 #underlying.effects.lc <- configuration.v5()
 #underlying.effects.lc <- configuration.v9()  #  config with coarser grid
-underlying.effects.lc <- configuration.v10()  # config with coarser grid and larger variance in beta
+#underlying.effects.lc <- configuration.v10()
+#underlying.effects.lc <- configuration.v10.1()# config with coarser grid and larger variance in beta
 #underlying.effects.lc <- configuration.v11()  # config with coarser grid, larger variance in beta and steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v11.1()
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
 #underlying.effects.lc <- configuration.v14()
-#underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
+underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
 obs.lc <- underlying.effects.lc$obs
 
 source("inlabru_analyses.R")
 runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_variance_prior(obs.lc)})
+
+#posterior.phi.kappa <- predict(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa + phi*t)
+#posterior.phi <- predict(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa + phi)
+
+#posterior.phi.g <- generate(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa + phi)
+#posterior.phi.g.kappa <- generate(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa)
+#posterior.phi.g.kappa <- generate(res.inlabru.lc.1, formula = ~ kappa)
+
+#posterior.phi.g.phi <- generate(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ phi_latent)
+#posterior.phi.g.alpha <- generate(res.inlabru.lc.1, data = data.frame(x = 0:15), formula = ~ alpha)
+
+
+samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
+
+phi.plus.kappa <- function(){
+  t = 0:19
+  res = kappa + phi*t
+  return(res)
+}
+
+posterior <- inla.posterior.sample.eval(fun = phi.plus.kappa, samples=samps)
+
+posterior.df <- data.frame(t = 1:20,
+                           mean = apply(posterior, 1, mean),
+                           q1 = apply(posterior, 1, quantile, 0.025),
+                           q2 = apply(posterior, 1, quantile, 0.975)) %>%
+  mutate(kappa = underlying.effects.lc$kappa.true[t]) %>%
+  mutate(phi.t = underlying.effects.lc$phi.true*(t-1)) %>%
+  mutate(kappa.phi = kappa + phi.t)
+
+gg.posterior <- ggplot(data = posterior.df) +
+  geom_ribbon(aes(x = t, ymin = q1, ymax = q2, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  geom_point(aes(x = t, y = mean, color = "Inlabru", fill = "Inlabru")) +
+  geom_point(aes(x = t, y = kappa.phi, color = "True", fill = "True")) +
+  scale_color_manual(name = " ", values = palette.basis) + 
+  scale_fill_manual(name = " ", values = palette.basis) + 
+  labs(title = "Phi*t + kappa", x = "t", y = "")
+
+gg.posterior
+
+phi.kappa.samp <- inla.posterior.sample.eval(samples=samps, c("phi", "kappa"))
+
+samp.matrix <- matrix(rep(1:20, 100), byrow = FALSE, nrow= 20)
+phi.matrix <- matrix(rep(phi.kappa.samp[1,], 20), nrow = 20, byrow=TRUE)
+samp.matrix <- samp.matrix * phi.matrix + phi.kappa.samp[-1,]
+
+data.frame(t = 1:20, mean = apply(samp.matrix, 1, mean),
+           q1 = apply(samp.matrix, 1, quantile, 0.025),
+           q2 = apply(samp.matrix, 1, quantile, 0.975)) %>%
+  ggplot() + 
+  geom_line(aes(x = t, y= mean)) + 
+  geom_line(aes(x = t, y = q1), alpha = 0.5) +
+  geom_line(aes(x = t, y = q2), alpha = 0.5)
+
+samples[1]
+
+ggplot(data = posterior.phi) + geom_point(aes(x = t, y = mean)) + geom_line(aes(x = t, y =q0.025)) + geom_line(aes(x = t, y = q0.975))
+
 
 print("Runtime for inlabru: ")
 print(runtime.inlabru)
@@ -27,6 +89,7 @@ print(runtime.inlabru)
 #res.inlabru.lc.1 <- inlabru.lc.pc_priors(obs.lc)
 #res.inlabru.lc.1 <- inlabru.lc.kappa_pc_prior(obs.lc)
 #res.inlabru.lc.1 <- inlabru.lc.kappa_high_variance_prior(obs.lc)
+# res.inlabru.lc.1 <- inlabru.lc.alpha.iid(obs.lc)
 
 #res.inlabru.lc.1 <- inlabru.lc.1(obs.lc)
 
@@ -38,12 +101,23 @@ plots <- plot.inlabru.vs.underlying.v5(res.inlabru.lc.1, underlying.effects.lc)
 plots$p.alpha
 plots$p.beta
 plots$p.phi
-plots$p.intercept
+#plots$p.intercept
 plots$p.kappa
 plots$p.eta
 plots$p.eta.2
 plots$p.eta.t
 plots$p.eta.x
+
+
+save.comparison.plots(plots$p.alpha, 'alpha_inlabru', path.to.folder)
+save.comparison.plots(plots$p.beta, 'beta_inlabru', path.to.folder)
+save.comparison.plots(plots$p.phi, 'phi_inlabru', path.to.folder)
+save.comparison.plots(plots$p.intercept, 'intercept_inlabru', path.to.folder)
+save.comparison.plots(plots$p.kappa, 'kappa_inlabru', path.to.folder)
+save.comparison.plots(plots$p.eta, 'eta_inlabru', path.to.folder)
+save.comparison.plots(plots$p.eta.2, 'eta_2_inlabru', path.to.folder)
+save.comparison.plots(plots$p.eta.t, 'eta_t_inlabru', path.to.folder)
+save.comparison.plots(plots$p.eta.x, 'eta_x_inlabru', path.to.folder)
 
 #   ----   Perform similar analysis in STAN   ----   
 library("rstan")
@@ -69,6 +143,14 @@ input_stan.lc <- list(
 #save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v9_informative_priors.RData")
 
 #save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v15.RData")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v15.RData")
+
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v10.RData")
+
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v5.RData")
+
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v15_iid.RData")
+#save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v10_iid.RData")
 
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v3.RData")
 # load workspace image
@@ -78,9 +160,9 @@ input_stan.lc <- list(
 workspace_information <- list(
   stan.file = "stan_analysis_lc_v4.stan",
   chains = "4",
-  warmup = "2000",
-  iter = "20000",
-  configuration = "v10",
+  warmup = "1000",
+  iter = "10000",
+  configuration = "v9",
   type_of_prior = "loggamma, less informative on kappa"
 )
 
@@ -100,26 +182,11 @@ fit <- stan(
   file="stan_analysis_lc_v4.stan",
   data = input_stan.lc,
   chains=4,
-  warmup = 2000,
-  iter = 20000,
-  refresh = 100,
+  warmup = 1000,
+  iter = 10000,
+  refresh = 1000,
   seed=123
 )
-
-save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v10.RData")
-
-fit <- stan(
-  file="stan_analysis_lc_v4.stan",
-  data = input_stan.lc,
-  chains=6,
-  warmup = 10000,
-  iter = 50000,
-  refresh = 100,
-  seed=123
-)
-
-save.image("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/stan_analysis_lc_v10.RData")
-
 
 pairs(fit, pars=c("tau_alpha", "phi", "intercept", "eta[1]"))
 
@@ -127,36 +194,36 @@ pairs(fit, pars=c("tau_alpha", "phi", "intercept", "eta[1]"))
 
 save.comparison.plots(traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
                                             "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" )),
-                      'trace_eta.png', path.to.folder)
+                      'trace_eta_alpha_iid', path.to.folder)
 
 save.comparison.plots(traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
                                             "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
                                             "kappa[9]", "kappa[10]" )),
-                      'trace_kappa.png', path.to.folder)
+                      'trace_kappa_alpha_iid', path.to.folder)
 
 save.comparison.plots(traceplot(fit, pars=c("beta[1]", "beta[2]", "beta[3]", "beta[4]",
                                             "beta[5]", "beta[6]", "beta[7]", "beta[8]",
                                             "beta[9]", "beta[10]" )),
-                      'trace_beta.png', path.to.folder)
+                      'trace_beta_alpha_iid', path.to.folder)
 
 
 save.comparison.plots(traceplot(fit, pars=c("alpha[1]", "alpha[3]", "alpha[11]", "alpha[13]",
                                             "alpha[5]", "alpha[15]", "alpha[7]", "alpha[8]",
                                             "alpha[12]", "alpha[10]" )),
-                      'trace_alpha.png', path.to.folder)
+                      'trace_alpha_alpha_iid', path.to.folder)
 
 save.comparison.plots(traceplot(fit, pars=c("alpha_raw[1]", "alpha_raw[3]", "alpha_raw[11]", "alpha_raw[13]",
                                             "alpha_raw[5]", "alpha_raw[15]", "alpha_raw[7]", "alpha_raw[8]",
                                             "alpha_raw[12]", "alpha_raw[10]" )),
-                      'trace_alpha_raw.png', path.to.folder)
+                      'trace_alpha_raw_alpha_iid', path.to.folder)
 
 save.comparison.plots(traceplot(fit, pars=c("beta_raw[1]", "beta_raw[3]", "beta_raw[11]", "beta_raw[13]",
                                             "beta_raw[5]", "beta_raw[15]", "beta_raw[7]", "beta_raw[8]",
                                             "beta_raw[12]", "beta_raw[10]" )),
-                      'trace_beta_raw.png', path.to.folder)
+                      'trace_beta_raw_alpha_iid', path.to.folder)
 
 save.comparison.plots(traceplot(fit),
-                      'general_trace.png', path.to.folder)
+                      'general_trace_alpha_iid', path.to.folder)
 
 
 
