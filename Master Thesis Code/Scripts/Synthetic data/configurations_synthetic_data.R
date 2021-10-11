@@ -340,7 +340,8 @@ configuration.v5 <- function(){
     beta.true = beta.true,
     kappa.true = kappa.true,
     phi.true = phi.true,
-    at.risk = at.risk
+    at.risk = at.risk,
+    config_name = "v5"
   )
   return(underlying.effects)
 }
@@ -409,7 +410,8 @@ configuration.v9 <- function(){
     at.risk = at.risk,
     tau.beta.true = tau.beta.true,
     tau.kappa.true = tau.kappa.true,
-    tau.epsilon.true= tau.epsilon.true
+    tau.epsilon.true= tau.epsilon.true,
+    config.name = "v9"
   )
   return(underlying.effects)
 }
@@ -478,7 +480,8 @@ configuration.v10 <- function(){
     at.risk = at.risk,
     tau.beta.true = tau.beta.true,
     tau.kappa.true = tau.kappa.true,
-    tau.epsilon.true= tau.epsilon.true
+    tau.epsilon.true= tau.epsilon.true,
+    config_name = "v10"
   )
   return(underlying.effects)
 }
@@ -547,7 +550,8 @@ configuration.v10.1 <- function(){
     at.risk = at.risk,
     tau.beta.true = tau.beta.true,
     tau.kappa.true = tau.kappa.true,
-    tau.epsilon.true= tau.epsilon.true
+    tau.epsilon.true= tau.epsilon.true,
+    config_name = 'v10.1'
   )
   return(underlying.effects)
 }
