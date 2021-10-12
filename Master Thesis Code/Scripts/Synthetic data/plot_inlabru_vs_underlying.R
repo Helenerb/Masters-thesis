@@ -1,8 +1,44 @@
 library(ggplot2)
+library(patchwork)
 
 #   ----   Define palette   ----   
 palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
                    '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
+
+source("../Functions/plotters.R")
+
+phi.plus.kappa.v7 <- function(){
+  t = 0:(100-1)
+  res = kappa + phi*t
+  return(res)
+}
+
+plot.posterior.period.effects <- function(res.inlabru, underlying.effects, phi.plus.kappa.func){
+  
+  nt = underlying.effects$nt
+  
+  samps = inla.posterior.sample(res.inlabru, n = 1000)
+  
+  posterior.phi.kappa <- inla.posterior.sample.eval(fun = phi.plus.kappa.func, samples=samps)
+  
+  posterior.phi.kappa.df <- data.frame(t = 1:nt,
+                                       mean = apply(posterior.phi.kappa, 1, mean),
+                                       q1 = apply(posterior.phi.kappa, 1, quantile, 0.025),
+                                       q2 = apply(posterior.phi.kappa, 1, quantile, 0.975)) %>%
+    mutate(kappa = underlying.effects$kappa.true[t]) %>%
+    mutate(phi.t = underlying.effects$phi.true*(t-1)) %>%
+    mutate(kappa.phi = kappa + phi.t)
+  
+  gg.posterior <- ggplot(data = posterior.phi.kappa.df) +
+    geom_ribbon(aes(x = t, ymin = q1, ymax = q2, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_point(aes(x = t, y = mean, color = "Inlabru", fill = "Inlabru")) +
+    geom_point(aes(x = t, y = kappa.phi, color = "True", fill = "True")) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) + 
+    labs(title = "Phi*t + kappa", x = "t", y = "")
+  
+  return(gg.posterior)
+}
 
 plot.inlabru.vs.underlying.v1 <- function(res.inlabru, underlying.effects){
    
@@ -284,9 +320,13 @@ plot.inlabru.vs.underlying.v3 <- function(res.inlabru, underlying.effects){
   return(plots)
 }
 
-plot.inlabru.vs.underlying.v7 <- function(res.inlabru, underlying.effects){
+plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
+                                              path.to.storage="", save=FALSE,
+                                              phi.plus.kappa.func=phi.plus.kappa.v7){
   
   obs <- underlying.effects$obs
+  
+  p.period <- plot.posterior.period.effects(res.inlabru, underlying.effects, phi.plus.kappa.func)
   
   data.alpha = cbind(res.inlabru$summary.random$alpha,
                      alpha.true = underlying.effects$alpha.true[res.inlabru$summary.random$alpha$ID + 1])
@@ -294,7 +334,6 @@ plot.inlabru.vs.underlying.v7 <- function(res.inlabru, underlying.effects){
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
     geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
     geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
-    geom_point(aes(y = mean + res.inlabru$summary.fixed$mean[1], fill = "Estimated + intercept", color = "Estimated + intercept")) +
     scale_color_manual(name = "",
                        values = palette.basis ) +
     scale_fill_manual(name = "",
@@ -353,6 +392,21 @@ plot.inlabru.vs.underlying.v7 <- function(res.inlabru, underlying.effects){
     scale_fill_manual(name = " ", values = palette.basis) +
     labs(x = "Value of phi", y = " ", title = "Intercept - inlabru")
   
+  p.random.effects <- (p.intercept | p.alpha | p.beta) / (p.period | p.gamma) + 
+    plot_layout(guides = "collect")
+  
+  if(save){
+    save.figure(p.random.effects, name = "random_effects_inlabru", path = path.to.storage)
+  }
+  
+  
+  p.phi.kappa <- (p.phi | p.kappa) + 
+    plot_layout(guides = "collect")
+  
+  if(save){
+    save.figure(p.phi.kappa, name = "phi_kappa_inlabru", path = path.to.storage)
+  }
+  
   data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
     mutate(true.eta = obs$eta) %>%
     mutate(xt = obs$xt, x = obs$x, t = obs$t)
@@ -378,47 +432,33 @@ plot.inlabru.vs.underlying.v7 <- function(res.inlabru, underlying.effects){
     labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
     facet_wrap(~x)
   
+  p.eta.xt <- (p.eta | p.eta.2)+ 
+    plot_layout(guides = "collect")
+  
+  if(save){
+    save.figure(p.eta.xt, name="eta_xt_inlabru", path=path.to.storage)
+  }
+  
+  p.eta.facet <- (p.eta.t | p.eta.x) + 
+    plot_layout(guides = "collect")
+  
+  if(save){
+    save.figure(p.eta.facet, name="eta_facet_inlabru", path=path.to.storage)
+  }
   
   plots <- list(p.alpha = p.alpha, p.beta = p.beta, p.kappa = p.kappa,
                 p.phi = p.phi, p.eta = p.eta, p.gamma = p.gamma,
                 p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
-                p.eta.t = p.eta.t, p.intercept = p.intercept)
+                p.eta.t = p.eta.t, p.intercept = p.intercept,
+                p.random.effects = p.random.effects,
+                p.phi.kappa = p.phi.kappa,
+                p.eta.all = p.eta.xt,
+                p.eta.facet = p.eta.facet)
   return(plots)
 }
 
-plot.posterior.period.effects <- function(res.inlabru, underlying.effects){
-  
-  nt <- underlying.effects$nt
-  samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
-  
-  phi.plus.kappa <- function(){
-    t = 0:(nt-1)
-    res = kappa + phi*t
-    return(res)
-  }
-  
-  posterior.phi.kappa <- inla.posterior.sample.eval(fun = phi.plus.kappa, samples=samps)
-  
-  posterior.phi.kappa.df <- data.frame(t = 1:nt,
-                                       mean = apply(posterior.phi.kappa, 1, mean),
-                                       q1 = apply(posterior.phi.kappa, 1, quantile, 0.025),
-                                       q2 = apply(posterior.phi.kappa, 1, quantile, 0.975)) %>%
-    mutate(kappa = underlying.effects.lc$kappa.true[t]) %>%
-    mutate(phi.t = underlying.effects.lc$phi.true*(t-1)) %>%
-    mutate(kappa.phi = kappa + phi.t)
-  
-  gg.posterior <- ggplot(data = posterior.phi.kappa.df) +
-    geom_ribbon(aes(x = t, ymin = q1, ymax = q2, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-    geom_point(aes(x = t, y = mean, color = "Inlabru", fill = "Inlabru")) +
-    geom_point(aes(x = t, y = kappa.phi, color = "True", fill = "True")) +
-    scale_color_manual(name = " ", values = palette.basis) + 
-    scale_fill_manual(name = " ", values = palette.basis) + 
-    labs(title = "Phi*t + kappa", x = "t", y = "")
-  
-  return(gg.posterior)
-}
-
-plot_inlabru_results <- function(res.inlabru, underlying.effects){
+# Deprecate?
+plot_inlabru_results <- function(res.inlabru, underlying.effects, produce_plot_func){
   obs <- underlying.effects$obs
   
   #   ----    Plot remaining random effects    ----
