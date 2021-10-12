@@ -1,10 +1,10 @@
 library(ggplot2)
 
+#   ----   Define palette   ----   
+palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+                   '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
+
 plot.inlabru.vs.underlying.v1 <- function(res.inlabru, underlying.effects){
-   
-   palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
-                      '#3290c1',
-                      '#5d8060', '#D7B36A', '#826133', '#A85150')
    
    obs <- underlying.effects$obs
    
@@ -107,10 +107,6 @@ plot.inlabru.vs.underlying.v1 <- function(res.inlabru, underlying.effects){
 
 plot.inlabru.vs.underlying.v5 <- function(res.inlabru, underlying.effects){
   
-  palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
-                     '#3290c1',
-                     '#5d8060', '#D7B36A', '#826133', '#A85150')
-  
   obs <- underlying.effects$obs
   
   data.alpha = cbind(res.inlabru$summary.random$alpha,
@@ -200,10 +196,6 @@ plot.inlabru.vs.underlying.v5 <- function(res.inlabru, underlying.effects){
 
 plot.inlabru.vs.underlying.v3 <- function(res.inlabru, underlying.effects){
   
-  palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
-                     '#3290c1',
-                     '#5d8060', '#D7B36A', '#826133', '#A85150')
-  
   obs <- underlying.effects$obs
   
   data.alpha = cbind(res.inlabru$summary.random$alpha,
@@ -290,4 +282,168 @@ plot.inlabru.vs.underlying.v3 <- function(res.inlabru, underlying.effects){
                 p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
                 p.eta.t = p.eta.t, p.intercept = p.intercept)
   return(plots)
+}
+
+plot.inlabru.vs.underlying.v7 <- function(res.inlabru, underlying.effects){
+  
+  obs <- underlying.effects$obs
+  
+  data.alpha = cbind(res.inlabru$summary.random$alpha,
+                     alpha.true = underlying.effects$alpha.true[res.inlabru$summary.random$alpha$ID + 1])
+  p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = alpha.true, color = "True value", fill = "True value")) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+    geom_point(aes(y = mean + res.inlabru$summary.fixed$mean[1], fill = "Estimated + intercept", color = "Estimated + intercept")) +
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(title="Alpha - inlabru", x = "x", y='')
+  
+  data.beta = cbind(res.inlabru$summary.random$beta,
+                    beta.true = underlying.effects$beta.true[res.inlabru$summary.random$beta$ID + 1])
+  p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = beta.true, color = "True value", fill = "True value")) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(x = "x", y = "beta", title = "Beta - inlabru")
+  
+  data.kappa = cbind(res.inlabru$summary.random$kappa,
+                     kappa.true = underlying.effects$kappa.true[res.inlabru$summary.random$kappa$ID + 1])
+  p.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = kappa.true, color = "True value", fill = "True value")) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(x = "t", y = "kappa", title = "Kappa - inlabru")
+  
+  data.gamma = cbind(res.inlabru$summary.random$gamma,
+                     gamma.true = underlying.effects$gamma.true[res.inlabru$summary.random$gamma$ID + 79 + 1])
+  p.gamma <- ggplot(data = data.gamma, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = gamma.true, color = "True value", fill = "True value")) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated")) + 
+    scale_color_manual(name = "",
+                       values = palette.basis ) +
+    scale_fill_manual(name = "",
+                      values = palette.basis ) +
+    labs(x = "t", y = "gamma", title = "Gamma - inlabru")
+  
+  p.phi <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+    geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill="Estimated")) + 
+    geom_vline(aes(xintercept = underlying.effects$phi.true, color="True", fill="True")) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) +
+    labs(x = "Value of phi", y = " ", title = "Phi - inlabru")
+  
+  p.intercept <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+    geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill="Estimated")) + 
+    #geom_vline(aes(xintercept = underlying.effects$.true, color="True", fill="True")) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) +
+    labs(x = "Value of phi", y = " ", title = "Intercept - inlabru")
+  
+  data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
+    mutate(true.eta = obs$eta) %>%
+    mutate(xt = obs$xt, x = obs$x, t = obs$t)
+  
+  p.eta <- ggplot(data = data.eta) +
+    geom_point(aes(x = eta.sim, y = true.eta), color = palette.basis[1]) + 
+    labs(x="Estimated eta", y="True value for eta", title = "Eta")
+  
+  p.eta.2 <- ggplot(data = data.eta) +
+    geom_line(aes(x=xt, y = eta.sim, color="Estimated")) +
+    geom_line(aes(x=xt, y = true.eta, color="True")) +
+    labs(x=" ", y="Eta", title="Eta- inlabru")
+  
+  p.eta.t <- ggplot(data = data.eta) + 
+    geom_line(aes(x = x, y = eta.sim, color = "Estimated")) +
+    geom_line(aes(x = x, y = true.eta, color = "True")) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
+    facet_wrap(~t)
+  
+  p.eta.x <- ggplot(data = data.eta) + 
+    geom_line(aes(x = t, y = eta.sim, color = "Estimated")) +
+    geom_line(aes(x = t, y = true.eta, color = "True")) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
+    facet_wrap(~x)
+  
+  
+  plots <- list(p.alpha = p.alpha, p.beta = p.beta, p.kappa = p.kappa,
+                p.phi = p.phi, p.eta = p.eta, p.gamma = p.gamma,
+                p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
+                p.eta.t = p.eta.t, p.intercept = p.intercept)
+  return(plots)
+}
+
+plot.posterior.period.effects <- function(res.inlabru, underlying.effects){
+  
+  nt <- underlying.effects$nt
+  samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
+  
+  phi.plus.kappa <- function(){
+    t = 0:(nt-1)
+    res = kappa + phi*t
+    return(res)
+  }
+  
+  posterior.phi.kappa <- inla.posterior.sample.eval(fun = phi.plus.kappa, samples=samps)
+  
+  posterior.phi.kappa.df <- data.frame(t = 1:nt,
+                                       mean = apply(posterior.phi.kappa, 1, mean),
+                                       q1 = apply(posterior.phi.kappa, 1, quantile, 0.025),
+                                       q2 = apply(posterior.phi.kappa, 1, quantile, 0.975)) %>%
+    mutate(kappa = underlying.effects.lc$kappa.true[t]) %>%
+    mutate(phi.t = underlying.effects.lc$phi.true*(t-1)) %>%
+    mutate(kappa.phi = kappa + phi.t)
+  
+  gg.posterior <- ggplot(data = posterior.phi.kappa.df) +
+    geom_ribbon(aes(x = t, ymin = q1, ymax = q2, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_point(aes(x = t, y = mean, color = "Inlabru", fill = "Inlabru")) +
+    geom_point(aes(x = t, y = kappa.phi, color = "True", fill = "True")) +
+    scale_color_manual(name = " ", values = palette.basis) + 
+    scale_fill_manual(name = " ", values = palette.basis) + 
+    labs(title = "Phi*t + kappa", x = "t", y = "")
+  
+  return(gg.posterior)
+}
+
+plot_inlabru_results <- function(res.inlabru, underlying.effects){
+  obs <- underlying.effects$obs
+  
+  #   ----    Plot remaining random effects    ----
+  
+  source("plot_inlabru_vs_underlying.R")  # ikke source, men flytt den hit"
+  
+  # plotting results from run with cohort effects:
+  plots <- plot.inlabru.vs.underlying.v5(res.inlabru, underlying.effects)
+  p.alpha <- plots$p.alpha
+  pl.beta <- plots$p.beta
+  p.phi <- plots$p.phi
+  p.intercept <- plots$p.intercept
+  p.kappa <- plots$p.kappa
+  p.eta <- plots$p.eta
+  p.eta.2 <- plots$p.eta.2
+  p.eta.t <- plots$p.eta.t
+  p.eta.t <- plots$p.eta.x
+  
+  p.random.effects <- (p.intercept | p.alpha)/(p.beta | p.posterior) + 
+    plot_layout(guides = "collect")
+  
+  p.phi.and.kappa <- (p.phi | p.kappa) + 
+    plot_layout(guides = "collect")
+  
+  p.eta <- (p.eta | p.eta.2)/(p.eta.t | p.eta.x) + 
+    plot_layout(guides = "collect")
+  
 }

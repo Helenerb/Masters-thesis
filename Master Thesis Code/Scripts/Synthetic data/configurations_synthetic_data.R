@@ -341,7 +341,9 @@ configuration.v5 <- function(){
     kappa.true = kappa.true,
     phi.true = phi.true,
     at.risk = at.risk,
-    config_name = "v5"
+    config_name = "v5",
+    nt = nt,
+    nx = nx
   )
   return(underlying.effects)
 }
@@ -1098,7 +1100,10 @@ configuration.v6 <- function(){
     kappa.true = kappa.true,
     phi.true = phi.true,
     gamma.true = gamma.true,
-    at.risk = at.risk
+    at.risk = at.risk,
+    nt = nt,
+    nx = nx,
+    config_name = "v6"
   )
   return(underlying.effects)
 }
@@ -1182,7 +1187,10 @@ configuration.v7 <- function(){
     phi.true = phi.true,
     gamma.true = gamma.true,
     at.risk = at.risk,
-    age.intercept.true = age.intercept.true
+    age.intercept.true = age.intercept.true,
+    nt = nt,
+    nx = nx,
+    config_name = "v7"
   )
   return(underlying.effects)
 }
@@ -1401,8 +1409,12 @@ plot.underlying.effects.age.period <- function(u.e){
   return(plots)
 }
 
-u.e.v11 <- configuration.v10()
-plots <- plot.underlying.effects.age.period(u.e.v11)
+# u.e.v11 <- configuration.v10()
+# plots <- plot.underlying.effects.age.period(u.e.v11)
+
+u.e.v7 <- configuration.v7()
+plots <- plot.underlying.effects(u.e.v7)
+
 plots$p.8
 plots$p.beta
 plots$p.eta.stepwise

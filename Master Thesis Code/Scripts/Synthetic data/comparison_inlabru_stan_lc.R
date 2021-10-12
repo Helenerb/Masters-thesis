@@ -1,3 +1,5 @@
+library(patchwork)
+
 setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
 
 source("configurations_synthetic_data.R")
@@ -9,7 +11,7 @@ palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
 path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v9'
 
 # configuration without cohort effect
-#underlying.effects.lc <- configuration.v5()
+underlying.effects.lc <- configuration.v5()
 #underlying.effects.lc <- configuration.v9()  #  config with coarser grid
 #underlying.effects.lc <- configuration.v10()
 #underlying.effects.lc <- configuration.v10.1()# config with coarser grid and larger variance in beta
@@ -18,7 +20,7 @@ path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
 #underlying.effects.lc <- configuration.v14()
-underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
+#underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -38,15 +40,21 @@ runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_varian
 
 samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
 
-phi.plus.kappa <- function(){
-  t = 0:49
+phi.plus.kappa <- function(t_max){
+  t = 0:t_max
   res = kappa + phi*t
   return(res)
 }
 
-posterior <- inla.posterior.sample.eval(fun = phi.plus.kappa, samples=samps)
+phi.plus.kappa.99 <- function(){
+  t = 0:99
+  res = kappa + phi*t
+  return(res)
+}
 
-posterior.df <- data.frame(t = 1:50,
+posterior <- inla.posterior.sample.eval(fun = phi.plus.kappa.99, samples=samps)
+
+posterior.df <- data.frame(t = 1:100,
                            mean = apply(posterior, 1, mean),
                            q1 = apply(posterior, 1, quantile, 0.025),
                            q2 = apply(posterior, 1, quantile, 0.975)) %>%
