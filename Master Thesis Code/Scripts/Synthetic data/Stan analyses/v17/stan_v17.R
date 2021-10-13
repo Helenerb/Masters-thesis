@@ -27,4 +27,4 @@ run_stan_v17 <- function(stan_program, chains= 4, warmup = 1000, iter = 10000, m
   store_stan_results(fit=stan_fit, output.path=output.path, config="v17")
 }
 
-run_stan_v17("stan_analysis_lcc_phi_kappa.stan", chains=2, warmup = 50, iter = 100, markov=TRUE)
+run_stan_v17("stan_analysis_lcc_phi_kappa.stan", chains=2, warmup = 1000, iter = 10000, markov=TRUE)
