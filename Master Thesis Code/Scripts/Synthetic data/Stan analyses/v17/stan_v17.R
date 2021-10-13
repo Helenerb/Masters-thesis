@@ -15,8 +15,8 @@ set_workspace <- function(config, markov=TRUE){
 }
 
 run_stan_v17 <- function(stan_program, chains= 4, warmup = 1000, iter = 10000, markov = TRUE){
-  source("run_stan_functions.R")
   output.path <- set_workspace("v17", markov)
+  source("run_stan_functions.R")
   
   source("configurations_synthetic_data.R")
   
