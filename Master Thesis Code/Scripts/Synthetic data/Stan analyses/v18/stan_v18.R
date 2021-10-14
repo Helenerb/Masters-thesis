@@ -13,7 +13,7 @@ set_workspace <- function(config, markov=TRUE){
   }
   return(output.path)
 }
-
+ 
 run_stan_v18 <- function(stan_program, chains= 4, warmup = 1000, iter = 10000, markov = TRUE){
   output.path <- set_workspace("v18", markov)
   
