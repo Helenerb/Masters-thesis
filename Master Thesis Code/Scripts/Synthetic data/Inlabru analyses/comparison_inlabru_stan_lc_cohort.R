@@ -17,8 +17,8 @@ underlying.effects.lc.cohort <- configuration.v18()  ## more erratic beta
 figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Inlabru analyses/Output/Figures"
 
 #storage_path = file.path(figures.folder, "v7")
-storage_path = file.path(figures.folder, "v17")
-#storage_path = file.path(figures.folder, "v18")
+#storage_path = file.path(figures.folder, "v17")
+storage_path = file.path(figures.folder, "v18")
 #storage_path = file.path(figures.folder, "v19")
 #storage_path = file.path(figures.folder, "v20")
 #storage_path = file.path(figures.folder, "v21")
@@ -56,7 +56,8 @@ plots.lc.cohort$p.gamma
 
 ###    ----   Configure and run inference with STAN    ----
 
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17/stan_v17.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17/stan_v17.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18/stan_v18.Rda")
 
 plot.stan.vs.underlying.cohort <- function(stan_df, obs, underlying.effects){
   
