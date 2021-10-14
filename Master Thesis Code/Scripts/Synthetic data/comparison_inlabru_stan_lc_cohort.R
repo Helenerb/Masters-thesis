@@ -26,15 +26,8 @@ plots.lc.cohort <- plot.inlabru.vs.underlying.cohort(
   res.inlabru.lc.1, 
   underlying.effects.lc.cohort,path.to.storage = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures/v7",
   save=TRUE)
-plots.lc.cohort$p.alpha
-plots.lc.cohort$p.beta
-plots.lc.cohort$p.phi
-plots.lc.cohort$p.intercept
-plots.lc.cohort$p.kappa
-plots.lc.cohort$p.eta
-plots.lc.cohort$p.eta.2
-plots.lc.cohort$p.eta.t
-plots.lc.cohort$p.eta.x
-plots.lc.cohort$p.gamma
 
 ###    ----   Configure and run inference with STAN    ----
+
+# load stan results
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17/stan_v17.Rda")
