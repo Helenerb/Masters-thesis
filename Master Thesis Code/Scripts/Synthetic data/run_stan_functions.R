@@ -92,8 +92,6 @@ run_stan_program_lcc <- function(data, chains, warmup, iter, stan_program="stan_
     nt = length(unique(obs$t))
   )
   
-  cat(input_stan.lc$c)
-  
   run_info <- list(
     stan.file = stan_program,
     chains = chains,
