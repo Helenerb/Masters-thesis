@@ -1,7 +1,7 @@
 # running the v18 configuration with the stan program where
 # the period effect is modelled as a random walk with drift. 
 
-# Running configuraton v17 with stan on Markov
+# Running configuraton v18 with stan on Markov
 
 # base script containing functions running STAN analysis
 
@@ -30,4 +30,4 @@ run_stan_v18d <- function(stan_program, chains=4, warmup=1000, iter=10000, marko
   store_stan_results(fit=stan_fit, output.path=output.path, config="v18d")
 }
 
-run_stan_v17d(stan_program="stan_analysis_lcc_rw_drift.stan", chains=4, warmup = 100, iter = 300, markov=TRUE)
+run_stan_v18d(stan_program="stan_analysis_lcc_rw_drift.stan", chains=4, warmup = 100, iter = 300, markov=TRUE)
