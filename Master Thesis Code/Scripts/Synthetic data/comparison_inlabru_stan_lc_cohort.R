@@ -18,8 +18,9 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 
 #storage_path = file.path(figures.folder, "v7")
 #storage_path = file.path(figures.folder, "v17")
+storage_path = file.path(figures.folder, "v17d")
 #storage_path = file.path(figures.folder, "v18")
-storage_path = file.path(figures.folder, "v18d")
+#storage_path = file.path(figures.folder, "v18d")
 #storage_path = file.path(figures.folder, "v19")
 #storage_path = file.path(figures.folder, "v20")
 #storage_path = file.path(figures.folder, "v21")
@@ -59,7 +60,8 @@ plots.lc.cohort$p.gamma
 
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17/stan_results/stan_v17.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18/stan_results/stan_v18.Rda")
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18d/stan_results/stan_v18_drift.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18d/stan_results/stan_v18_drift.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17d/stan_results/stan_v17d.Rda")
 
 # stan results df loaded under name "stan_lc_df"
 
