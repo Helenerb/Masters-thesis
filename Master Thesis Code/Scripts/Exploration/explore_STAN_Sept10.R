@@ -78,6 +78,7 @@ palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
                    '#3290c1',
                    '#5d8060', '#D7B36A', '#826133', '#A85150')
 
+
 data.alpha = cbind(results.inlabru$summary.random$alpha, alpha.true = true_alpha[results.inlabru$summary.random$alpha$ID])
 p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
   geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
@@ -88,7 +89,6 @@ p.alpha <- ggplot(data = data.alpha, aes(x = ID)) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
   labs(title="Alpha", x = "x", y='')
-
 p.alpha
 
 data.beta = cbind(results.inlabru$summary.random$beta, beta.true = true_beta[results.inlabru$summary.random$beta$ID])
@@ -116,16 +116,17 @@ p.kappa <- ggplot(data = data.kappa, aes(x = ID)) +
                      values = palette.basis ) +
   scale_fill_manual(name = "",
                     values = palette.basis ) +
-  labs(x = "t", y = "kappa", title = "Kappa")
+  labs(x = "t", y = "kappa", title = "Kappa -  inlabru")
 
 p.kappa
 
 p.phi <- ggplot(data.frame(results.inlabru$marginals.fixed)) + 
   geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
   geom_vline(data = results.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill = "Estimated")) + 
+  geom_vline(aes(xintercept = phi_true, color="True")) +
   scale_color_manual(name = " ", values = palette.basis) + 
   scale_fill_manual(name = " ", values = palette.basis) +
-  labs(x = "Value of phi", y = " ", title = "Phi")
+  labs(x = "Value of phi", y = " ", title = "Phi - inlabru")
 p.phi
 
 data.eta <- data.frame({eta.sim = results.inlabru$summary.linear.predictor$mean[1:100]}) %>%

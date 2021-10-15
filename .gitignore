@@ -1,6 +1,9 @@
 .Rproj.user
 .Rhistory
 .RData
+*.RData
 .Ruserdata
 .DS_Store
 .Rda
+*.Rda
+/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/

@@ -173,8 +173,8 @@ fit <- stan(
   file="explore_STAN_v2.stan",
   data = exploration_data,
   chains=4,
-  warmup = 1000,
-  iter = 10000,
+  warmup = 3000,
+  iter = 30000,
   refresh = 1000,
   seed=123
 )
