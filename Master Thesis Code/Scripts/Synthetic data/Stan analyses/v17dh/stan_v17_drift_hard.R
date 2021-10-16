@@ -30,4 +30,4 @@ run_stan_v17dh <- function(stan_program, chains=4, warmup=1000, iter=10000, mark
   store_stan_results(fit=stan_fit, output.path=output.path, config="v17dh")
 }
 
-run_stan_v17dh(stan_program="Stan\ analyses/stan_programs/stan_analysis_lcc_rw_drift_h.stan", chains=4, warmup = 4000, iter = 40000, markov=TRUE)
+run_stan_v17dh(stan_program="Stan\ analyses/stan_programs/stan_analysis_lcc_rw_drift_h.stan", chains=4, warmup = 3000, iter = 50000, markov=TRUE)
