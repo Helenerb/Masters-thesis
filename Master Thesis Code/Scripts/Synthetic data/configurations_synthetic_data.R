@@ -1367,6 +1367,93 @@ configuration.v17 <- function(){
   return(underlying.effects)
 }
 
+configuration.v17.1 <- function(){
+  # version of v17 with first element of kappa set exactly to zero. 
+  # around zero with separate intercept
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 324
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16   # number of age groups - recall zero-indexing!
+  nt = 20  # number of time steps
+  
+  cohorts <- (-15):19  # cohort indices, c = t-x
+  nc = length(cohorts)  # number of cohorts
+  
+  #   ----   Definining underlying effects   ----
+  
+  alpha.true = 3.9*cos(((1:nx*5 + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)  # center around zero
+  
+  age.intercept.true = -4
+  
+  phi.true = -1
+  
+  tau.beta.true = 30000
+  
+  beta.true = rnorm(nx, mean=0, sd=sqrt(1/tau.beta.true))
+  beta.true = beta.true - mean(beta.true) + 1/nx
+  
+  tau.kappa.true = 0.5
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true[2:nt] = kappa.true[2:nt] - mean(kappa.true[2:nt])
+  
+  tau.gamma.true = 250
+  gamma.true = rnorm(nc, mean = 0, sd=sqrt(1/tau.gamma.true))
+  gamma.true = gamma.true - mean(gamma.true)
+  for (idx in 2:nc) {
+    gamma.true[idx] = gamma.true[idx - 1] + gamma.true[idx]
+  }
+  # increase risk for cohorts 40-50:
+  gamma.true[8:10] = gamma.true[8:10] + rnorm(3, mean=0.4, sd = sqrt(1/(tau.gamma.true)))
+  
+  gamma.true = gamma.true - mean(gamma.true)  # center around zero
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 10**6/nx
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
+    mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
+    mutate(beta = beta.true[x]) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    mutate(xt = seq_along(x)) %>%
+    mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
+    mutate(c = t-x) %>%
+    mutate(gamma = gamma.true[c + 15 + 1]) %>%
+    mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = age.intercept + alpha + beta*phi.t + beta*kappa + gamma + epsilon) %>%
+    mutate(Y = rpois(length(x), E*exp(eta))) %>%
+    mutate(x.c = x, t.c = t)
+  
+  underlying.effects <- list(
+    obs = obs,
+    alpha.true = alpha.true,
+    beta.true = beta.true,
+    kappa.true = kappa.true,
+    phi.true = phi.true,
+    gamma.true = gamma.true,
+    at.risk = at.risk,
+    age.intercept.true = age.intercept.true,
+    nt = nt,
+    nx = nx,
+    config_name = "v17"
+  )
+  return(underlying.effects)
+}
+
 configuration.v18 <- function(){
   # version of v7 with smaller grid
   # around zero with separate intercept
@@ -1406,6 +1493,93 @@ configuration.v18 <- function(){
     kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
   }
   kappa.true = kappa.true - mean(kappa.true)
+  
+  tau.gamma.true = 250
+  gamma.true = rnorm(nc, mean = 0, sd=sqrt(1/tau.gamma.true))
+  gamma.true = gamma.true - mean(gamma.true)
+  for (idx in 2:nc) {
+    gamma.true[idx] = gamma.true[idx - 1] + gamma.true[idx]
+  }
+  # increase risk for cohorts 40-50:
+  gamma.true[8:10] = gamma.true[8:10] + rnorm(3, mean=0.4, sd = sqrt(1/(tau.gamma.true)))
+  
+  gamma.true = gamma.true - mean(gamma.true)  # center around zero
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 10**6/nx
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
+    mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
+    mutate(beta = beta.true[x]) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    mutate(xt = seq_along(x)) %>%
+    mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
+    mutate(c = t-x) %>%
+    mutate(gamma = gamma.true[c + 15 + 1]) %>%
+    mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = age.intercept + alpha + beta*phi.t + beta*kappa + gamma + epsilon) %>%
+    mutate(Y = rpois(length(x), E*exp(eta))) %>%
+    mutate(x.c = x, t.c = t)
+  
+  underlying.effects <- list(
+    obs = obs,
+    alpha.true = alpha.true,
+    beta.true = beta.true,
+    kappa.true = kappa.true,
+    phi.true = phi.true,
+    gamma.true = gamma.true,
+    at.risk = at.risk,
+    age.intercept.true = age.intercept.true,
+    nt = nt,
+    nx = nx,
+    config_name = "v18"
+  )
+  return(underlying.effects)
+}
+
+configuration.v18.1 <- function(){
+  # version of v7 with smaller grid
+  # around zero with separate intercept
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 324
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16   # number of age groups - recall zero-indexing!
+  nt = 20  # number of time steps
+  
+  cohorts <- (-15):19  # cohort indices, c = t-x
+  nc = length(cohorts)  # number of cohorts
+  
+  #   ----   Definining underlying effects   ----
+  
+  alpha.true = 3.9*cos(((1:nx*5 + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)  # center around zero
+  
+  age.intercept.true = -4
+  
+  phi.true = -1
+  
+  tau.beta.true = 1000
+  
+  beta.true = rnorm(nx, mean=0, sd=sqrt(1/tau.beta.true))
+  beta.true = beta.true - mean(beta.true) + 1/nx
+  
+  tau.kappa.true = 0.5
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true[2:nt] = kappa.true[2:nt] - mean(kappa.true[2:nt])
   
   tau.gamma.true = 250
   gamma.true = rnorm(nc, mean = 0, sd=sqrt(1/tau.gamma.true))
@@ -2040,7 +2214,7 @@ plot.underlying.effects.age.period <- function(u.e){
 # u.e.v11 <- configuration.v10()
 # plots <- plot.underlying.effects.age.period(u.e.v11)
 
-u.e.v18 <- configuration.v23()
+u.e.v18 <- configuration.v17.1()
 plots <- plot.underlying.effects(u.e.v18)
 
 plots$p.8
