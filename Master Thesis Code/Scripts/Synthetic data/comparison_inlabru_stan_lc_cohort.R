@@ -7,25 +7,33 @@ source("configurations_synthetic_data.R")
 # cohfiguration with cohort effect
 #underlying.effects.lc.cohort <- configuration.v7()  ##  Fine grid
 #underlying.effects.lc.cohort <- configuration.v17()  ## First attempt at coarser grid
-underlying.effects.lc.cohort <- configuration.v18()  ## more erratic beta
+#underlying.effects.lc.cohort <- configuration.v17.1()
+#underlying.effects.lc.cohort <- configuration.v18()  ## more erratic beta
+underlying.effects.lc.cohort <- configuration.v18.1()
 #underlying.effects.lc.cohort <- configuration.v19()
 #underlying.effects.lc.cohort <- configuration.v20()
 #underlying.effects.lc.cohort <- configuration.v21()
 #underlying.effects.lc.cohort <- configuration.v22()
+#underlying.effects.lc.cohort <- configuration.v22.1()
 #underlying.effects.lc.cohort <- configuration.v23()
+#underlying.effects.lc.cohort <- configuration.v23.1()
 
 figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures"
 
 #storage_path = file.path(figures.folder, "v7")
 #storage_path = file.path(figures.folder, "v17")
 #storage_path = file.path(figures.folder, "v17d")
+#storage_path = file.path(figures.folder, "v17dh")
 #storage_path = file.path(figures.folder, "v18")
-storage_path = file.path(figures.folder, "v18d")
+#storage_path = file.path(figures.folder, "v18d")
+storage_path = file.path(figures.folder, "v18dh")
 #storage_path = file.path(figures.folder, "v19")
 #storage_path = file.path(figures.folder, "v20")
 #storage_path = file.path(figures.folder, "v21")
 #storage_path = file.path(figures.folder, "v22")
+#storage_path = file.path(figures.folder, "v22_1")
 #storage_path = file.path(figures.folder, "v23")
+#storage_path = file.path(figures.folder, "v23_1")
 
 obs.cohort <- underlying.effects.lc.cohort$obs
 
@@ -60,8 +68,10 @@ plots.lc.cohort$p.gamma
 
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17/stan_results/stan_v17.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18/stan_results/stan_v18.Rda")
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18d/stan_results/stan_v18d.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18d/stan_results/stan_v18d.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17d/stan_results/stan_v17d.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17dh/stan_results/stan_v17dh.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18dh/stan_results/stan_v18dh.Rda")
 
 # stan results df loaded under name "stan_lc_df"
 
@@ -74,12 +84,22 @@ source("plot_stan_vs_underlying.R")
 #                    save.func=save.stan.plots.cohort.undrifted,
 #                    path.to.storage=storage_path)
 
-# drifted version of stan program:
+# drifted version, soft constraints
+# stan.res <- produce.stan.plots(stan_df=stan_lc_df,
+#                                underlying.effects=underlying.effects.lc.cohort,
+#                                plot.func=plot.stan.vs.underlying.cohort.drifted,
+#                                save.func=save.stan.plots.cohort.undrifted,
+#                                path.to.storage=storage_path)
+
+# drifted version of stan program, hard constraints
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                    underlying.effects=underlying.effects.lc.cohort,
                    plot.func=plot.stan.vs.underlying.cohort.drifted,
                    save.func=save.stan.plots.cohort.undrifted,
-                   path.to.storage=storage_path)
+                   path.to.storage=storage_path,
+                   summaries.func=produce.summaries.stan.hard)
+
+
 
 summary_beta <- stan.res$summaries$summary_beta
 

@@ -68,6 +68,67 @@ produce.summaries.stan <- function(stan_df, obs, underlying.effects){
   return(summaries)
 }
 
+produce.summaries.stan.hard <- function(stan_df, obs, underlying.effects){
+  
+  summary_alpha <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('alpha', parameter)) %>%
+    filter(!grepl('tau_alpha', parameter)) %>%
+    filter(!grepl('alpha_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>%
+    mutate(true_alpha = obs$alpha[index])
+  
+  summary_beta <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('beta', parameter)) %>%
+    filter(!grepl('tau_beta', parameter)) %>%
+    filter(!grepl('beta_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>%
+    mutate(true_beta = underlying.effects$beta.true[index])
+  
+  summary_beta_raw <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('beta_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>%
+    mutate(true_beta = underlying.effects$beta.true[index])
+  
+  summary_kappa <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('kappa', parameter)) %>%
+    filter(!grepl('tau_kappa', parameter)) %>%
+    filter(!grepl('kappa_raw', parameter)) %>%
+    filter(!grepl('kappa_0', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>%
+    mutate(true_kappa = underlying.effects$kappa.true[index]) %>%
+    mutate(kappa_drifted = true_kappa + underlying.effects$phi.true*(index-1))
+  
+  summary_gamma <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('gamma', parameter)) %>%
+    filter(!grepl('tau_gamma', parameter)) %>%
+    filter(!grepl('gamma_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>%
+    mutate(true_gamma = underlying.effects$gamma.true[index]) 
+  
+  summary_eta <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('eta', parameter)) %>%
+    filter(!grepl('beta', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>%
+    mutate(true_eta = obs$eta)
+  
+  summaries <- list(
+    summary_alpha=summary_alpha,
+    summary_beta=summary_beta,
+    summary_beta_raw=summary_beta,
+    summary_kappa=summary_kappa,
+    summary_gamma=summary_gamma,
+    summary_eta=summary_eta
+  )
+  
+  return(summaries)
+}
+
 plot.stan.vs.underlying.cohort.undrifted <- function(stan_df, obs, underlying.effects, summaries){
   
   plot_intercept <- ggplot(data=stan_lc_df) +
@@ -257,10 +318,11 @@ save.stan.plots.cohort.undrifted <- function(plots, path.to.storage=""){
   save.figure(p.eta, name = "eta_stan", path = path.to.storage)
 }
 
-produce.stan.plots <- function(stan_df, underlying.effects, plot.func, save.func, path.to.storage){
+produce.stan.plots <- function(stan_df, underlying.effects, plot.func, save.func, 
+                               path.to.storage, summaries.func = produce.summaries.stan){
   obs <- underlying.effects$obs
   
-  summaries <- produce.summaries.stan(stan_df, obs, underlying.effects)
+  summaries <- summaries.func(stan_df, obs, underlying.effects)
   
   plots <- plot.func(stan_df, obs, underlying.effects, summaries)
   
