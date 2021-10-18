@@ -1,20 +1,14 @@
 library(patchwork)
 
 setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
-
 source("configurations_synthetic_data.R")
 
-palette.basis <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
-                   '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
-
-# where should figures produced in this script be stored
-path.to.folder = '/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Output/Figures/Comparison v9'
-
 # configuration without cohort effect
-underlying.effects.lc <- configuration.v5()
+#underlying.effects.lc <- configuration.v5()
 #underlying.effects.lc <- configuration.v9()  #  config with coarser grid
 #underlying.effects.lc <- configuration.v10()
 #underlying.effects.lc <- configuration.v10.1()# config with coarser grid and larger variance in beta
+underlying.effects.lc <- configuration.v10.2()
 #underlying.effects.lc <- configuration.v11()  # config with coarser grid, larger variance in beta and steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v11.1()
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
@@ -22,77 +16,124 @@ underlying.effects.lc <- configuration.v5()
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
+figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures"
+
+#storage_path = file.path(figures.folder, "v10_2")
+storage_path = file.path(figures.folder, "v10d")
+# storage_path = file.path(figures.folder, "v10dh")
+
 obs.lc <- underlying.effects.lc$obs
 
-source("inlabru_analyses.R")
+source("Inlabru\ analyses/inlabru_analyses.R")
 runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_variance_prior(obs.lc)})
 
-#posterior.phi.kappa <- predict(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa + phi*t)
-#posterior.phi <- predict(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa + phi)
+source("plot_inlabru_vs_underlying.R")
 
-#posterior.phi.g <- generate(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa + phi)
-#posterior.phi.g.kappa <- generate(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ kappa)
-#posterior.phi.g.kappa <- generate(res.inlabru.lc.1, formula = ~ kappa)
+plots.lc <- plot.inlabru.vs.underlying.lc(
+  res.inlabru.lc.1, 
+  underlying.effects.lc,
+  path.to.storage = storage_path,
+  save=TRUE,
+  phi.plus.kappa.func = phi.plus.kappa.v17)
 
-#posterior.phi.g.phi <- generate(res.inlabru.lc.1, data = data.frame(t = 0:19), formula = ~ phi_latent)
-#posterior.phi.g.alpha <- generate(res.inlabru.lc.1, data = data.frame(x = 0:15), formula = ~ alpha)
-
-
-samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
-
-phi.plus.kappa <- function(t_max){
-  t = 0:t_max
-  res = kappa + phi*t
-  return(res)
-}
-
-phi.plus.kappa.99 <- function(){
-  t = 0:99
-  res = kappa + phi*t
-  return(res)
-}
-
-posterior <- inla.posterior.sample.eval(fun = phi.plus.kappa.99, samples=samps)
-
-posterior.df <- data.frame(t = 1:100,
-                           mean = apply(posterior, 1, mean),
-                           q1 = apply(posterior, 1, quantile, 0.025),
-                           q2 = apply(posterior, 1, quantile, 0.975)) %>%
-  mutate(kappa = underlying.effects.lc$kappa.true[t]) %>%
-  mutate(phi.t = underlying.effects.lc$phi.true*(t-1)) %>%
-  mutate(kappa.phi = kappa + phi.t)
-
-gg.posterior <- ggplot(data = posterior.df) +
-  geom_ribbon(aes(x = t, ymin = q1, ymax = q2, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_point(aes(x = t, y = mean, color = "Inlabru", fill = "Inlabru")) +
-  geom_point(aes(x = t, y = kappa.phi, color = "True", fill = "True")) +
-  scale_color_manual(name = " ", values = palette.basis) + 
-  scale_fill_manual(name = " ", values = palette.basis) + 
-  labs(title = "Phi*t + kappa", x = "t", y = "")
-
-gg.posterior
-
-phi.kappa.samp <- inla.posterior.sample.eval(samples=samps, c("phi", "kappa"))
-
-samp.matrix <- matrix(rep(1:20, 100), byrow = FALSE, nrow= 20)
-phi.matrix <- matrix(rep(phi.kappa.samp[1,], 20), nrow = 20, byrow=TRUE)
-samp.matrix <- samp.matrix * phi.matrix + phi.kappa.samp[-1,]
-
-data.frame(t = 1:20, mean = apply(samp.matrix, 1, mean),
-           q1 = apply(samp.matrix, 1, quantile, 0.025),
-           q2 = apply(samp.matrix, 1, quantile, 0.975)) %>%
-  ggplot() + 
-  geom_line(aes(x = t, y= mean)) + 
-  geom_line(aes(x = t, y = q1), alpha = 0.5) +
-  geom_line(aes(x = t, y = q2), alpha = 0.5)
-
-samples[1]
-
-ggplot(data = posterior.phi) + geom_point(aes(x = t, y = mean)) + geom_line(aes(x = t, y =q0.025)) + geom_line(aes(x = t, y = q0.975))
+plots.lc$p.alpha
+plots.lc$p.beta
+plots.lc$p.phi
+plots.lc$p.intercept
+plots.lc$p.kappa
+plots.lc$p.eta
+plots.lc$p.eta.2
+plots.lc$p.eta.t
+plots.lc$p.eta.x
+plots.lc$p.gamma
 
 
 print("Runtime for inlabru: ")
 print(runtime.inlabru)
+
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10/stan_results/stan_v10.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10d/stan_results/stan_v10d.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10dh/stan_results/stan_v10dh.Rda")
+
+source("plot_stan_vs_underlying.R")
+
+#undrifted version of stan program:
+# stan.results <- produce.stan.plots(stan_df=stan_lc_df,
+#                    underlying.effects=underlying.effects.lc,
+#                    plot.func=plot.stan.vs.underlying.lc.undrifted,
+#                    save.func=save.stan.plots.lc,
+#                    path.to.storage=storage_path,
+#                    summaries.func=produce.summaries.stan.lc)
+
+# drifted version, soft constraints
+# stan.res <- produce.stan.plots(stan_df=stan_lc_df,
+#                                underlying.effects=underlying.effects.lc,
+#                                plot.func=plot.stan.vs.underlying.lc.drifted,
+#                                save.func=save.stan.plots.lc,
+#                                path.to.storage=storage_path,
+#                                summaries.func=produce.summaries.stan.lc)
+
+# drifted version of stan program, hard constraints
+stan.res <- produce.stan.plots(stan_df=stan_lc_df,
+                               underlying.effects=underlying.effects.lc,
+                               plot.func=plot.stan.vs.underlying.lc.drifted,
+                               save.func=save.stan.plots.lc,
+                               path.to.storage=storage_path,
+                               summaries.func=produce.summaries.stan.hard.lc)
+
+
+# samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)
+# 
+# phi.plus.kappa <- function(t_max){
+#   t = 0:t_max
+#   res = kappa + phi*t
+#   return(res)
+# }
+# 
+# phi.plus.kappa.99 <- function(){
+#   t = 0:99
+#   res = kappa + phi*t
+#   return(res)
+# }
+
+# posterior <- inla.posterior.sample.eval(fun = phi.plus.kappa.99, samples=samps)
+# 
+# posterior.df <- data.frame(t = 1:100,
+#                            mean = apply(posterior, 1, mean),
+#                            q1 = apply(posterior, 1, quantile, 0.025),
+#                            q2 = apply(posterior, 1, quantile, 0.975)) %>%
+#   mutate(kappa = underlying.effects.lc$kappa.true[t]) %>%
+#   mutate(phi.t = underlying.effects.lc$phi.true*(t-1)) %>%
+#   mutate(kappa.phi = kappa + phi.t)
+# 
+# gg.posterior <- ggplot(data = posterior.df) +
+#   geom_ribbon(aes(x = t, ymin = q1, ymax = q2, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+#   geom_point(aes(x = t, y = mean, color = "Inlabru", fill = "Inlabru")) +
+#   geom_point(aes(x = t, y = kappa.phi, color = "True", fill = "True")) +
+#   scale_color_manual(name = " ", values = palette.basis) + 
+#   scale_fill_manual(name = " ", values = palette.basis) + 
+#   labs(title = "Phi*t + kappa", x = "t", y = "")
+# 
+# gg.posterior
+
+# phi.kappa.samp <- inla.posterior.sample.eval(samples=samps, c("phi", "kappa"))
+# 
+# samp.matrix <- matrix(rep(1:20, 100), byrow = FALSE, nrow= 20)
+# phi.matrix <- matrix(rep(phi.kappa.samp[1,], 20), nrow = 20, byrow=TRUE)
+# samp.matrix <- samp.matrix * phi.matrix + phi.kappa.samp[-1,]
+# 
+# data.frame(t = 1:20, mean = apply(samp.matrix, 1, mean),
+#            q1 = apply(samp.matrix, 1, quantile, 0.025),
+#            q2 = apply(samp.matrix, 1, quantile, 0.975)) %>%
+#   ggplot() + 
+#   geom_line(aes(x = t, y= mean)) + 
+#   geom_line(aes(x = t, y = q1), alpha = 0.5) +
+#   geom_line(aes(x = t, y = q2), alpha = 0.5)
+# 
+# samples[1]
+
+# ggplot(data = posterior.phi) + geom_point(aes(x = t, y = mean)) + geom_line(aes(x = t, y =q0.025)) + geom_line(aes(x = t, y = q0.975))
+# 
 
 #res.inlabru.lc.1 <- inlabru.lc.pc_priors(obs.lc)
 #res.inlabru.lc.1 <- inlabru.lc.kappa_pc_prior(obs.lc)
@@ -101,20 +142,20 @@ print(runtime.inlabru)
 
 #res.inlabru.lc.1 <- inlabru.lc.1(obs.lc)
 
-#   ----   plotting results of inlabru fit   ----
-source("plot_inlabru_vs_underlying.R")
-
-# plotting results from run with cohort effects:
-plots <- plot.inlabru.vs.underlying.v5(res.inlabru.lc.1, underlying.effects.lc)
-plots$p.alpha
-plots$p.beta
-plots$p.phi
-#plots$p.intercept
-plots$p.kappa
-plots$p.eta
-plots$p.eta.2
-plots$p.eta.t
-plots$p.eta.x
+# #   ----   plotting results of inlabru fit   ----
+# source("plot_inlabru_vs_underlying.R")
+# 
+# # plotting results from run with cohort effects:
+# plots <- plot.inlabru.vs.underlying.v5(res.inlabru.lc.1, underlying.effects.lc)
+# plots$p.alpha
+# plots$p.beta
+# plots$p.phi
+# #plots$p.intercept
+# plots$p.kappa
+# plots$p.eta
+# plots$p.eta.2
+# plots$p.eta.t
+# plots$p.eta.x
 
 
 save.comparison.plots(plots$p.alpha, 'alpha_inlabru', path.to.folder)

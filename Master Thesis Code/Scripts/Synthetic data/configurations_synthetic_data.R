@@ -623,7 +623,9 @@ configuration.v10.2 <- function(){
     tau.beta.true = tau.beta.true,
     tau.kappa.true = tau.kappa.true,
     tau.epsilon.true= tau.epsilon.true,
-    config_name = "v10.2"
+    config_name = "v10.2",
+    nx=nx,
+    nt=nt
   )
   return(underlying.effects)
 }
