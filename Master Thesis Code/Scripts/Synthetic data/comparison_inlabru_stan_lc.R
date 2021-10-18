@@ -19,8 +19,8 @@ underlying.effects.lc <- configuration.v10.2()
 figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures"
 
 #storage_path = file.path(figures.folder, "v10_2")
-storage_path = file.path(figures.folder, "v10d")
-# storage_path = file.path(figures.folder, "v10dh")
+#storage_path = file.path(figures.folder, "v10d")
+storage_path = file.path(figures.folder, "v10dh")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -29,23 +29,23 @@ runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_varian
 
 source("plot_inlabru_vs_underlying.R")
 
-plots.lc <- plot.inlabru.vs.underlying.lc(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc(
   res.inlabru.lc.1, 
   underlying.effects.lc,
   path.to.storage = storage_path,
   save=TRUE,
   phi.plus.kappa.func = phi.plus.kappa.v17)
 
-plots.lc$p.alpha
-plots.lc$p.beta
-plots.lc$p.phi
-plots.lc$p.intercept
-plots.lc$p.kappa
-plots.lc$p.eta
-plots.lc$p.eta.2
-plots.lc$p.eta.t
-plots.lc$p.eta.x
-plots.lc$p.gamma
+plots.summaries.inlabru$plots$p.alpha
+plots.summaries.inlabru$plots$p.beta
+plots.summaries.inlabru$plots$p.phi
+plots.summaries.inlabru$plots$p.intercept
+plots.summaries.inlabru$plots$p.kappa
+plots.summaries.inlabru$plots$p.eta
+plots.summaries.inlabru$plots$p.eta.2
+plots.summaries.inlabru$plots$p.eta.t
+plots.summaries.inlabru$plots$p.eta.x
+plots.summaries.inlabru$plots$p.gamma
 
 
 print("Runtime for inlabru: ")
@@ -80,6 +80,10 @@ stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                save.func=save.stan.plots.lc,
                                path.to.storage=storage_path,
                                summaries.func=produce.summaries.stan.hard.lc)
+
+
+#   ----    Plot stan and inlabru-results together   ----
+source("plot_inlabru_stan_compared.R")
 
 
 # samps = inla.posterior.sample(res.inlabru.lc.1, n = 1000)

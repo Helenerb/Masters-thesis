@@ -48,21 +48,21 @@ source("plot_inlabru_vs_underlying.R")
 #plot.period.posterior <- plot.posterior.period.effects(res.inlabru.lc.1, underlying.effects.lc.cohort)
 
 # plotting results from run with cohort effects:
-plots.lc.cohort <- plot.inlabru.vs.underlying.cohort(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.cohort(
   res.inlabru.lc.1, 
   underlying.effects.lc.cohort,path.to.storage = storage_path,
   save=TRUE,
   phi.plus.kappa.func = phi.plus.kappa.v17)
-plots.lc.cohort$p.alpha
-plots.lc.cohort$p.beta
-plots.lc.cohort$p.phi
-plots.lc.cohort$p.intercept
-plots.lc.cohort$p.kappa
-plots.lc.cohort$p.eta
-plots.lc.cohort$p.eta.2
-plots.lc.cohort$p.eta.t
-plots.lc.cohort$p.eta.x
-plots.lc.cohort$p.gamma
+plots.summaries.inlabru$plots$p.alpha
+plots.summaries.inlabru$plots$p.beta
+plots.summaries.inlabru$plots$p.phi
+plots.summaries.inlabru$plots$p.intercept
+plots.summaries.inlabru$plots$p.kappa
+plots.summaries.inlabru$plots$p.eta
+plots.summaries.inlabru$plots$p.eta.2
+plots.summaries.inlabru$plots$p.eta.t
+plots.summaries.inlabru$plots$p.eta.x
+plots.summaries.inlabru$plots$p.gamma
 
 ###    ----   Configure and run inference with STAN    ----
 

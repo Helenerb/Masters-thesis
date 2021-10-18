@@ -41,7 +41,7 @@ plot.posterior.period.effects <- function(res.inlabru, underlying.effects, phi.p
     scale_fill_manual(name = " ", values = palette) + 
     labs(title = "Phi*t + kappa", x = "t", y = "")
   
-  return(gg.posterior)
+  return(list(posterior.plot = gg.posterior, posterior.data = posterior.phi.kappa.df))
 }
 
 plot.inlabru.vs.underlying.v1 <- function(res.inlabru, underlying.effects){
@@ -335,7 +335,8 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
   nx <- underlying.effects$nx
   nt <- underlying.effects$nt
   
-  p.period <- plot.posterior.period.effects(res.inlabru, underlying.effects, phi.plus.kappa.func)
+  results.period <- plot.posterior.period.effects(res.inlabru, underlying.effects, phi.plus.kappa.func)
+  p.period <- results.period$period.plot
   
   data.alpha = cbind(res.inlabru$summary.random$alpha,
                      alpha.true = underlying.effects$alpha.true[res.inlabru$summary.random$alpha$ID + 1])
@@ -385,7 +386,9 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
                       values = palette ) +
     labs(x = "t", y = "gamma", title = "Gamma - inlabru")
   
-  p.phi <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  data.fixed <- data.frame(res.inlabru$marginals.fixed)
+  
+  p.phi <- ggplot(data.fixed) + 
     geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
     geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill="Estimated")) + 
     geom_vline(aes(xintercept = underlying.effects$phi.true, color="True", fill="True")) +
@@ -393,7 +396,7 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
     scale_fill_manual(name = " ", values = palette) +
     labs(x = "Value of phi", y = " ", title = "Phi - inlabru")
   
-  p.intercept <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  p.intercept <- ggplot(data.fixed) + 
     geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
     geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill="Estimated")) + 
     geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
@@ -463,7 +466,15 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
                 p.phi.kappa = p.phi.kappa,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
-  return(plots)
+  
+  datas <- list(data.alpha = data.alpha,
+                data.beta = data.beta,
+                data.kappa = data.kappa,
+                data.gamma = data.gamma,
+                data.eta = data.eta,
+                data.fixed = data.fixed,
+                data.posterior = results.period$posterior.data)
+  return(list(plots = plots, datas = datas))
 }
 
 plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
@@ -474,7 +485,8 @@ plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
   nx <- underlying.effects$nx
   nt <- underlying.effects$nt
   
-  p.period <- plot.posterior.period.effects(res.inlabru, underlying.effects, phi.plus.kappa.func)
+  results.period <- plot.posterior.period.effects(res.inlabru, underlying.effects, phi.plus.kappa.func)
+  p.period <- results.period$period.plot
   
   data.alpha = cbind(res.inlabru$summary.random$alpha,
                      alpha.true = underlying.effects$alpha.true[res.inlabru$summary.random$alpha$ID + 1])
@@ -512,7 +524,9 @@ plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
                       values = palette ) +
     labs(x = "t", y = "kappa", title = "Kappa - inlabru")
   
-  p.phi <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  data.fixed  <- data.frame(res.inlabru$marginals.fixed)
+  
+  p.phi <- ggplot(data.fixed) + 
     geom_area(aes(x = phi.x, y = phi.y, fill = "Estimated"), alpha = 0.4) + 
     geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[2], color = "Estimated", fill="Estimated")) + 
     geom_vline(aes(xintercept = underlying.effects$phi.true, color="True", fill="True")) +
@@ -520,7 +534,7 @@ plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
     scale_fill_manual(name = " ", values = palette) +
     labs(x = "Value of phi", y = " ", title = "Phi - inlabru")
   
-  p.intercept <- ggplot(data.frame(res.inlabru$marginals.fixed)) + 
+  p.intercept <- ggplot(data.fixed) + 
     geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
     geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill="Estimated")) + 
     geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
@@ -589,7 +603,14 @@ plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
                 p.phi.kappa = p.phi.kappa,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
-  return(plots)
+  
+  datas <- list(data.alpha = data.alpha,
+                data.beta = data.beta,
+                data.kappa = data.kappa,
+                data.eta = data.eta,
+                data.fixed = data.fixed,
+                data.posterior = results.period$posterior.data)
+  return(list(plots=plots, datas=datas))
 }
 
 # Deprecate?

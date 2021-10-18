@@ -10,6 +10,8 @@ source("../Misc/palette.R")
 
 produce.summaries.stan <- function(stan_df, obs, underlying.effects){
   
+  summary_fixed <- stan_df[6:7]
+  
   summary_alpha <- stan_df %>%
     rownames_to_column("parameter") %>%
     filter(grepl('alpha', parameter)) %>%
@@ -62,13 +64,16 @@ produce.summaries.stan <- function(stan_df, obs, underlying.effects){
     summary_beta_raw=summary_beta,
     summary_kappa=summary_kappa,
     summary_gamma=summary_gamma,
-    summary_eta=summary_eta
+    summary_eta=summary_eta,
+    summary_fixed=summary_fixed
   )
   
   return(summaries)
 }
 
 produce.summaries.stan.lc <- function(stan_df, obs, underlying.effects){
+  
+  summary_fixed <- stan_df[5:6]
   
   summary_alpha <- stan_df %>%
     rownames_to_column("parameter") %>%
@@ -113,7 +118,8 @@ produce.summaries.stan.lc <- function(stan_df, obs, underlying.effects){
     summary_beta=summary_beta,
     summary_beta_raw=summary_beta,
     summary_kappa=summary_kappa,
-    summary_eta=summary_eta
+    summary_eta=summary_eta,
+    summary_fixed=summary_fixed
   )
   
   return(summaries)
