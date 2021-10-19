@@ -100,9 +100,6 @@ stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                    summaries.func=produce.summaries.stan.hard)
 
 
-
-summary_beta <- stan.res$summaries$summary_beta
-
 stan.plots <- plot.stan.vs.underlying.cohort(stan_df = stan_lc_df, obs=obs.cohort, underlying.effects = underlying.effects.lc.cohort)
 save.stan.plots(plots=stan.plots, path.to.storage=storage_path)
 stan.plots$p.alpha
@@ -110,3 +107,25 @@ stan.plots$p.beta
 stan.plots$p.eta
 stan.plots$p.gamma
 stan.plots$p.kappa
+
+
+#   ----   Plot comparison   ----   
+source("plot_inlabru_stan_compared.R")
+
+# undrifted stan
+# plots_compared <- produce.compared.plots(
+#   stan.summaries = stan.res$summaries,
+#   inlabru.summaries = plots.summaries.inlabru$summaries,
+#   underlying.effects = underlying.effects.lc.cohort,
+#   plot.func = plot.inlabru.stan.compared.cohort,
+#   save.func = save.compared.undrifted.cohort,
+#   path.to.storage=storage_path)
+
+# drifted stan
+plots_compared <- produce.compared.plots(
+  stan.summaries = stan.res$summaries,
+  inlabru.summaries = plots.summaries.inlabru$summaries,
+  underlying.effects = underlying.effects.lc.cohort,
+  plot.func = plot.inlabru.stan.compared.cohort,
+  save.func = save.compared.drifted.cohort,
+  path.to.storage=storage_path)

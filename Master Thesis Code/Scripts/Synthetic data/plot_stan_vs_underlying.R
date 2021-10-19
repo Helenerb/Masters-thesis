@@ -10,7 +10,7 @@ source("../Misc/palette.R")
 
 produce.summaries.stan <- function(stan_df, obs, underlying.effects){
   
-  summary_fixed <- stan_df[6:7]
+  summary_fixed <- stan_df[6:7,]
   
   summary_alpha <- stan_df %>%
     rownames_to_column("parameter") %>%
@@ -56,7 +56,9 @@ produce.summaries.stan <- function(stan_df, obs, underlying.effects){
     filter(grepl('eta', parameter)) %>%
     filter(!grepl('beta', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
-    mutate(true_eta = obs$eta)
+    mutate(true_eta = obs$eta) %>%
+    mutate(xt = obs$xt) %>%
+    mutate(x = obs$x, t = obs$t)
   
   summaries <- list(
     summary_alpha=summary_alpha,
@@ -73,7 +75,7 @@ produce.summaries.stan <- function(stan_df, obs, underlying.effects){
 
 produce.summaries.stan.lc <- function(stan_df, obs, underlying.effects){
   
-  summary_fixed <- stan_df[5:6]
+  summary_fixed <- stan_df[5:6,]
   
   summary_alpha <- stan_df %>%
     rownames_to_column("parameter") %>%
@@ -111,7 +113,9 @@ produce.summaries.stan.lc <- function(stan_df, obs, underlying.effects){
     filter(grepl('eta', parameter)) %>%
     filter(!grepl('beta', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
-    mutate(true_eta = obs$eta)
+    mutate(true_eta = obs$eta) %>%
+    mutate(xt = obs$xt) %>%
+    mutete(x = obs$x, t = obs$t)
   
   summaries <- list(
     summary_alpha=summary_alpha,
@@ -126,6 +130,8 @@ produce.summaries.stan.lc <- function(stan_df, obs, underlying.effects){
 }
 
 produce.summaries.stan.hard <- function(stan_df, obs, underlying.effects){
+  
+  summary_fixed <- stan_df[6:7,]
   
   summary_alpha <- stan_df %>%
     rownames_to_column("parameter") %>%
@@ -172,7 +178,9 @@ produce.summaries.stan.hard <- function(stan_df, obs, underlying.effects){
     filter(grepl('eta', parameter)) %>%
     filter(!grepl('beta', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
-    mutate(true_eta = obs$eta)
+    mutate(true_eta = obs$eta) %>%
+    mutate(xt = obs$xt) %>%
+    mutate(x = obs$x, t = obs$t)
   
   summaries <- list(
     summary_alpha=summary_alpha,
@@ -180,13 +188,16 @@ produce.summaries.stan.hard <- function(stan_df, obs, underlying.effects){
     summary_beta_raw=summary_beta,
     summary_kappa=summary_kappa,
     summary_gamma=summary_gamma,
-    summary_eta=summary_eta
+    summary_eta=summary_eta,
+    summary_fixed=summary_fixed
   )
   
   return(summaries)
 }
 
 produce.summaries.stan.hard.lc <- function(stan_df, obs, underlying.effects){
+  
+  summary_fixed <- stan_df[5:6,]
   
   summary_alpha <- stan_df %>%
     rownames_to_column("parameter") %>%
@@ -225,14 +236,16 @@ produce.summaries.stan.hard.lc <- function(stan_df, obs, underlying.effects){
     filter(grepl('eta', parameter)) %>%
     filter(!grepl('beta', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
-    mutate(true_eta = obs$eta)
+    mutate(true_eta = obs$eta) %>%
+    mutate(xt = obs$xt, x = obs$x, t = obs$t)
   
   summaries <- list(
     summary_alpha=summary_alpha,
     summary_beta=summary_beta,
     summary_beta_raw=summary_beta,
     summary_kappa=summary_kappa,
-    summary_eta=summary_eta
+    summary_eta=summary_eta,
+    summary_fixed=summary_fixed
   )
   
   return(summaries)

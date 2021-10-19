@@ -336,7 +336,7 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
   nt <- underlying.effects$nt
   
   results.period <- plot.posterior.period.effects(res.inlabru, underlying.effects, phi.plus.kappa.func)
-  p.period <- results.period$period.plot
+  p.period <- results.period$posterior.plot
   
   data.alpha = cbind(res.inlabru$summary.random$alpha,
                      alpha.true = underlying.effects$alpha.true[res.inlabru$summary.random$alpha$ID + 1])
@@ -404,20 +404,21 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
     scale_fill_manual(name = " ", values = palette) +
     labs(x = "Value of phi", y = " ", title = "Intercept - inlabru")
   
-  p.random.effects <- (p.intercept | p.alpha | p.beta) / (p.period | p.gamma) + 
-    plot_layout(guides = "collect")
-  
-  if(save){
-    save.figure(p.random.effects, name = "random_effects_inlabru", path = path.to.storage)
-  }
-  
-  
   p.phi.kappa <- (p.phi | p.kappa) + 
     plot_layout(guides = "collect") & theme(legend.position = "bottom")
   
   if(save){
     save.figure(p.phi.kappa, name = "phi_kappa_inlabru", path = path.to.storage)
   }
+  
+  p.random.effects <- (p.intercept | p.alpha | p.beta)/(p.period | p.gamma) + 
+    plot_layout(guides = "collect")
+  
+  
+  if(save){
+    save.figure(p.random.effects, name = "random_effects_inlabru", path = path.to.storage)
+  }
+  
   
   data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
     mutate(true.eta = obs$eta) %>%
@@ -467,14 +468,16 @@ plot.inlabru.vs.underlying.cohort <- function(res.inlabru, underlying.effects,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
   
-  datas <- list(data.alpha = data.alpha,
+  summaries <- list(data.alpha = data.alpha,
                 data.beta = data.beta,
                 data.kappa = data.kappa,
                 data.gamma = data.gamma,
                 data.eta = data.eta,
                 data.fixed = data.fixed,
-                data.posterior = results.period$posterior.data)
-  return(list(plots = plots, datas = datas))
+                data.period = results.period$posterior.data,
+                intercept = res.inlabru$summary.fixed$mean[1],
+                phi = res.inlabru$summary.fixed$mean[2])
+  return(list(plots = plots, summaries = summaries))
 }
 
 plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
@@ -604,13 +607,16 @@ plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
   
-  datas <- list(data.alpha = data.alpha,
+  summaries <- list(data.alpha = data.alpha,
                 data.beta = data.beta,
                 data.kappa = data.kappa,
                 data.eta = data.eta,
                 data.fixed = data.fixed,
-                data.posterior = results.period$posterior.data)
-  return(list(plots=plots, datas=datas))
+                data.period = results.period$posterior.data,
+                intercept = res.inlabru$summary.fixed$mean[1],
+                phi = res.inlabru$summary.fixed$mean[2]
+                )
+  return(list(plots=plots, summaries=summaries))
 }
 
 # Deprecate?
