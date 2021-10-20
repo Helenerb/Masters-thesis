@@ -8,7 +8,7 @@ source("configurations_synthetic_data.R")
 #underlying.effects.lc.cohort <- configuration.v7()  ##  Fine grid
 #underlying.effects.lc.cohort <- configuration.v17()  ## First attempt at coarser grid
 #underlying.effects.lc.cohort <- configuration.v17.1()
-#underlying.effects.lc.cohort <- configuration.v17.3()
+underlying.effects.lc.cohort <- configuration.v17.3()
 #underlying.effects.lc.cohort <- configuration.v18()  ## more erratic beta
 #underlying.effects.lc.cohort <- configuration.v18.1()
 #underlying.effects.lc.cohort <- configuration.v19()
@@ -16,7 +16,7 @@ source("configurations_synthetic_data.R")
 #underlying.effects.lc.cohort <- configuration.v21()
 #underlying.effects.lc.cohort <- configuration.v22()
 #underlying.effects.lc.cohort <- configuration.v22.1()
-underlying.effects.lc.cohort <- configuration.v22.3()
+#underlying.effects.lc.cohort <- configuration.v22.3()
 #underlying.effects.lc.cohort <- configuration.v23()
 #underlying.effects.lc.cohort <- configuration.v23.1()
 
@@ -28,6 +28,7 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v17dh")
 #storage_path = file.path(figures.folder, "v17_only_kappa")
 #storage_path = file.path(figures.folder, "v17_3_only_kappa")
+storage_path = file.path(figures.folder, "v17_3_beta_rw")
 #storage_path = file.path(figures.folder, "v17_3_extraconstr_gamma")
 #storage_path = file.path(figures.folder, "v18")
 #storage_path = file.path(figures.folder, "v18d")
@@ -38,7 +39,7 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v22")
 #storage_path = file.path(figures.folder, "v22_1")
 #storage_path = file.path(figures.folder, "v22_3")
-storage_path = file.path(figures.folder, "v22_3_extraconstr_gamma")
+#storage_path = file.path(figures.folder, "v22_3_extraconstr_gamma")
 #storage_path = file.path(figures.folder, "v23")
 #storage_path = file.path(figures.folder, "v23_1")
 
@@ -48,8 +49,9 @@ obs.cohort <- underlying.effects.lc.cohort$obs
 source("Inlabru\ analyses/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2(obs.cohort)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort(obs.cohort)})
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.gamma.extraconstr(obs.cohort)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.gamma.extraconstr(obs.cohort)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.cohort.kappa_high_variance_prior(obs.cohort)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.beta.rw(obs.cohort)})
 
 
 ###   ----   Plot results from inlabru inference   ----  
