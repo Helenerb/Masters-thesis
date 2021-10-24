@@ -17,28 +17,51 @@ underlying.effects.lc <- configuration.v10.3()
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
+#underlying.effects.lc <- configuration.test.1()
+
 figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures"
 
 #storage_path = file.path(figures.folder, "v10_2")
 #storage_path = file.path(figures.folder, "v10_2_only_kappa")
-storage_path = file.path(figures.folder, "v10_3_only_kappa")
+#storage_path = file.path(figures.folder, "v10_3_only_kappa")
 #storage_path = file.path(figures.folder, "v10d")
 #storage_path = file.path(figures.folder, "v10dh")
+#storage_path = file.path(figures.folder, "v10_2_ar1c")
+storage_path = file.path(figures.folder, "v10_3_ar1c")
+#storage_path = file.path(figures.folder, "test_1")
 
 obs.lc <- underlying.effects.lc$obs
 
 source("Inlabru\ analyses/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.kappa_high_variance_prior(obs.lc)})
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.2(obs.lc)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.2(obs.lc)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc(obs.lc)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc.2(obs.lc)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc.test.1(obs.lc)})
+
 
 source("plot_inlabru_vs_underlying.R")
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.only.kappa.2(
-  res.inlabru.lc.1, 
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.ar1c.2(
+  res.inlabru.lc.1,
   underlying.effects.lc,
   path.to.storage = storage_path,
   save=TRUE,
   phi.plus.kappa.func = phi.plus.kappa.v17)
+
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.ar1c(
+#   res.inlabru.lc.1, 
+#   underlying.effects.lc,
+#   path.to.storage = storage_path,
+#   save=TRUE,
+#   phi.plus.kappa.func = phi.plus.kappa.v17)
+
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.only.kappa.2(
+#   res.inlabru.lc.1, 
+#   underlying.effects.lc,
+#   path.to.storage = storage_path,
+#   save=TRUE,
+#   phi.plus.kappa.func = phi.plus.kappa.v17)
 
 plots.summaries.inlabru$plots$p.alpha
 plots.summaries.inlabru$plots$p.beta

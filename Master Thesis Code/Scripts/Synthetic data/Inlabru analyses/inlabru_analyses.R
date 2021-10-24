@@ -516,9 +516,6 @@ inlabru.undrifted.period.cohort.2.gamma.extraconstr <- function(obs){
   nc = length(unique(obs$c))
   
   cohorts = -(nx-1) : (nt-1)
-  cohorts.2 = (0:nt) - (0:nx)
-  print(cohorts)
-  print(cohorts.2)
   
   #   ----   Inlabru model fitting   ----
   
@@ -535,7 +532,6 @@ inlabru.undrifted.period.cohort.2.gamma.extraconstr <- function(obs){
   A.gamma = matrix(1, nrow = 1, ncol = nc)
   e.gamma = 0
   A.gamma[1,] = cohorts - mean(cohorts)
-  print(A.gamma)
   
   
   pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
@@ -560,6 +556,269 @@ inlabru.undrifted.period.cohort.2.gamma.extraconstr <- function(obs){
   res.inlabru = bru(components = comp,
                     likelihood, 
                     options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=30,
+                                   control.predictor = list(link = 1)
+                    ))
+  return(res.inlabru)
+}
+
+inlabru.ar1c.lc <- function(obs){
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  # constraints and input for the period effect kappa as an ar1c
+  Z.kappa = rep(1, nt)
+  Z.kappa[nt] = NA  ## will not be used 
+  #Z.kappa = matrix(1:nt, nrow = 1, ncol = nt)
+  Q.kappa = matrix(1, 1, 1)
+  rho.kappa  = 0.99
+  
+  pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 4))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = 4))
+  fixed.rho.prior <- list(rho = list(initial = log(199), fixed = TRUE))
+  
+  comp = ~ -1 +
+    Int(1) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
+    beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
+    #kappa(t, model = "ar1c", values = 1:(nt+1), hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    kappa(t, model = "ar1c", values = 0:(nt), hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    #kappa(t.c, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    epsilon(xt, model = "iid", hyper = loggamma.prior)
+  
+  formula = Y ~ Int + alpha + beta*kappa + epsilon
+  
+  likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=30,
+                                   control.predictor = list(link = 1)
+                    ))
+  return(res.inlabru)
+}
+
+inlabru.ar1c.lc.2 <- function(obs){
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  # constraints and input for the period effect kappa as an ar1c
+  Z.kappa = rep(1, nt)
+  Z.kappa[nt] = NA  ## will not be used 
+  #Z.kappa = matrix(1:nt, nrow = 1, ncol = nt)
+  Q.kappa = matrix(1, 1, 1)
+  rho.kappa  = 0.99
+  
+  pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 4))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = 4))
+  fixed.rho.prior <- list(rho = list(initial = log(199), fixed = TRUE))
+  
+  comp = ~ -1 +
+    Int(1) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
+    beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
+    #kappa(t, model = "ar1c", values = 1:(nt+1), hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    kappa(t, model = "ar1c", values = 0:(nt), constr = TRUE, hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    #kappa(t.c, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    epsilon(xt, model = "iid", hyper = loggamma.prior)
+  
+  formula = Y ~ Int + alpha + beta*kappa + epsilon
+  
+  likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=30,
+                                   control.predictor = list(link = 1)
+                    ))
+  return(res.inlabru)
+}
+
+inlabru.ar1c.cohort.2 <- function(obs){
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  nc = length(unique(obs$c))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  # constraints and input for the period effect kappa as an ar1c
+  Z.kappa = rep(1, nt)
+  Z.kappa[nt] = NA  ## will not be used 
+  #Z.kappa = matrix(1:nt, nrow = 1, ncol = nt)
+  Q.kappa = matrix(1, 1, 1)
+  rho.kappa  = 0.99
+  
+  pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 4))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = 4))
+  fixed.rho.prior <- list(rho = list(initial = log(199), fixed = TRUE))
+  
+  comp = ~ -1 +
+    Int(1) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
+    beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
+    #kappa(t, model = "ar1c", values = 1:(nt+1), hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    kappa(t, model = "ar1c", values = 0:(nt), constr = TRUE, hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = loggamma.prior) +
+    epsilon(xt, model = "iid", hyper = loggamma.prior)
+  
+  formula = Y ~ Int + alpha + beta*kappa + gamma + epsilon
+  
+  likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=30,
+                                   control.predictor = list(link = 1)
+                    ))
+  return(res.inlabru)
+}
+
+inlabru.ar1c.cohort.2.gamma.extraconstr <- function(obs){
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  nc = length(unique(obs$c))
+  
+  cohorts = -(nx-1) : (nt-1)
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  # constraints and input for the period effect kappa as an ar1c
+  Z.kappa = rep(1, nt)
+  Z.kappa[nt] = NA  ## will not be used 
+  #Z.kappa = matrix(1:nt, nrow = 1, ncol = nt)
+  Q.kappa = matrix(1, 1, 1)
+  rho.kappa  = 0.99
+  
+  # extraconstraining of gamma:
+  A.gamma = matrix(1, nrow = 1, ncol = nc)
+  e.gamma = 0
+  A.gamma[1,] = cohorts - mean(cohorts)
+  
+  pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 4))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = 4))
+  fixed.rho.prior <- list(rho = list(initial = log(199), fixed = TRUE))
+  
+  comp = ~ -1 +
+    Int(1) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
+    beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
+    #kappa(t, model = "ar1c", values = 1:(nt+1), hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    kappa(t, model = "ar1c", values = 0:(nt), constr = TRUE, hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa)) +
+    gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = loggamma.prior, extraconstr = list(A = A.gamma, e = e.gamma)) +
+    epsilon(xt, model = "iid", hyper = loggamma.prior)
+  
+  formula = Y ~ Int + alpha + beta*kappa + gamma + epsilon
+  
+  likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=30,
+                                   control.predictor = list(link = 1)
+                    ))
+  return(res.inlabru)
+}
+
+inlabru.ar1c.lc.test.1 <- function(obs){
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  
+  #nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  # A.beta = matrix(1, nrow = 1, ncol = nx)  
+  # e.beta = 1  
+  
+  # constraints and input for the period effect kappa as an ar1c
+  Z.kappa = rep(1, nt)
+  Z.kappa[nt] = NA  ## will not be used 
+  #Z.kappa = matrix(1:nt, nrow = 1, ncol = nt)
+  Q.kappa = matrix(1, 1, 1)
+  rho.kappa  = 0.99
+  
+  pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 4))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = 4))
+  fixed.rho.prior <- list(rho = list(initial = log(199), fixed = TRUE))
+  
+  comp = ~ -1 +
+    #Int(1) +
+    #alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
+    #beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
+    kappa(t, model = "ar1c", hyper = fixed.rho.prior, args.ar1c = list(Z = cbind(Z.kappa), Q.beta = Q.kappa))
+    #kappa(t.c, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    #epsilon(xt, model = "iid", hyper = loggamma.prior)
+  
+  formula = Y ~ kappa #+ epsilon
+  
+  likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = T,
                                    bru_verbose = 1, 
                                    num.threads = "1:1",
                                    control.compute = c.c,

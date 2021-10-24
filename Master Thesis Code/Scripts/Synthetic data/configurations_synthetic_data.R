@@ -631,7 +631,7 @@ configuration.v10.2 <- function(){
 }
 
 configuration.v10.3 <- function(){
-  # version of v9 with more erratic beta
+  # version of v10 with period effect summed to zero. 
   
   #   ----   Setiting seed for reproductiveness   ----
   
@@ -2658,6 +2658,64 @@ configuration.v23.1 <- function(){
   return(underlying.effects)
 }
 
+###    ----    Special configurations for testing   ----   
+configuration.test.1 <- function(){
+  # version of v9 with more erratic beta
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 324
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16  # number of age groups
+  nt = 20  # number of time steps
+  
+  #   ----   Definining underlying effects   ----
+  
+  phi.true = -1 # used to be -1
+  
+  tau.kappa.true = 0.5
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true[2:nt] = kappa.true[2:nt] - mean(kappa.true[2:nt])
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 10**6/nx
+  
+  ts = 1:(nt+1)
+  ts[nt+1] = NA
+  
+  obs <- data.frame(t = ts) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    #mutate(epsilon = rnorm(length(t), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = kappa + phi.t) %>%
+    mutate(Y = rpois(length(t), E*exp(eta))) %>%
+    mutate(t = t - 1)
+  
+  underlying.effects <- list(
+    obs = obs,
+    kappa.true = kappa.true[unique(obs$t) + 1],
+    phi.true = phi.true,
+    at.risk = at.risk,
+    tau.kappa.true = tau.kappa.true,
+    #tau.epsilon.true= tau.epsilon.true,
+    config_name = "test.1",
+    nt=nt
+  )
+  return(underlying.effects)
+}
+
+
+###   ----   Displaying configurations   ----   
 
 plot.underlying.effects <- function(u.e){
   

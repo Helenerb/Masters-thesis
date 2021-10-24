@@ -28,7 +28,7 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v17dh")
 #storage_path = file.path(figures.folder, "v17_only_kappa")
 #storage_path = file.path(figures.folder, "v17_3_only_kappa")
-storage_path = file.path(figures.folder, "v17_3_beta_rw")
+storage_path = file.path(figures.folder, "v17_3_ar1c")
 #storage_path = file.path(figures.folder, "v17_3_extraconstr_gamma")
 #storage_path = file.path(figures.folder, "v18")
 #storage_path = file.path(figures.folder, "v18d")
@@ -51,12 +51,22 @@ source("Inlabru\ analyses/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort(obs.cohort)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.gamma.extraconstr(obs.cohort)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.lc.cohort.kappa_high_variance_prior(obs.cohort)})
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.beta.rw(obs.cohort)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.beta.rw(obs.cohort)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.cohort.2(obs.cohort)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.cohort.2.gamma.extraconstr(obs.cohort)})
+
 
 
 ###   ----   Plot results from inlabru inference   ----  
 
 source("plot_inlabru_vs_underlying.R")
+
+# plot with ar1c configuration
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.cohort.ar1c.2(
+  res.inlabru.lc.1,
+  underlying.effects.lc.cohort,path.to.storage = storage_path,
+  save=TRUE,
+  phi.plus.kappa.func = phi.plus.kappa.v17)
 
 #plot.period.posterior <- plot.posterior.period.effects(res.inlabru.lc.1, underlying.effects.lc.cohort)
 
@@ -70,11 +80,11 @@ source("plot_inlabru_vs_underlying.R")
 #   phi.plus.kappa.func = phi.plus.kappa.v17)
 
 # only kappa rw as period effect, with kappa summed to zero
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.cohort.only.kappa.2(
-  res.inlabru.lc.1,
-  underlying.effects.lc.cohort,path.to.storage = storage_path,
-  save=TRUE,
-  phi.plus.kappa.func = phi.plus.kappa.v17)
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.cohort.only.kappa.2(
+#   res.inlabru.lc.1,
+#   underlying.effects.lc.cohort,path.to.storage = storage_path,
+#   save=TRUE,
+#   phi.plus.kappa.func = phi.plus.kappa.v17)
 
 
 plots.summaries.inlabru$plots$p.alpha
