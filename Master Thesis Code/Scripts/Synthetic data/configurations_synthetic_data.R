@@ -3153,15 +3153,15 @@ plot.underlying.effects.age.period <- function(u.e){
 # u.e.v17.4 <- configuration.v17.4()
 # plots <- plot.underlying.effects(u.e.v17.4)
 
-plots$p.8
-plots$p.beta
-plots$p.eta.stepwise
-plots$p.eta.stepwise.t
-plots$p.1
-plots$p.2
-plots$p.6
-plots$p.kappa.phi
-plots$p.kappa
-plots$p.gamma
-plots$p.eta.stepwise.c
-plots$p.eta.stepwise.t.c
+# plots$p.8
+# plots$p.beta
+# plots$p.eta.stepwise
+# plots$p.eta.stepwise.t
+# plots$p.1
+# plots$p.2
+# plots$p.6
+# plots$p.kappa.phi
+# plots$p.kappa
+# plots$p.gamma
+# plots$p.eta.stepwise.c
+# plots$p.eta.stepwise.t.c
