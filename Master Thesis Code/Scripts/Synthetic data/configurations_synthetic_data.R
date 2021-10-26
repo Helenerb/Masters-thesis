@@ -700,7 +700,7 @@ configuration.v10.3 <- function(){
     tau.beta.true = tau.beta.true,
     tau.kappa.true = tau.kappa.true,
     tau.epsilon.true= tau.epsilon.true,
-    config_name = "v10.2",
+    config_name = "v10.3",
     nx=nx,
     nt=nt
   )
@@ -849,6 +849,83 @@ configuration.v11.1 <- function(){
   return(underlying.effects)
 }
 
+configuration.v11.3 <- function(){
+  # configuration of v11 where period effect sums to zero. 
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 325
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16  # number of age groups
+  nt = 20  # number of time steps
+  
+  #   ----   Definining underlying effects   ----
+  
+  alpha.true = 2.5*cos(((1:nx*5 + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)
+  
+  age.intercept.true = - 5
+  
+  phi.true = -3
+  
+  tau.beta.true = 1000
+  
+  beta.true = rnorm(nx, mean=0, sd=sqrt(1/tau.beta.true))
+  beta.true = beta.true - mean(beta.true) + 1/nx
+  
+  tau.kappa.true = 0.5
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true = kappa.true - mean(kappa.true)
+  
+  kappa.drifted.true = kappa.true + phi.true*(0:(nt-1))
+  kappa.drifted.true = kappa.drifted.true - mean(kappa.drifted.true)
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 10**6/nx
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
+    mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
+    mutate(beta = beta.true[x]) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    mutate(kappa.drifted = kappa.drifted.true[t]) %>%
+    mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = age.intercept + alpha + beta*kappa.drifted + epsilon) %>%
+    mutate(Y = rpois(length(x), E*exp(eta))) %>%
+    mutate(xt = seq_along(x)) %>%
+    mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
+    mutate(x.c = x, t.c = t)
+  
+  underlying.effects <- list(
+    obs = obs,
+    alpha.true = alpha.true[unique(obs$x) + 1],
+    age.intercept.true= age.intercept.true,
+    beta.true = beta.true[unique(obs$x) + 1],
+    kappa.true = kappa.true[unique(obs$t) + 1],
+    kappa.drifted = kappa.drifted.true[unique(obs$t) + 1],
+    phi.true = phi.true,
+    at.risk = at.risk,
+    tau.beta.true = tau.beta.true,
+    tau.kappa.true = tau.kappa.true,
+    tau.epsilon.true= tau.epsilon.true,
+    config_name = "v11.3",
+    nx=nx,
+    nt=nt
+  )
+  return(underlying.effects)
+}
+
 configuration.v12 <- function(){
   # version of v11 with less erratic beta -> make sure that 
   
@@ -914,6 +991,83 @@ configuration.v12 <- function(){
     tau.beta.true = tau.beta.true,
     tau.kappa.true = tau.kappa.true,
     tau.epsilon.true= tau.epsilon.true
+  )
+  return(underlying.effects)
+}
+
+configuration.v12.3 <- function(){
+  # version of v12 with period effect summed to zero
+  
+  #   ----   Setiting seed for reproductiveness   ----
+  
+  seed = 324
+  set.seed(seed)
+  
+  #   ----   Defining data structure   ----
+  
+  nx = 16  # number of age groups
+  nt = 20  # number of time steps
+  
+  #   ----   Definining underlying effects   ----
+  
+  alpha.true = 3.9*cos(((1:nx*5 + 30)* pi)/50)
+  alpha.true = alpha.true - mean(alpha.true)
+  
+  age.intercept.true = - 7
+  
+  phi.true = -2.5
+  
+  tau.beta.true = 20000
+  
+  beta.true = rnorm(nx, mean=0, sd=sqrt(1/tau.beta.true))
+  beta.true = beta.true - mean(beta.true) + 1/nx
+  
+  tau.kappa.true = 0.1
+  kappa.true.increments = rnorm(nt-1, mean=0, sd=sqrt(1/tau.kappa.true))
+  kappa.true.increments = kappa.true.increments - mean(kappa.true.increments)
+  kappa.true = rep(0, nt)
+  for (idx in 2:nt){
+    kappa.true[idx] = kappa.true[idx - 1] + kappa.true.increments[idx-1]
+  }
+  kappa.true = kappa.true - mean(kappa.true)
+  
+  kappa.drifted.true = kappa.true + phi.true*(0:(nt-1))
+  kappa.drifted.true = kappa.drifted.true - mean(kappa.drifted.true)
+  
+  tau.epsilon.true = 1000
+  
+  at.risk = 2*10**6
+  
+  obs <- data.frame(expand.grid(x=1:nx, t=1:nt)) %>%
+    mutate(alpha = alpha.true[x]) %>%
+    mutate(age.intercept = age.intercept.true) %>%
+    mutate(beta = beta.true[x]) %>%
+    mutate(kappa = kappa.true[t]) %>%
+    mutate(phi.t = phi.true*(t-1)) %>%
+    mutate(kappa.drifted = kappa.drifted.true[t]) %>%
+    mutate(epsilon = rnorm(length(x), mean = 0, sd = sqrt(1/tau.epsilon.true))) %>%
+    mutate(E = at.risk) %>%
+    mutate(eta = age.intercept + alpha + beta*kappa.drifted + epsilon) %>%
+    mutate(Y = rpois(length(x), E*exp(eta))) %>%
+    mutate(xt = seq_along(x)) %>%
+    mutate(x = x - 1, t = t - 1, xt = xt - 1) %>%
+    mutate(x.c = x, t.c = t)
+  
+  underlying.effects <- list(
+    obs = obs,
+    alpha.true = alpha.true[unique(obs$x) + 1],
+    age.intercept.true= age.intercept.true,
+    beta.true = beta.true[unique(obs$x) + 1],
+    kappa.true = kappa.true[unique(obs$t) + 1],
+    kappa.drifted = kappa.drifted.true[unique(obs$t) + 1],
+    phi.true = phi.true,
+    at.risk = at.risk,
+    tau.beta.true = tau.beta.true,
+    tau.kappa.true = tau.kappa.true,
+    tau.epsilon.true= tau.epsilon.true,
+    config_name = "v12.3",
+    nx=nx,
+    nt=nt
   )
   return(underlying.effects)
 }
@@ -2993,11 +3147,11 @@ plot.underlying.effects.age.period <- function(u.e){
   return(plots)
 }
 
-# u.e.v11 <- configuration.v10.3()
-# plots <- plot.underlying.effects.age.period(u.e.v11)
+u.e.v12.3 <- configuration.v12.3()
+plots <- plot.underlying.effects.age.period(u.e.v11)
 
-u.e.v17.4 <- configuration.v17.4()
-plots <- plot.underlying.effects(u.e.v17.4)
+# u.e.v17.4 <- configuration.v17.4()
+# plots <- plot.underlying.effects(u.e.v17.4)
 
 plots$p.8
 plots$p.beta

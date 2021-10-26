@@ -51,13 +51,6 @@ run_stan_program_lc <- function(data, chains, warmup, iter, stan_program="stan_a
     nt = length(unique(obs$t))
   )
   
-  run_info <- list(
-    stan.file = stan_program,
-    chains = chains,
-    warmup = warmup,
-    iter = iter,
-    configuration = data$config_name
-  )
   
   fit <- stan(
     file=stan_program,
@@ -113,7 +106,20 @@ run_stan_program_lcc <- function(data, chains, warmup, iter, stan_program="stan_
   return(fit)
 }
 
-store_stan_results <- function(fit, output.path, config){
+store_stan_results <- function(fit, output.path, config, stan_program = "", chains = "", warmup = "", iter = ""){
+  
+  # save full stanfit object 
+  saveRDS(fit, file.path(output.path, 'stan_fit.rds'))
+  
+  # save info about run to txt file
+  run_info <- list(
+    stan.file = stan_program,
+    chains = chains,
+    warmup = warmup,
+    iter = iter,
+    configuration = config
+  )
+  lapply(run_info, write, file.path(output.path, 'run_indo.txt', append = TRUE, ncolumns = 1000))
   
   elapsed_time <- get_elapsed_time(fit)
   write.table(elapsed_time, file=file.path(output.path, 'elapsed_time.txt'))
