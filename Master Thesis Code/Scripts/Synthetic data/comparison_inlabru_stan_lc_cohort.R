@@ -8,7 +8,8 @@ source("configurations_synthetic_data.R")
 #underlying.effects.lc.cohort <- configuration.v7()  ##  Fine grid
 #underlying.effects.lc.cohort <- configuration.v17()  ## First attempt at coarser grid
 #underlying.effects.lc.cohort <- configuration.v17.1()
-underlying.effects.lc.cohort <- configuration.v17.3()
+#underlying.effects.lc.cohort <- configuration.v17.3()
+underlying.effects.lc.cohort <- configuration.v17.4()
 #underlying.effects.lc.cohort <- configuration.v18()  ## more erratic beta
 #underlying.effects.lc.cohort <- configuration.v18.1()
 #underlying.effects.lc.cohort <- configuration.v19()
@@ -28,7 +29,9 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v17dh")
 #storage_path = file.path(figures.folder, "v17_only_kappa")
 #storage_path = file.path(figures.folder, "v17_3_only_kappa")
-storage_path = file.path(figures.folder, "v17_3_ar1c")
+#storage_path = file.path(figures.folder, "v17_3_ar1c")
+#storage_path = file.path(figures.folder, "v17_3_ar1c_extraconstr_gamma")
+storage_path = file.path(figures.folder, "v17_4")
 #storage_path = file.path(figures.folder, "v17_3_extraconstr_gamma")
 #storage_path = file.path(figures.folder, "v18")
 #storage_path = file.path(figures.folder, "v18d")
