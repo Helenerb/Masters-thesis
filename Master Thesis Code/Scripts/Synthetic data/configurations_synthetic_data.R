@@ -3147,8 +3147,8 @@ plot.underlying.effects.age.period <- function(u.e){
   return(plots)
 }
 
-u.e.v12.3 <- configuration.v12.3()
-plots <- plot.underlying.effects.age.period(u.e.v11)
+# u.e.v12.3 <- configuration.v12.3()
+# plots <- plot.underlying.effects.age.period(u.e.v11)
 
 # u.e.v17.4 <- configuration.v17.4()
 # plots <- plot.underlying.effects(u.e.v17.4)
