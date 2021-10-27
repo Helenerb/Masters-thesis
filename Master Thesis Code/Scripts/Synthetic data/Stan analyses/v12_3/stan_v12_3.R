@@ -27,4 +27,3 @@ run_stan_v12.3 <- function(stan_program, chains=4, warmup=1000, iter=10000, mark
 }
 
 run_stan_v12.3(stan_program="Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 5000, iter = 50000, markov=TRUE)
-ls

@@ -6,4 +6,6 @@
 .DS_Store
 .Rda
 *.Rda
+*.csv
+*.rds
 /Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Workspaces/

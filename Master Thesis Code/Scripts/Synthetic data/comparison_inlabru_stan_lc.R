@@ -12,9 +12,9 @@ source("configurations_synthetic_data.R")
 #underlying.effects.lc <- configuration.v10.3()
 #underlying.effects.lc <- configuration.v11()  # config with coarser grid, larger variance in beta and steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v11.1()
-#underlying.effects.lc <- configuration.v11.3()
+underlying.effects.lc <- configuration.v11.3()
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
-underlying.effects.lc <- configuration.v12.3()
+#underlying.effects.lc <- configuration.v12.3()
 #underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
@@ -31,8 +31,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v10_2_ar1c")
 #storage_path = file.path(figures.folder, "v10_3_ar1c")
 #storage_path = file.path(figures.folder, "v10_3_rw2")
-#storage_path = file.path(figures.folder, "v11_3_rw2")
-storage_path = file.path(figures.folder, "v12_3_rw2")
+storage_path = file.path(figures.folder, "v11_3_rw2")
+#storage_path = file.path(figures.folder, "v12_3_rw2")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -81,9 +81,11 @@ plots.summaries.inlabru$plots$p.gamma
 print("Runtime for inlabru: ")
 print(runtime.inlabru)
 
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10/stan_results/stan_v10.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10/stan_results/stan_v10.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10d/stan_results/stan_v10d.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10dh/stan_results/stan_v10dh.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10_3/stan_results/stan_v10_3.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v11_3/stan_results/stan_v11_3.Rda")
 
 source("plot_stan_vs_underlying.R")
 
@@ -104,12 +106,20 @@ source("plot_stan_vs_underlying.R")
 #                                summaries.func=produce.summaries.stan.lc)
 
 # drifted version of stan program, hard constraints
+# stan.res <- produce.stan.plots(stan_df=stan_lc_df,
+#                                underlying.effects=underlying.effects.lc,
+#                                plot.func=plot.stan.vs.underlying.lc.drifted,
+#                                save.func=save.stan.plots.lc,
+#                                path.to.storage=storage_path,
+#                                summaries.func=produce.summaries.stan.hard.lc)
+
+# when period effect is modelled as rw2, summed to zero
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects.lc,
-                               plot.func=plot.stan.vs.underlying.lc.drifted,
-                               save.func=save.stan.plots.lc,
+                               plot.func=plot.stan.vs.underlying.lc.rw2,
+                               save.func=save.stan.plots.lc.rw2,
                                path.to.storage=storage_path,
-                               summaries.func=produce.summaries.stan.hard.lc)
+                               summaries.func=produce.summaries.stan.lc.rw2)
 
 
 #   ----    Plot stan and inlabru-results together   ----
