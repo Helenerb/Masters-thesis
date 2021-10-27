@@ -5,13 +5,14 @@ save.figure <- function(plot, name, path){
   #'plot: <gg object>
   #'name: <string>  on the format '<name>.png'
   #'
-  ggsave(paste(name, '.png', sep=""),
-         plot = plot,
-         device = "png",
-         path = path,
-         height = 5, width = 8, 
-         dpi = "retina"
-  )
+  
+  # ggsave(paste(name, '.png', sep=""),
+  #        plot = plot,
+  #        device = "png",
+  #        path = path,
+  #        height = 5, width = 8, 
+  #        dpi = "retina"
+  # )
   ggsave(paste(name, '.pdf', sep=""),
          plot = plot,
          device = "pdf",
