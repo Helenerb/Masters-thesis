@@ -1115,7 +1115,6 @@ plot.inlabru.vs.underlying.cohort.only.kappa.2 <- function(res.inlabru, underlyi
                 p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
                 p.eta.t = p.eta.t, p.intercept = p.intercept,
                 p.random.effects = p.random.effects,
-                p.phi.kappa = p.phi.kappa,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
   
@@ -1125,9 +1124,7 @@ plot.inlabru.vs.underlying.cohort.only.kappa.2 <- function(res.inlabru, underlyi
                     data.eta = data.eta,
                     data.fixed = data.fixed,
                     data.gamma = data.gamma,
-                    data.period = results.period$posterior.data,
-                    intercept = res.inlabru$summary.fixed$mean[1],
-                    phi = res.inlabru$summary.fixed$mean[2]
+                    intercept = res.inlabru$summary.fixed$mean[1]
   )
   return(list(plots=plots, summaries=summaries))
 }

@@ -1,4 +1,4 @@
-# TODO: Script running and comparing inference with the lc-cohort model
+#Script running and comparing inference with the lc-cohort model
 # by inlabru and STAN. 
 
 setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
@@ -37,7 +37,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v18")
 #storage_path = file.path(figures.folder, "v18d")
 #storage_path = file.path(figures.folder, "v18dh")
-storage_path = file.path(figures.folder, "v18_3")
+#storage_path = file.path(figures.folder, "v18_3")
+storage_path = file.path(figures.folder, "v18_3_extraconstr")
 #storage_path = file.path(figures.folder, "v19")
 #storage_path = file.path(figures.folder, "v20")
 #storage_path = file.path(figures.folder, "v21")
@@ -59,7 +60,8 @@ source("Inlabru\ analyses/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.undrifted.period.cohort.2.beta.rw(obs.cohort)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.cohort.2(obs.cohort)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.cohort.2.gamma.extraconstr(obs.cohort)})
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.cohort.2(obs.cohort)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.cohort.2(obs.cohort)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.cohort.2.gamma.extraconstr(obs.cohort)})
 
 
 ###   ----   Plot results from inlabru inference   ----  
@@ -86,11 +88,12 @@ source("plot_inlabru_vs_underlying.R")
 #   phi.plus.kappa.func = phi.plus.kappa.v17)
 
 # only kappa rw as period effect, with kappa summed to zero
-# plots.summaries.inlabru <- plot.inlabru.vs.underlying.cohort.only.kappa.2(
-#   res.inlabru.lc.1,
-#   underlying.effects.lc.cohort,path.to.storage = storage_path,
-#   save=TRUE,
-#   phi.plus.kappa.func = phi.plus.kappa.v17)
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.cohort.only.kappa.2(
+  res.inlabru.lc.1,
+  underlying.effects.lc.cohort,
+  path.to.storage = storage_path,
+  save=TRUE,
+  phi.plus.kappa.func = phi.plus.kappa.v17)
 
 
 plots.summaries.inlabru$plots$p.alpha

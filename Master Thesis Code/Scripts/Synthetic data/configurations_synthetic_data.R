@@ -2323,6 +2323,7 @@ configuration.v18.3 <- function(){
     beta.true = beta.true,
     kappa.true = kappa.true,
     phi.true = phi.true,
+    kappa.drifted = kappa.true.drifted,
     gamma.true = gamma.true,
     at.risk = at.risk,
     age.intercept.true = age.intercept.true,
