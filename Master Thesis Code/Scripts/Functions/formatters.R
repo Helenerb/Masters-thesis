@@ -9,7 +9,7 @@ library(lubridate)
 #'@param path_to_data ("<filename>.xlsx") location of raw data in xlsx file
 #'@param path_to_output ("path/to/output/location") location of output data
 #'@param filename ("<filename>") the name of the outout file, without file type suffix
-format_population_data <- function(path_to_data, path_to_output, filename){
+format_population_data <- function(path_to_data, path_to_output="", filename="", save=TRUE){
   population <- read_excel(path_to_data, sheet=1,
                            col_names = c("age", "male", "female", "total"),
                            skip = 6)
@@ -30,17 +30,19 @@ format_population_data <- function(path_to_data, path_to_output, filename){
     mutate(year = format(as.POSIXct(year, format="%d.%m.%Y"), format="%Y")) %>%
     filter(year < 2017)
   
-  save(population, file=file.path(path_to_output, paste(filename, ".Rda", sep = "")))
-  write.csv(population, file = file.path(path_to_output, paste(filename, ".csv", sep="")), row.names = FALSE)
+  if(save){
+    save(population, file=file.path(path_to_output, paste(filename, ".Rda", sep = "")))
+    write.csv(population, file = file.path(path_to_output, paste(filename, ".csv", sep="")), row.names = FALSE)
+  }
   return(population)
 }
 
 # run format_population_data
 
-population <- format_population_data(
-  "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/population-germany.xlsx",
-  "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data",
-  "population-germany")
+# population <- format_population_data(
+#   "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/population-germany.xlsx",
+#   "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data",
+#   "population-germany")
 
 #' Formats raw cancer mortality data (made for lung or stomach cancer) 
 #' 
@@ -48,7 +50,7 @@ population <- format_population_data(
 #'@param path_to_output ("path/to/output/location") location of output dataframe
 #'@param filename ("<filename>") the name of the outout file, without file type suffix
 #'@param population (data.frame) formatted population data
-format_cancer_data <- function(path_to_data, path_to_output, filename, population){
+format_cancer_data <- function(path_to_data, population, path_to_output="", filename="", save=TRUE){
   cancer.data  <- read_excel(path_to_data) %>%
     rename(sex = "...1") %>% rename(age = "...2") %>%
     mutate(age = replace(age, age == "85", "85 +")) %>%
@@ -68,25 +70,27 @@ format_cancer_data <- function(path_to_data, path_to_output, filename, populatio
     mutate("mortality rate" = total/total.t) %>% 
     mutate(E = total.t)
   
-  save(cancer.data, file=file.path(path_to_output, paste(filename, ".Rda", sep = "")))
-  write.csv(cancer.data, file = file.path(path_to_output, paste(filename, ".csv", sep="")), row.names = FALSE)
+  if(save){
+    save(cancer.data, file=file.path(path_to_output, paste(filename, ".Rda", sep = "")))
+    write.csv(cancer.data, file = file.path(path_to_output, paste(filename, ".csv", sep="")), row.names = FALSE)
+  }
   return(cancer.data)
 }
 
 #   ----   Run format cancer data for stomach cancer data   ----
-stomach.cancer <- format_cancer_data(
-  "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/stomachCancer-germany.xls",
-  "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data",
-  "stomachCancer-germany",
-  population=population)
+# stomach.cancer <- format_cancer_data(
+#   "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/stomachCancer-germany.xls",
+#   "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data",
+#   "stomachCancer-germany",
+#   population=population)
 
 
 #   ----   Run format cancer data for lung cancer data   ----
 
-lung.cancer <- format_cancer_data(
-  "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/lungCancer-germany.xls",
-  "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data",
-  "lungCancer-germany",
-  population=population)
+# lung.cancer <- format_cancer_data(
+#   "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/lungCancer-germany.xls",
+#   "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data",
+#   "lungCancer-germany",
+#   population=population)
 
 
