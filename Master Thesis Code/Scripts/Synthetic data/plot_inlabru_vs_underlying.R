@@ -842,11 +842,10 @@ plot.inlabru.vs.underlying.lc.only.kappa.2 <- function(res.inlabru, underlying.e
   }
   
   plots <- list(p.alpha = p.alpha, p.beta = p.beta, p.kappa = p.kappa,
-                p.phi = p.phi, p.eta = p.eta,
+                p.eta = p.eta,
                 p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
                 p.eta.t = p.eta.t, p.intercept = p.intercept,
                 p.random.effects = p.random.effects,
-                p.phi.kappa = p.phi.kappa,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
   
@@ -855,12 +854,12 @@ plot.inlabru.vs.underlying.lc.only.kappa.2 <- function(res.inlabru, underlying.e
                     data.kappa = data.kappa,
                     data.eta = data.eta,
                     data.fixed = data.fixed,
-                    data.period = results.period$posterior.data,
                     intercept = res.inlabru$summary.fixed$mean[1],
                     phi = res.inlabru$summary.fixed$mean[2]
   )
   return(list(plots=plots, summaries=summaries))
 }
+
 
 plot.inlabru.vs.underlying.cohort.only.kappa <- function(res.inlabru, underlying.effects,
                                                            path.to.storage="", save=FALSE,

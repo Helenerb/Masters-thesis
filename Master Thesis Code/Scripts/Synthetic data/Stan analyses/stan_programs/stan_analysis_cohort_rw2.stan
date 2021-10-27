@@ -15,11 +15,17 @@
 data {
   int<lower=0> T;  // number of periods
   int<lower=0> X;  // number of age groups
+  int<lower=0> C;  // number of cohorts
+  
   int x[X*T];   // age group indices in the data
   int t[X*T];   // period indices in the data
+  int c[X*T];  // cohort indices in the data
+  
   vector[X*T] ts; // vector containing period indices
+  
   int Y[X*T];   // observed deaths -> response variable
   vector[X*T] E;   // observed population at risk
+  
   real nx;  //  number of age steps as a float
   real nt;  // number of period steps as a float
 }
@@ -28,11 +34,11 @@ data {
 // accepts the parameters tau_alpha, tau_beta, tau_kappa, tau_epsilon, phi, 
 // alpha, beta_raw, kappa_raw, epsilon. 
 
-// OK
 parameters {
   real<lower=0> tau_alpha;  // precision of random walk, alpha
   real<lower=0> tau_beta;  // precision of normal distribution of beta
   real<lower=0> tau_kappa;  // precision of random walk, kappa
+  real<lower=0> tau_gamma;  // precision of random walk, gamma
   real<lower=0> tau_epsilon;  // precision of normal distribution of epsilon
   
   real intercept;  // included intercept
@@ -41,6 +47,8 @@ parameters {
   vector[X] beta_raw;  //  before sum-to-unit is implemented
   
   vector[T] kappa_raw;  //  before sum-to-zero is implemented
+  
+  vector[C] gamma_raw;  // before sum-to-zero is implemented
   
   vector[X*T] epsilon;  // unconstrained
 }
@@ -54,10 +62,11 @@ transformed parameters {
   vector[X] alpha = alpha_raw - mean(alpha_raw);
   vector[X] beta = beta_raw - mean(beta_raw) + 1/nx;
   vector[T] kappa = kappa_raw - mean(kappa_raw);
+  vector[C] gamma = gamma_raw - mean(gamma_raw);
   
   // split kappa into driftless rw and linear term
   //vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
-  vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
+  vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + gamma[c] +  epsilon;
 }
 
 // OK
@@ -67,6 +76,7 @@ model {
   target += gamma_lpdf(tau_alpha | 1, 0.00005);
   target += gamma_lpdf(tau_beta | 1, 0.00005);
   target += gamma_lpdf(tau_kappa | 1, 0.005);  // more informative prior on tau_kappa
+  target += gamma_lpdf(tau_gamma | 1, 0.00005);
   target += gamma_lpdf(tau_epsilon | 1, 0.00005);
   
   // prior distributions
@@ -80,6 +90,8 @@ model {
   target += normal_lpdf(kappa_raw[1] | 0, 1/sqrt(tau_kappa));
   target += normal_lpdf(kappa_raw[2] | kappa_raw[1], 1/sqrt(tau_kappa));
   target += normal_lpdf(kappa_raw[3:T] | 2*kappa_raw[2:T-1] - kappa_raw[1:T-2], 1/sqrt(tau_kappa));
+  
+  target += normal_lpdf(gamma_raw[2:C] | gamma_raw[1:C-1], 1/sqrt(tau_gamma));
   
   //epsilon ~ normal(0, 1/sqrt(tau_epsilon));
   target += normal_lpdf(epsilon | 0, 1/sqrt(tau_epsilon));

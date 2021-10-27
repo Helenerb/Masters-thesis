@@ -86,6 +86,7 @@ print(runtime.inlabru)
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10dh/stan_results/stan_v10dh.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10_3/stan_results/stan_v10_3.Rda")
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v11_3/stan_results/stan_v11_3.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v12_3/stan_results/stan_v12_3.Rda")
 
 source("plot_stan_vs_underlying.R")
 
@@ -126,19 +127,19 @@ stan.res <- produce.stan.plots(stan_df=stan_lc_df,
 source("plot_inlabru_stan_compared.R")
 
 # undrifted stan
-plots_compared <- produce.compared.plots(
-  stan.summaries = stan.res$summaries,
-  inlabru.summaries = plots.summaries.inlabru$summaries,
-  underlying.effects = underlying.effects.lc,
-  plot.func = plot.inlabru.stan.compared.lc,
-  save.func = save.compared.undrifted.lc,
-  path.to.storage=storage_path)
-
-# drifted stan
 # plots_compared <- produce.compared.plots(
 #   stan.summaries = stan.res$summaries,
 #   inlabru.summaries = plots.summaries.inlabru$summaries,
 #   underlying.effects = underlying.effects.lc,
 #   plot.func = plot.inlabru.stan.compared.lc,
-#   save.func = save.compared.drifted.lc,
+#   save.func = save.compared.undrifted.lc,
 #   path.to.storage=storage_path)
+
+# drifted stan
+plots_compared <- produce.compared.plots(
+  stan.summaries = stan.res$summaries,
+  inlabru.summaries = plots.summaries.inlabru$summaries,
+  underlying.effects = underlying.effects.lc,
+  plot.func = plot.inlabru.stan.compared.lc.rw2,
+  save.func = save.compared.rw2.lc,
+  path.to.storage=storage_path)
