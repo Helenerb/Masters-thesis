@@ -22,8 +22,15 @@ run_stan_v18_3 <- function(stan_program, chains=4, warmup=1000, iter=10000, mark
   
   population <- format_population_data("../../Data/population-germany.xlsx",
                                        save=FALSE)
-  data =  format_cancer_data("../../Data/lungCancer-germany.xls", 
+  cancer.data =  format_cancer_data("../../Data/lungCancer-germany.xls", 
                              population=population, save=FALSE)
+  
+  data = list(obs = cancer.data,
+              nx = max(cancer.data$x) + 1,
+              config_name = config)
+  
+  print("nx: ")
+  print(data$nx)
   
   stan_fit <- run_stan_program_lcc(data, chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
   
