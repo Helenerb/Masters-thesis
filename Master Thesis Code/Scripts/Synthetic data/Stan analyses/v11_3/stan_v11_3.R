@@ -28,4 +28,4 @@ run_stan_v11.3 <- function(stan_program, chains=4, warmup=1000, iter=10000, mark
                      stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_v11.3(stan_program="Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=2, warmup = 50, iter = 100, markov=TRUE)
+run_stan_v11.3(stan_program="Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=6, warmup = 30000, iter = 300000, markov=TRUE)
