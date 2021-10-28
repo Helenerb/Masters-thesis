@@ -1,4 +1,4 @@
-# runs stan analysis for lung cancer data, adapted to be runable
+# runs stan analysis for stomach cancer data, adapted to be runable
 # on Markov. 
 
 set_workspace <- function(config, markov=TRUE){
@@ -13,8 +13,8 @@ set_workspace <- function(config, markov=TRUE){
   return(output.path)
 }
 
-run_stan_lung_rw2 <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
-  config = "lung_rw2"
+run_stan_stomach_rw2 <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
+  config = "stomach_rw2"
   output.path <- set_workspace(config=config, markov)
   source("../Synthetic\ data/run_stan_functions.R")
   
@@ -22,8 +22,8 @@ run_stan_lung_rw2 <- function(stan_program, chains=4, warmup=1000, iter=10000, m
   
   population <- format_population_data("../../Data/population-germany.xlsx",
                                        save=FALSE)
-  cancer.data =  format_cancer_data("../../Data/lungCancer-germany.xls", 
-                             population=population, save=FALSE)
+  cancer.data =  format_cancer_data("../../Data/stomachCancer-germany.xls", 
+                                    population=population, save=FALSE)
   
   # Hack: set nx=1, since the real-data cohort indices are not negative. 
   data = list(obs = cancer.data,
@@ -38,4 +38,4 @@ run_stan_lung_rw2 <- function(stan_program, chains=4, warmup=1000, iter=10000, m
   store_stan_results(fit=stan_fit, output.path=output.path, config=config)
 }
 
-run_stan_lung_rw2(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_cohort_rw2.stan", chains=4, warmup = 50, iter = 100, markov=TRUE)
+run_stan_stomach_rw2(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_cohort_rw2.stan", chains=4, warmup = 50, iter = 100, markov=TRUE)
