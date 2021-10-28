@@ -37,8 +37,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v18")
 #storage_path = file.path(figures.folder, "v18d")
 #storage_path = file.path(figures.folder, "v18dh")
-#storage_path = file.path(figures.folder, "v18_3")
-storage_path = file.path(figures.folder, "v18_3_extraconstr")
+storage_path = file.path(figures.folder, "v18_3")
+#storage_path = file.path(figures.folder, "v18_3_extraconstr")
 #storage_path = file.path(figures.folder, "v19")
 #storage_path = file.path(figures.folder, "v20")
 #storage_path = file.path(figures.folder, "v21")
@@ -114,7 +114,10 @@ plots.summaries.inlabru$plots$p.gamma
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18d/stan_results/stan_v18d.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17d/stan_results/stan_v17d.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v17dh/stan_results/stan_v17dh.Rda")
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18dh/stan_results/stan_v18dh.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18dh/stan_results/stan_v18dh.Rda")
+
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_v18_3.Rda")
+stan_fit_full <- readRDS("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_fit.rds")
 
 # stan results df loaded under name "stan_lc_df"
 

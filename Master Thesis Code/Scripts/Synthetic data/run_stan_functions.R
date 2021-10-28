@@ -110,7 +110,40 @@ run_stan_program_lcc <- function(data, chains, warmup, iter, stan_program="stan_
 store_stan_results <- function(fit, output.path, config, stan_program = "", chains = "", warmup = "", iter = ""){
   
   # save full stanfit object 
-  saveRDS(fit, file.path(output.path, 'stan_fit.rds'))
+  tryCatch({
+    saveRDS(fit, file.path(output.path, 'stan_fit.rds'))
+  },
+  error = function(cond){
+    message("Could not save full stan fit: ")
+    message(cond)
+    return(NA)
+  },
+  warning = function(cond){
+    message("Warning: ")
+    message(cond)
+    return(NULL)
+  })
+  
+  list_of_draws <- extract(fit)
+  
+  tryCatch({
+    save(list_of_draws$tau_alpha, file = file.path(output.path, 'draws_tau_alpha.RData'))
+    save(list_of_draws$tau_beta, file = file.path(output.path, 'draws_tau_beta.RData'))
+    save(list_of_draws$tau_kappa, file = file.path(output.path, 'draws_tau_kappa.RData'))
+    save(list_of_draws$tau_gamma, file = file.path(output.path, 'draws_tau_gamma.RData'))
+    save(list_of_draws$tau_epsilon, file = file.path(output.path, 'draws_tau_epsilon.RData'))
+    save(list_of_draws$intercept, file = file.path(output.path, 'draws_intercept.RData'))
+  },
+  error = function(cond){
+    message("Could not save lists of marginals")
+    message(cond)
+    return(NA)
+  },
+  warning = function(cond){
+    message(cond)
+    return(NULL)
+  })
+  
   
   # save info about run to txt file
   run_info <- list(
