@@ -42,11 +42,25 @@ plots.stomach.extraconstr <- plot.inlabru.real(
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_extraconstr")
 
 # run with extraconstraints on gamma, lung
-res.stomach.extraconstr <- inlabru.rw2.cohort.2.gamma.extraconstr(stomach.cancer, real_data = TRUE)
+res.lung.extraconstr <- inlabru.rw2.cohort.2.gamma.extraconstr(lung.cancer, real_data = TRUE, max_iter=100)
 
 plot.hypers.inlabru.real(
-  res.stomach.extraconstr, stomach.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_extraconstr")
+  res.lung.extraconstr, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_extraconstr")
+
+plots.lung.extraconstr <- plot.inlabru.real(
+  res.lung.extraconstr, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_extraconstr")
+
+save(res.lung.extraconstr, file="Scripts/Real data/Output/Data/lung_rw2_extraconstr/res_inlabru.RData")
+
+#   ----   Compare results of STAN and inlabru:   ----
+
+#load("/Scripts/Real data/Stan analyses/lung_rw2/stan_results/stan_lung_rw2.Rda")  # TODO: Check that this is the correct path!
+
+plots.compared.lung <- plot.comparison.real(res.inlabru.lung, res.stan = "TODO", lung.cancer)
+
+
 
 
 
