@@ -120,7 +120,7 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     iter = iter,
     configuration = config
   )
-  lapply(run_info, write, file.path(output.path, 'run_indo.txt'), append = TRUE, ncolumns = 1000)
+  lapply(run_info, write, file.path(output.path, 'run_info.txt'), append = TRUE, ncolumns = 1000)
   
   elapsed_time <- get_elapsed_time(fit)
   write.table(elapsed_time, file=file.path(output.path, 'elapsed_time.txt'))
