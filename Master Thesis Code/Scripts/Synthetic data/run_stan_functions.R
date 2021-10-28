@@ -124,7 +124,7 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     return(NULL)
   })
   
-  list_of_draws <- extract(fit)
+  list_of_draws <- rstan::extract(fit)
   
   tryCatch({
     save(list_of_draws$tau_alpha, file = file.path(output.path, 'draws_tau_alpha.RData'))

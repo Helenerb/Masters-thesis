@@ -119,6 +119,7 @@ plots.summaries.inlabru$plots$p.gamma
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_v18_3.Rda")
 stan_fit_full <- readRDS("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_fit.rds")
 
+
 # stan results df loaded under name "stan_lc_df"
 
 source("plot_stan_vs_underlying.R")
