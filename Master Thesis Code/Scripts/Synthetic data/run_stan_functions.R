@@ -125,22 +125,31 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
   })
   
   list_of_draws <- rstan::extract(fit)
+  alpha_draws <- list_of_draws$tau_alpha
+  beta_draws <- list_of_draws$tau_beta
+  kappa_draws <- list_of_draws$tau_kappa
+  gamma_draws <- list_of_draws$tau_gamma
+  epsilon_draws <- list_of_draws$tau_epsilon
+  intercept_draws <- list_of_draws$intercept
   
   tryCatch({
-    save(list_of_draws$tau_alpha, file = file.path(output.path, 'draws_tau_alpha.RData'))
-    save(list_of_draws$tau_beta, file = file.path(output.path, 'draws_tau_beta.RData'))
-    save(list_of_draws$tau_kappa, file = file.path(output.path, 'draws_tau_kappa.RData'))
-    save(list_of_draws$tau_gamma, file = file.path(output.path, 'draws_tau_gamma.RData'))
-    save(list_of_draws$tau_epsilon, file = file.path(output.path, 'draws_tau_epsilon.RData'))
-    save(list_of_draws$intercept, file = file.path(output.path, 'draws_intercept.RData'))
+    save(alpha_draws, file = file.path(output.path, 'draws_tau_alpha.RData'))
+    save(beta_draws, file = file.path(output.path, 'draws_tau_beta.RData'))
+    save(kappa_draws, file = file.path(output.path, 'draws_tau_kappa.RData'))
+    save(gamma_draws, file = file.path(output.path, 'draws_tau_gamma.RData'))
+    save(epsilon_draws, file = file.path(output.path, 'draws_tau_epsilon.RData'))
+    save(intercept_draws, file = file.path(output.path, 'draws_intercept.RData'))
   },
   error = function(cond){
-    message("Could not save lists of marginals")
+    message("Could not save lists of marginals \n")
     message(cond)
+    message(" ")
     return(NA)
   },
   warning = function(cond){
+    message("Trying to save list of marginals gives the following warning \n")
     message(cond)
+    message(" ")
     return(NULL)
   })
   
