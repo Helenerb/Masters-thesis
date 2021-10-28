@@ -23,7 +23,9 @@ run_stan_v11.3 <- function(stan_program, chains=4, warmup=1000, iter=10000, mark
   
   stan_fit <- run_stan_program_lc(data, chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
   
-  store_stan_results(fit=stan_fit, output.path=output.path, config="v11_3", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
+  store_stan_results(fit=stan_fit, output.path=output.path, config="v11_3",
+                     chains=chains, warmup=warmup, iter=iter,
+                     stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_v11.3(stan_program="Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 10000, iter = 100000, markov=TRUE)
+run_stan_v11.3(stan_program="Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=2, warmup = 50, iter = 100, markov=TRUE)
