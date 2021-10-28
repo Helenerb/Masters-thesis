@@ -26,4 +26,4 @@ run_stan_v18_3 <- function(stan_program, chains=4, warmup=1000, iter=10000, mark
   store_stan_results(fit=stan_fit, output.path=output.path, config="v18_3")
 }
 
-run_stan_v18_3(stan_program="Stan\ analyses/stan_programs/stan_analysis_cohort_rw2.stan", chains=2, warmup = 50, iter = 100, markov=TRUE)
+run_stan_v18_3(stan_program="Stan\ analyses/stan_programs/stan_analysis_cohort_rw2.stan", chains=4, warmup = 100, iter = 1000, markov=TRUE)
