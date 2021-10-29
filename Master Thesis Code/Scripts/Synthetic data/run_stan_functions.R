@@ -111,20 +111,20 @@ run_stan_program_lcc <- function(data, chains, warmup, iter, stan_program="stan_
 
 store_stan_results <- function(fit, output.path, config, stan_program = "", chains = "", warmup = "", iter = "", cohort=TRUE){
   
-  # save full stanfit object 
-  tryCatch({
-    saveRDS(fit, file.path(output.path, 'stan_fit.rds'))
-  },
-  error = function(cond){
-    message("Could not save full stan fit: ")
-    message(cond)
-    return(NA)
-  },
-  warning = function(cond){
-    message("Warning: ")
-    message(cond)
-    return(NULL)
-  })
+  # # save full stanfit object 
+  # tryCatch({
+  #   saveRDS(fit, file.path(output.path, 'stan_fit.rds'))
+  # },
+  # error = function(cond){
+  #   message("Could not save full stan fit: ")
+  #   message(cond)
+  #   return(NA)
+  # },
+  # warning = function(cond){
+  #   message("Warning: ")
+  #   message(cond)
+  #   return(NULL)
+  # })
   
   list_of_draws <- rstan::extract(fit)
   
@@ -150,6 +150,27 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
   intercept_draws <- list_of_draws$intercept
   save.figure(qplot(data.frame(x = intercept_draws)$x, geom="histogram"), "alpha_draws", figures.path)
   
+  
+  # save info about run to txt file
+  run_info <- list(
+    stan.file = stan_program,
+    chains = chains,
+    warmup = warmup,
+    iter = iter,
+    configuration = config
+  )
+  lapply(run_info, write, file.path(output.path, 'run_info.txt'), append = TRUE, ncolumns = 1000)
+  
+  elapsed_time <- get_elapsed_time(fit)
+  write.table(elapsed_time, file=file.path(output.path, 'elapsed_time.txt'))
+  
+  fit_summary.stan.lc <- summary(fit)
+  stan_lc_df <- as.data.frame(fit_summary.stan.lc$summary)
+  
+  results.path <- output.path
+  
+  save(stan_lc_df, file=file.path(results.path, paste('stan_', config, '.Rda', sep = "")))
+  
   tryCatch({
     save(alpha_draws, file = file.path(output.path, 'draws_tau_alpha.RData'))
     save(beta_draws, file = file.path(output.path, 'draws_tau_beta.RData'))
@@ -172,27 +193,6 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     message(" ")
     return(NULL)
   })
-  
-  
-  # save info about run to txt file
-  run_info <- list(
-    stan.file = stan_program,
-    chains = chains,
-    warmup = warmup,
-    iter = iter,
-    configuration = config
-  )
-  lapply(run_info, write, file.path(output.path, 'run_info.txt'), append = TRUE, ncolumns = 1000)
-  
-  elapsed_time <- get_elapsed_time(fit)
-  write.table(elapsed_time, file=file.path(output.path, 'elapsed_time.txt'))
-  
-  fit_summary.stan.lc <- summary(fit)
-  stan_lc_df <- as.data.frame(fit_summary.stan.lc$summary)
-  
-  results.path <- output.path
-  
-  save(stan_lc_df, file=file.path(results.path, paste('stan_', config, '.Rda', sep = "")))
   
   # Saving trace plots etc:
   tryCatch({

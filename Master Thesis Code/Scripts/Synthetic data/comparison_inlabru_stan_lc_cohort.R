@@ -117,6 +117,8 @@ plots.summaries.inlabru$plots$p.gamma
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18dh/stan_results/stan_v18dh.Rda")
 
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_v18_3.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/draws_tau_kappa.RData")
+
 stan_fit_full <- readRDS("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_fit.rds")
 
 
