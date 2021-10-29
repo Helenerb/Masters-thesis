@@ -38,4 +38,4 @@ run_stan_stomach_rw2 <- function(stan_program, chains=4, warmup=1000, iter=10000
   store_stan_results(fit=stan_fit, output.path=output.path, config=config)
 }
 
-run_stan_stomach_rw2(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_cohort_rw2.stan", chains=4, warmup = 50, iter = 100, markov=TRUE)
+run_stan_stomach_rw2(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_cohort_rw2.stan", chains=4, warmup = 5000, iter = 50000, markov=TRUE)

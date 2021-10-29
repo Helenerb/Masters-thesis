@@ -148,13 +148,13 @@ plot.hypers.inlabru.real <- function(res.inlabru, cancer.data, cutoff_alpha = 10
   }
 }
 
-plot.comparison.real(res.inlabru, res.stan, cancer.data, cohort = TRUE){
-  #'Plots comparison of inlarbu and stan results for real data
-  #'
-  #'@param res.inlabru (bru.object): results of run with inlabru
-  #'@param res.stan (data.frame): results of run with stan, saved as a summary dataframe
-  #'@param cander.cata (data.frame): observed cancer (and population) data
-  #'@param cohort (bool): Whether the analysis included a cohort effect
-  
-  
-}
+#' plot.comparison.real(res.inlabru, res.stan, cancer.data, cohort = TRUE){
+#'   #'Plots comparison of inlarbu and stan results for real data
+#'   #'
+#'   #'@param res.inlabru (bru.object): results of run with inlabru
+#'   #'@param res.stan (data.frame): results of run with stan, saved as a summary dataframe
+#'   #'@param cander.cata (data.frame): observed cancer (and population) data
+#'   #'@param cohort (bool): Whether the analysis included a cohort effect
+#'   
+#'   
+#' }
