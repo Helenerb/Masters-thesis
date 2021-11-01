@@ -1,5 +1,4 @@
-# functions related to saving and running stan for synthetic data. 
-# May alos be used for real data, I have not thought about that yet. 
+# functions related to saving and running stan programs
 
 library("ggplot2")
 
@@ -23,18 +22,6 @@ save.figure <- function(plot, name, path){
          dpi = "retina"
   )
 }
-
-# set_workspace <- function(config, markov=TRUE){
-#   if(markov){
-#     .libPaths("~/Documents/R_libraries")
-#     setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
-#     output.path <- file.path("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses", config)
-#   } else {
-#     setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data")
-#     output.path <- file.path('~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses', config)
-#   }
-#   return(output.path)
-# }
 
 run_stan_program_lc <- function(data, chains, warmup, iter, stan_program="stan_analysis_lc_v4.stan"){
   
@@ -128,26 +115,33 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
   
   figures.path <- output.path
   
-  alpha_draws <- list_of_draws$tau_alpha
-  save.figure(qplot(data.frame(x = alpha_draws)$x, geom="histogram"), "alpha_draws", figures.path)
+  tau_alpha_draws <- list_of_draws$tau_alpha
+  save.figure(qplot(data.frame(x = tau_alpha_draws)$x, geom="histogram"), "tau_alpha_draws", figures.path)
   
-  beta_draws <- list_of_draws$tau_beta
-  save.figure(qplot(data.frame(x = beta_draws)$x, geom="histogram"), "beta_draws", figures.path)
+  tau_beta_draws <- list_of_draws$tau_beta
+  save.figure(qplot(data.frame(x = tau_beta_draws)$x, geom="histogram"), "tau_beta_draws", figures.path)
   
-  kappa_draws <- list_of_draws$tau_kappa
-  save.figure(qplot(data.frame(x = kappa_draws)$x, geom="histogram"), "kappa_draws", figures.path)
+  tau_kappa_draws <- list_of_draws$tau_kappa
+  save.figure(qplot(data.frame(x = tau_kappa_draws)$x, geom="histogram"), "tau_kappa_draws", figures.path)
   
   if(cohort){
-    gamma_draws <- list_of_draws$tau_gamma
-    save.figure(qplot(data.frame(x = gamma_draws)$x, geom="histogram"), "gamma_draws", figures.path)
+    tau_gamma_draws <- list_of_draws$tau_gamma
+    save.figure(qplot(data.frame(x = tau_gamma_draws)$x, geom="histogram"), "tau_gamma_draws", figures.path)
   }
   
-  epsilon_draws <- list_of_draws$tau_epsilon
-  save.figure(qplot(data.frame(x = epsilon_draws)$x, geom="histogram"), "epsilon_draws", figures.path)
+  tau_epsilon_draws <- list_of_draws$tau_epsilon
+  save.figure(qplot(data.frame(x = tau_epsilon_draws)$x, geom="histogram"), "tau_epsilon_draws", figures.path)
   
   intercept_draws <- list_of_draws$intercept
-  save.figure(qplot(data.frame(x = intercept_draws)$x, geom="histogram"), "alpha_draws", figures.path)
+  save.figure(qplot(data.frame(x = intercept_draws)$x, geom="histogram"), "intercept_draws", figures.path)
   
+  alpha_draws <- list_of_draws$alpha
+  beta_draws <- list_of_draws$beta
+  kappa_draws <- list_of_draws$kappa
+  if(cohort){
+    gamma_draws <- list_of_draws$gamma
+  }
+  eta_draws <- list_of_draws$eta
   
   # save info about run to txt file
   run_info <- list(
@@ -170,14 +164,19 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
   save(stan_lc_df, file=file.path(results.path, paste('stan_', config, '.Rda', sep = "")))
   
   tryCatch({
-    save(alpha_draws, file = file.path(output.path, 'draws_tau_alpha.RData'))
-    save(beta_draws, file = file.path(output.path, 'draws_tau_beta.RData'))
-    save(kappa_draws, file = file.path(output.path, 'draws_tau_kappa.RData'))
+    save(tau_alpha_draws, file = file.path(output.path, 'draws_tau_alpha.RData'))
+    save(alpha_draws, file = file.path(output.path, 'draws_alpha.RData'))
+    save(tau_beta_draws, file = file.path(output.path, 'draws_tau_beta.RData'))
+    save(beta_draws, file = file.path(output.path, 'draws_beta.RData'))
+    save(tau_kappa_draws, file = file.path(output.path, 'draws_tau_kappa.RData'))
+    save(kappa_draws, file = file.path(output.path, 'draws_kappa.RData'))
     if(cohort){
-      save(gamma_draws, file = file.path(output.path, 'draws_tau_gamma.RData'))
+      save(tau_gamma_draws, file = file.path(output.path, 'draws_tau_gamma.RData'))
+      save(gamma_draws, file = file.path(output.path, 'draws_gamma.RData'))
     }
-    save(epsilon_draws, file = file.path(output.path, 'draws_tau_epsilon.RData'))
+    save(tau_epsilon_draws, file = file.path(output.path, 'draws_tau_epsilon.RData'))
     save(intercept_draws, file = file.path(output.path, 'draws_intercept.RData'))
+    save(eta_draws, file = file.path(output.path, 'draws_eta.RData'))
   },
   error = function(cond){
     message("Could not save lists of marginals \n")

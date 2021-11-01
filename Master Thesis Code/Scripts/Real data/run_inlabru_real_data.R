@@ -65,8 +65,8 @@ stomach.cancer.until2007 <- stomach.cancer %>%
 
 res.stomach.predict <- inlabru.rw2.cohort.2(stomach.cancer.until2007, max_iter = 100)
 
-plots.stomach <- plot.inlabru.real(
-  res.stomach.predict, stomach.cancer, save=TRUE, 
+plots.stomach <- plot.inlabru.real.predicted(
+  res.stomach.predict, stomach.cancer.until2007, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_predict")
 
 plot.hypers.inlabru.real(
