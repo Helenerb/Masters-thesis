@@ -119,8 +119,12 @@ plots.summaries.inlabru$plots$p.gamma
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_v18_3.Rda")
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/draws_tau_kappa.RData")
 
-stan_fit_full <- readRDS("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_results/stan_fit.rds")
-
+stan_fit_full <- readRDS("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v18_3/stan_fit.rds")
+list_of_draw <- extract(stan_fit_full)
+alpha_draws <- list_of_draw$alpha
+alpha_mid_draws <- alpha_draws[, length(alpha_draws[1,])/2]
+hist_alpha <- hist(alpha_mid_draws)
+hist <- qplot(data.frame(x = alpha_mid_draws)$x, geom="histogram")
 
 # stan results df loaded under name "stan_lc_df"
 

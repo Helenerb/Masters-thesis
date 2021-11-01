@@ -111,19 +111,17 @@ run_stan_program_lcc <- function(data, chains, warmup, iter, stan_program="stan_
 
 store_stan_results <- function(fit, output.path, config, stan_program = "", chains = "", warmup = "", iter = "", cohort=TRUE){
   
-  # # save full stanfit object 
+  # save full stanfit object
   # tryCatch({
   #   saveRDS(fit, file.path(output.path, 'stan_fit.rds'))
   # },
   # error = function(cond){
   #   message("Could not save full stan fit: ")
   #   message(cond)
-  #   return(NA)
   # },
   # warning = function(cond){
   #   message("Warning: ")
   #   message(cond)
-  #   return(NULL)
   # })
   
   list_of_draws <- rstan::extract(fit)
@@ -185,13 +183,11 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     message("Could not save lists of marginals \n")
     message(cond)
     message(" ")
-    return(NA)
   },
   warning = function(cond){
     message("Trying to save list of marginals gives the following warning \n")
     message(cond)
     message(" ")
-    return(NULL)
   })
   
   # Saving trace plots etc:
@@ -228,7 +224,7 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     if(cohort){
       save.figure(traceplot(fit,pars = c("tau_alpha", "tau_beta", "tau_kappa",
                                          "tau_gamma", "tau_epsilon",
-                                         "tau_intercept")), 'trace_hyperpars',
+                                         "intercept")), 'trace_hyperpars',
                   figures.path)
     } else {
       save.figure(traceplot(fit,pars = c("tau_alpha", "tau_beta", "tau_kappa",

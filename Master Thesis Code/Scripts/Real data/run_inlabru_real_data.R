@@ -56,10 +56,12 @@ save(res.lung.extraconstr, file="Scripts/Real data/Output/Data/lung_rw2_extracon
 
 #   ----    Run predictions   ----   
 stomach.cancer.until2007 <- stomach.cancer %>% 
+  mutate(Y_full = Y) %>%
   mutate(total = replace(total, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
   mutate(Y = replace(Y, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
   mutate(male = replace(male, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
-  mutate(female = replace(female, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA))
+  mutate(female = replace(female, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(predict = "observed") %>% mutate(predict = replace(predict, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), "predicted"))
 
 res.stomach.predict <- inlabru.rw2.cohort.2(stomach.cancer.until2007, max_iter = 100)
 
