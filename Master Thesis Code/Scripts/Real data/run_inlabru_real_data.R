@@ -77,13 +77,45 @@ plot.hypers.inlabru.real(
 
 res.stomach.predict.ar1c <- inlabru.ar1c.cohort.2(stomach.cancer.until2007)
 
-plots.stomach <- plot.inlabru.real(
-  res.stomach.predict.ar1c, stomach.cancer, save=TRUE, 
+plots.stomach <- plot.inlabru.real.predicted(
+  res.stomach.predict.ar1c, stomach.cancer.until2007, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_ar1c_predict")
 
 plot.hypers.inlabru.real(
   res.stomach.predict.ar1c, stomach.cancer, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_ar1c_predict")
+
+# same for lung cancer:
+
+lung.cancer.until2007 <- lung.cancer %>% 
+  mutate(Y_full = Y) %>%
+  mutate(total = replace(total, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(Y = replace(Y, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(male = replace(male, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(female = replace(female, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(predict = "observed") %>% mutate(predict = replace(predict, year %in% c("2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"), "predicted"))
+
+res.lung.predict <- inlabru.rw2.cohort.2(lung.cancer.until2007, max_iter = 100)
+
+plots.lung <- plot.inlabru.real.predicted(
+  res.lung.predict, lung.cancer.until2007, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict")
+
+plot.hypers.inlabru.real(
+  res.lung.predict, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict")
+
+# prediction with ar1c:
+
+res.lung.predict.ar1c <- inlabru.ar1c.cohort.2(lung.cancer.until2007)
+
+plots.lung <- plot.inlabru.real.predicted(
+  res.lung.predict.ar1c, lung.cancer.until2007, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_ar1c_predict")
+
+plot.hypers.inlabru.real(
+  res.lung.predict.ar1c, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_ar1c_predict")
 
 
 #   ----   Compare results of STAN and inlabru:   ----
