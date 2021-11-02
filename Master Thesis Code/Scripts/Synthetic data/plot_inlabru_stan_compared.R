@@ -537,6 +537,156 @@ plot.inlabru.stan.compared.cohort.rw2 <- function(stan.summaries, inlabru.summar
   return(plots)
 }
 
+plot.inlabru.stan.compared.cohort.rw2 <- function(stan.summaries,
+                                                  stan.marginals,
+                                                  inlabru.summaries,
+                                                  res.inlabru,
+                                                  underlying.effects,
+                                                  cohort=TRUE){
+  #' Produces plots with comparison of estimation results from inlabru and STAN
+  #' 
+  #'@param stan.summaries (list<data.frame>) summaries of STAN results
+  #'@param stan.marginals (list<array>) Hamiltonian MC samples from STAN
+  #'@param inlabru.summaries (list<data.frame>) summaries of inlabru results
+  #'@param res.inlabru (bru object) raw inlabru results
+  #'@param underlying.effects (list) underlying data for which analysis is run
+  #'@param cohort (boolean) whether analysis includes cohort effect 
+  #'
+  obs <- underlying.effects$obs
+  
+  intercept.marginal <- stan.marginals$intercept.marginal
+  
+  #  ----   intercept   ----
+  print(stan.summaries$summary_fixed)
+  p.intercept <- ggplot() + 
+    geom_area(data=inlabru.summaries$data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
+    geom_vline(aes(xintercept = inlabru.summaries$intercept, color = "Inlabru", fill="Inlabru")) + 
+    geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = mean[2], fill = "Stan", color = "Stan")) + 
+    geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `2.5%`[2], fill = "Stan", color = "Stan"), alpha = 0.5) +
+    geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `97.5%`[2], fill = "Stan", color = "Stan"), alpha = 0.5) + 
+    geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of intercept", y = " ", title = "Intercept")
+  
+  # ---   alpha   ----
+  p.alpha <- ggplot() + 
+    geom_ribbon(data=inlabru.summaries$data.alpha, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=inlabru.summaries$data.alpha, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    geom_point(data=stan.summaries$summary_alpha, aes(x=index - 1, y=mean, fill="Stan", color="Stan"), size=0.5) + 
+    geom_line(data=stan.summaries$summary_alpha, aes(x=index - 1, y=`2.5%`, fill = "Stan", color="Stan"), alpha=0.5) + 
+    geom_line(data=stan.summaries$summary_alpha, aes(x=index - 1, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+    
+    geom_point(data=inlabru.summaries$data.alpha, 
+               aes(x = ID, y = underlying.effects$alpha.true, color = "True", fill = "True"), size = 0.5) + 
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Alpha", x = "x", y='')
+  
+  # ---   beta   ----
+  p.beta <- ggplot() + 
+    geom_ribbon(data=inlabru.summaries$data.beta, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=inlabru.summaries$data.beta, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    
+    geom_point(data=stan.summaries$summary_beta, aes(x=index - 1, y=mean, fill="Stan", color="Stan"), size=0.5) + 
+    geom_line(data=stan.summaries$summary_beta, aes(x=index - 1, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
+    geom_line(data=stan.summaries$summary_beta, aes(x=index - 1, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+    
+    geom_point(data=inlabru.summaries$data.beta, 
+               aes(x = ID, y = underlying.effects$beta.true, color = "True", fill = "True"), size = 0.5) + 
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Beta", x = "x", y='')
+  
+  #   ----   kappa   ----  
+  p.kappa <- ggplot() + 
+    geom_ribbon(data=inlabru.summaries$data.kappa, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=inlabru.summaries$data.kappa, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    
+    geom_point(data=stan.summaries$summary_kappa, aes(x=index - 1, y=mean, fill="Stan",color="Stan"), size=0.5) + 
+    geom_line(data=stan.summaries$summary_kappa, aes(x=index - 1, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
+    geom_line(data=stan.summaries$summary_kappa, aes(x=index - 1, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+    
+    geom_point(data=inlabru.summaries$data.kappa, 
+               aes(x = ID, y = underlying.effects$kappa.drifted, color = "True", fill = "True"), size = 0.5) + 
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Kappa", x = "t", y='')
+  
+  
+  #   ----   gamma   ----  
+  if (cohort){
+    p.gamma <- ggplot() + 
+      geom_ribbon(data=inlabru.summaries$data.gamma, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+      geom_point(data=inlabru.summaries$data.gamma, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+      
+      geom_point(data=stan.summaries$summary_gamma,
+                 aes(x=index - underlying.effects$nx, y=mean, fill="Stan", color="Stan"), size=0.5) + 
+      geom_line(data=stan.summaries$summary_gamma,
+                aes(x=index - underlying.effects$nx, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
+      geom_line(data=stan.summaries$summary_gamma,
+                aes(x=index - underlying.effects$nx, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+      
+      geom_point(data=inlabru.summaries$data.gamma, 
+                 aes(x = ID, y = underlying.effects$gamma.true, color = "True", fill = "True"), size = 0.5) + 
+      scale_color_manual(name = "",
+                         values = palette ) +
+      scale_fill_manual(name = "",
+                        values = palette ) +
+      labs(title="Gamma", x = "c", y='')
+  }
+  
+  #   ----   eta   ----
+  p.eta <- ggplot() +
+    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru")) + 
+    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    labs(x="Estimated eta", y="True value for eta", title = "Eta")
+  
+  p.eta.2 <- ggplot() +
+    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru")) +
+    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True")) +
+    geom_line(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="True")) +
+    scale_color_manual(name = "", values = palette ) +
+    labs(x=" ", y="Eta", title="Eta")
+  
+  p.eta.t <- ggplot() + 
+    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = eta.sim, color = "Inlabru")) +
+    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = true.eta, color = "True")) +
+    geom_line(data=stan.summaries$summary_eta, aes(x = x, y = mean, color = "Stan")) +
+    scale_color_manual(name = "", values = palette ) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
+    facet_wrap(~t)
+  
+  p.eta.x <- ggplot() + 
+    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = eta.sim, color = "Inlabru")) +
+    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = true.eta, color = "True")) +
+    geom_line(data=stan.summaries$summary_eta, aes(x = t, y = mean, color = "Stan")) +
+    scale_color_manual(name = "", values = palette ) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
+    facet_wrap(~x)
+  
+  plots <- list(p.intercept = p.intercept, 
+                p.alpha = p.alpha, 
+                p.beta = p.beta,
+                p.kappa = p.kappa,
+                p.eta = p.eta,
+                p.eta.2 = p.eta.2,
+                p.eta.t = p.eta.t,
+                p.eta.x = p.eta.x)
+  if(cohort){
+    plots <- c(plots, p.gamma=p.gamma)
+  }
+  
+  return(plots)
+}
+
 save.compared.drifted.lc <- function(plots, path.to.storage){
   p.random.effects <- (plots$p.intercept | plots$p.alpha)/(plots$p.beta | plots$p.period) + 
     plot_layout(guides="collect")
@@ -606,6 +756,24 @@ save.compared.drifted.cohort <- function(plots, path.to.storage){
 save.compared.undrifted.cohort <- function(plots, path.to.storage){
   p.random.effects <- (plots$p.intercept | plots$p.alpha | plots$p.beta)/( plots$p.phi | plots$p.kappa | plots$p.gamma) + 
     plot_layout(guides="collect")
+  save.figure(p.random.effects, name = "random_effects_comparison", path = path.to.storage)
+  
+  p.eta.xt <- (plots$p.eta | plots$p.eta.2) + plot_layout(guides = "collect")
+  save.figure(p.eta.xt, name = "eta_xt_comparison", path = path.to.storage)
+  
+  p.eta.facet <- (plots$p.eta.x | plots$p.eta.t) + plot_layout(guides = "collect")
+  save.figure(p.eta.facet, name = "eta_facet_comparison", path = path.to.storage)
+}
+
+save.compared.rw2 <- function(plots, path.to.storage, cohort=TRUE){
+  if(cohort){
+    p.random.effects <- (plots$p.intercept | plots$p.alpha | plots$p.beta )/(plots$p.kappa | plots$p.gamma) + 
+      plot_layout(guides="collect")
+  } else {
+    p.random.effects <- (plots$p.intercept | plots$p.alpha )/(plots$p.beta | plots$p.kappa) + 
+      plot_layout(guides="collect")
+  }
+  
   save.figure(p.random.effects, name = "random_effects_comparison", path = path.to.storage)
   
   p.eta.xt <- (plots$p.eta | plots$p.eta.2) + plot_layout(guides = "collect")
