@@ -25,7 +25,7 @@ run_stan_lung_rw2_lc <- function(stan_program, chains=4, warmup=1000, iter=10000
   population <- format_population_data("../../Data/population-germany.xlsx",
                                        save=FALSE)
   cancer.data =  format_cancer_data("../../Data/lungCancer-germany.xls", 
-                                    population=population, save=FALSE)
+                                    population=population, save=FALSE)ls
   
   # Hack: set nx=1, since the real-data cohort indices are not negative. 
   data = list(obs = cancer.data,
