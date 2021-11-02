@@ -14,31 +14,77 @@ STAN is a method for Bayesian inference using a Hamiltonian Monte Carlo approach
 
 In this second part of our analysis, we will apply the previously described approach for Bayesian analysis with the Lee-Carter (LC) and the cohort-extended Lee-Carter (LCC) model to cancer data. We will use data of German mortality of lung and stomach cancer data for the years 1999-2000. 
 
+Figures \ref{fig:mr-lcc-stomach} and \ref{fig:random-effects-lcc-stomach} displays the stomach cancer mortality rates and age, period and cohort effects, with their associated hyperparameters, as estimated by $\texttt{inlabru}$ for the LDD-model. These results are produced in the script \url{Master Thesis Code/Scripts/Real data/run_inlabru_real_data.R}.
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.85\linewidth]{does/not/exist}
-    \caption{Template of single figure}
-    \label{fig:uv-full-data-LC-l}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2/mr_x_inlabru.pdf}
+        \caption{Mortality rates displayed as a function of calendar year, for each age group. }
+        \label{fig:mr-lcc-stomach-x}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2/mr_t_inlabru.pdf}
+        \caption{The mortality rates displayed as a function of age, for each available calendar year. }
+        \label{fig:mr-lcc-stomach-t}
+    \end{subfigure}
+    \caption{The stomach cancer mortality rate estimated by $\texttt{inlabru}$ displayed together with the observed stomach cancer mortality rate.}
+    \label{fig:mr-lcc-stomach}
 \end{figure}
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{.6\linewidth}
-        \includegraphics[width=\linewidth]{does/not/exist}
-        \caption{Subcaption}
-        \label{fig:data-rate-top}
+    \begin{subfigure}[b]{.85\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2/random_effects_inlabru.pdf}
+        \caption{Estimated random effects.}
+        \label{fig:random-effects-lcc-stomach-re}
     \end{subfigure}
     
-    \begin{subfigure}[b]{.6\linewidth}
-        \includegraphics[width=\linewidth]{does/not/exist}
-        \caption{Subcaption}
-        \label{fig:data-rate-bottom}
+    \begin{subfigure}[b]{.85\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2/hypers_inlabru.pdf}
+        \caption{Estimated hyperparameters}
+        \label{fig:random-effects-lcc-stomach-hyper}
     \end{subfigure}
-    \caption{Template of double figure}
-    \label{fig:data-rate}
+    \caption{The random age- period and cohort effects, as well as the hyperparameters, estimated by applying the LCC-model to stomach cancer mortality data by $\texttt{inlabru}$.}
+    \label{fig:random-effects-lcc-stomach}
 \end{figure}
 
-Figures \ref{fig:mr-pred-stomach} and \ref{fig:random-effects-pred-stomach} displays the results of applying the LCC-model to German stomach cancer mortality data. The observed mortality rates for years 1999-2007 are used to predict the mortality rates, and the associated age, period and cohort effects, for the years 2008-2016. 
+Figures \ref{fig:mr-lcc-lung} and \ref{fig:random-effects-lcc-lung} displays the lung cancer mortality rates and age, period and cohort effects, with their associated hyperparameters, as estimated by $\texttt{inlabru}$ for the LDD-model. These results are produced in the script \url{Master Thesis Code/Scripts/Real data/run_inlabru_real_data.R}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/lung_rw2/mr_x_inlabru.pdf}
+        \caption{Mortality rates displayed as a function of calendar year, for each age group. }
+        \label{fig:mr-lcc-lung-x}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/lung_rw2/mr_t_inlabru.pdf}
+        \caption{The mortality rates displayed as a function of age, for each available calendar year. }
+        \label{fig:mr-lcc-lung-t}
+    \end{subfigure}
+    \caption{The lung cancer mortality rate estimated by $\texttt{inlabru}$ displayed together with the observed lung cancer mortality rate.}
+    \label{fig:mr-lcc-lung}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.85\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/lung_rw2/random_effects_inlabru.pdf}
+        \caption{Estimated random effects.}
+        \label{fig:random-effects-lcc-lung-re}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.85\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/lung_rw2/hypers_inlabru.pdf}
+        \caption{Estimated hyperparameters}
+        \label{fig:random-effects-lcc-lung-hyper}
+    \end{subfigure}
+    \caption{The age- period and cohort effects, as well as the hyperparameters, estimated by applying the LCC-model to lung cancer mortality data by $\texttt{inlabru}$.}
+    \label{fig:random-effects-lcc-lung}
+\end{figure}
+
+Figures \ref{fig:mr-pred-stomach} and \ref{fig:random-effects-pred-stomach} displays the results of applying the LCC-model to German stomach cancer mortality data. The observed mortality rates for years 1999-2007 are used to predict the mortality rates, and the associated age, period and cohort effects, for the years 2008-2016. These results are produced in the script \url{Master Thesis Code/Scripts/Real data/run_inlabru_real_data.R}.
 
 \begin{figure}
     \centering

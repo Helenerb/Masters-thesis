@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[b5paper, 10pt, twoside]{article}
 \usepackage[utf8]{inputenc}
 
 %   ----   General set-up   ----
@@ -22,16 +22,17 @@
 % \RequirePackage{textcase}  % Easier upper and lowercase text when text is combined with maths (?)
 
 % Setting the font here:
-%\usepackage[charter]{mathdesign}
-%\usepackage{XCharter}
+\usepackage[charter]{mathdesign}
+\usepackage{XCharter}
 
-%\DeclareMathSizes{10}{10}{8.5}{7.5}
-%\RequirePackage[hmargin=2.5cm,vmargin=3cm,twoside,bindingoffset=0cm]{geometry}
-%\PassOptionsToPackage{onehalfspacing,nodisplayskipstretch}{setspace}
-%\RequirePackage{setspace}
-%\RequirePackage{multicol}
-%\columnsep=18pt
-%\RequirePackage{lastpage}
+\DeclareMathSizes{10}{10}{8.5}{7.5}
+%\RequirePackage[hmargin=2.5cm,vmargin=3.5cm,twoside,bindingoffset=0cm]{geometry}
+\RequirePackage[twoside, bindingoffset=6mm, verbose, marginratio={4:6,5:7}, textwidth=117.3mm, height=179.6mm]{geometry}
+\PassOptionsToPackage{onehalfspacing,nodisplayskipstretch}{setspace}
+\RequirePackage{setspace}
+\RequirePackage{multicol}
+\columnsep=18pt
+\RequirePackage{lastpage}
 
 %   ----   Numbering   ----
 \numberwithin{equation}{section}
