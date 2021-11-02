@@ -66,17 +66,6 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.only.kappa.2(
   save=TRUE,
   phi.plus.kappa.func = phi.plus.kappa.v17)
 
-plots.summaries.inlabru$plots$p.alpha
-plots.summaries.inlabru$plots$p.beta
-plots.summaries.inlabru$plots$p.phi
-plots.summaries.inlabru$plots$p.intercept
-plots.summaries.inlabru$plots$p.kappa
-plots.summaries.inlabru$plots$p.eta
-plots.summaries.inlabru$plots$p.eta.2
-plots.summaries.inlabru$plots$p.eta.t
-plots.summaries.inlabru$plots$p.eta.x
-plots.summaries.inlabru$plots$p.gamma
-
 
 print("Runtime for inlabru: ")
 print(runtime.inlabru)
@@ -102,7 +91,7 @@ load(file.path(path.to.stan.results, "draws_beta.RData"))
 load(file.path(path.to.stan.results, "draws_kappa.RData"))
 load(file.path(path.to.stan.results, "draws_eta.RData"))
 
-marginals <- list(intercept_draws = intercept_draws,
+stan.marginals <- list(intercept_draws = intercept_draws,
                   tau_epsilon_draws = tau_epsilon_draws,
                   tau_alpha_draws = tau_alpha_draws,
                   tau_beta_draws = tau_beta_draws,
@@ -112,11 +101,13 @@ marginals <- list(intercept_draws = intercept_draws,
                   kappa_draws = kappa_draws,
                   eta_draws = eta_draws)
 
-intercept.marginal = data.frame(int = marginals$intercept_draws)
-library("bayesplot")
-test_int_dens <- mcmc_hist(intercept.marginal, pars=c("int"))
-test_int_dens
-  
+# intercept.marginal = data.frame(int = marginals$intercept_draws)
+# library("bayesplot")
+# test_int_dens <- mcmc_dens(intercept.marginal, pars=c("int"))
+# test_int_dens
+# 
+# gg_test <- ggplot() + geom_histogram(data=intercept.marginal, aes(x = int)); gg_test
+
 source("plot_stan_vs_underlying.R")
 
 #undrifted version of stan program:
@@ -169,7 +160,8 @@ plots_compared <- produce.compared.plots(
   stan.summaries = stan.res$summaries,
   stan.marginals = stan.marginals,
   inlabru.summaries = plots.summaries.inlabru$summaries,
+  res.inlabru = res.inalbru.lc.1,
   underlying.effects = underlying.effects.lc,
   plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
-  path.to.storage=storage_path)s
+  path.to.storage=storage_path)

@@ -537,7 +537,7 @@ plot.inlabru.stan.compared.cohort.rw2 <- function(stan.summaries, inlabru.summar
   return(plots)
 }
 
-plot.inlabru.stan.compared.cohort.rw2 <- function(stan.summaries,
+plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
                                                   stan.marginals,
                                                   inlabru.summaries,
                                                   res.inlabru,
@@ -554,16 +554,18 @@ plot.inlabru.stan.compared.cohort.rw2 <- function(stan.summaries,
   #'
   obs <- underlying.effects$obs
   
-  intercept.marginal <- stan.marginals$intercept.marginal
+  intercept.marginal <- data.frame(int = stan.marginals$intercept_draws)
+  print(head(intercept.marginal))
   
   #  ----   intercept   ----
-  print(stan.summaries$summary_fixed)
   p.intercept <- ggplot() + 
     geom_area(data=inlabru.summaries$data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
-    geom_vline(aes(xintercept = inlabru.summaries$intercept, color = "Inlabru", fill="Inlabru")) + 
-    geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = mean[2], fill = "Stan", color = "Stan")) + 
-    geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `2.5%`[2], fill = "Stan", color = "Stan"), alpha = 0.5) +
-    geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `97.5%`[2], fill = "Stan", color = "Stan"), alpha = 0.5) + 
+    geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
+    #geom_vline(aes(xintercept = inlabru.summaries$intercept, color = "Inlabru", fill="Inlabru")) + 
+    #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = mean[1], fill = "Stan", color = "Stan")) + 
+    #geom_histogram(data = intercept.marginal, aes(x = int,color = "Stan", fill = "Stan")) + 
+    #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `2.5%`[1], fill = "Stan", color = "Stan"), alpha = 0.5) +
+    #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `97.5%`[1], fill = "Stan", color = "Stan"), alpha = 0.5) + 
     geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
@@ -776,6 +778,8 @@ save.compared.rw2 <- function(plots, path.to.storage, cohort=TRUE){
   
   save.figure(p.random.effects, name = "random_effects_comparison", path = path.to.storage)
   
+  save.figure(plots$p.intercept, name = "intercept_comparison", path = path.to.storage)
+  
   p.eta.xt <- (plots$p.eta | plots$p.eta.2) + plot_layout(guides = "collect")
   save.figure(p.eta.xt, name = "eta_xt_comparison", path = path.to.storage)
   
@@ -784,10 +788,10 @@ save.compared.rw2 <- function(plots, path.to.storage, cohort=TRUE){
 }
 
 produce.compared.plots <- function(
-  stan.summaries, inlabru.summaries, underlying.effects, plot.func, save.func,
+  stan.summaries, stan.marginals, inlabru.summaries, res.inlabru, underlying.effects, plot.func, save.func,
   path.to.storage){
   
-  plots <- plot.func(stan.summaries, inlabru.summaries, underlying.effects)
+  plots <- plot.func(stan.summaries, stan.marginals, inlabru.summaries, res.inlabru, underlying.effects)
   save.func(plots, path.to.storage)
   return(plots)
 }
