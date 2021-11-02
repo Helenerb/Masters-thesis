@@ -17,7 +17,8 @@ source("Scripts/Real data/plot_real_data.R")
 
 plots.stomach <- plot.inlabru.real(
   res.stomach, stomach.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2")
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2",
+  cohort=TRUE)
 
 plot.hypers.inlabru.real(
   res.stomach, stomach.cancer, save=TRUE, 
@@ -27,6 +28,11 @@ plot.hypers.inlabru.real(
 res.lung <- inlabru.rw2.cohort.2(lung.cancer, max_iter = 100)
 
 plots.lung <- plot.inlabru.real(
+  res.lung, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2",
+  cohort=TRUE)
+
+plot.hypers.inlabru.real(
   res.lung, lung.cancer, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2")
 
