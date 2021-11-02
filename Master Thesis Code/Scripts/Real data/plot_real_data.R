@@ -152,13 +152,10 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   #' Plots inlabru results from real data
   #' 
   #' @param res.inlabru (bru object) result from inlabru analysis
-  #' @param cancer.data (data.frame) data frame containing observations used in analyisis
+  #' @param cancer.data (data.frame) data frame containing observations used in analysis
+  #' @param last.obs.t (int) the last observed value, given by the t index. 
   #' @param save (boolean) whether or not to save plots locally
   #' @param path.to.storage ("/path/to/storage") path to local folder where figures should be stored if save=TRUE
-  #' @param last.obs.t (int) the last observed value, given by the t index. 
-  
-  
-  x.age.map <- cancer.data %>% select(c())
   
   #   ----   plot random effects   ----
   
@@ -166,7 +163,7 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   p.alpha <- ggplot(data = data.alpha, aes(x = age.int)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), fill = palette[1], alpha = 0.4) + 
     geom_point(aes(y = mean), size = 0.5, color = palette[1], fill = palette[1]) + 
-    labs(title="Alpha", x = "x", y='')
+    labs(title="Alpha", x = "age", y='')
   
   if(save){
     save.figure(p.alpha, name = "alpha_inlabru", path = path.to.storage)
@@ -176,7 +173,7 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   p.beta <- ggplot(data = data.beta, aes(x = age.int)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), alpha = 0.4, fill = palette[1]) + 
     geom_point(aes(y = mean), size = 0.5, color = palette[1], fill = palette[1]) + 
-    labs(x = "x", y = "beta", title = "Beta")
+    labs(x = "age", y = "", title = "Beta")
   if(save){
     save.figure(p.beta, name = "beta_inlabru", path = path.to.storage)
   }
@@ -187,11 +184,10 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   p.kappa <- ggplot(data = data.kappa, aes(x = year)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), alpha = 0.4, fill = palette[1]) + 
     geom_point(aes(y = mean, color = predict, fill = predict, shape=predict), size = 0.5) + 
-    #geom_vline(aes(xintercept = last.obs.t), color = palette[2]) + 
-    scale_color_manual(values = palette ) +
-    scale_fill_manual(values = palette ) +
-    scale_shape_manual(values = c(3,2)) + 
-    labs(x = "t", y = "kappa", title = "Kappa")
+    scale_color_manual(name="kappa", values = palette ) +
+    scale_fill_manual(name="kappa", values = palette ) +
+    scale_shape_manual(name="kappa", values = c(3,2)) + 
+    labs(x = "year", y = "", title = "Kappa")
   if(save){
     save.figure(p.kappa, name = "kappa_inlabru", path = path.to.storage)
   }
@@ -209,24 +205,24 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   c.observed <- {cancer.data %>% filter(predict == "observed")}$c
   
   fully.observed <- data.gamma %>%
-    filter(!ID %in% c.predicted) %>% mutate(predicted = "Fully observed")
+    filter(!ID %in% c.predicted) %>% mutate(predicted = "fully observed")
   
   partially.observed <- data.gamma %>%
     filter(ID %in% c.predicted & ID %in% c.observed) %>%
-    mutate(predicted = "Partially predicted")
+    mutate(predicted = "partially predicted")
   
   fully.predicted <- data.gamma %>%
-    filter(!ID %in% c.observed) %>% mutate(predicted = "Fully predicted")
+    filter(!ID %in% c.observed) %>% mutate(predicted = "fully predicted")
   
   data.gamma <- rbind(fully.observed, partially.observed, fully.predicted)
   
   p.gamma <- ggplot(data = data.gamma, aes(x = ID)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), alpha = 0.4, fill = palette[1]) + 
     geom_point(aes(y = mean, color = predicted, fill = predicted, shape=predicted), size = 0.5) + 
-    scale_color_manual(values = palette ) +
-    scale_fill_manual(values = palette ) +
-    scale_shape_manual(values = c(3,2,4)) + 
-    labs(x = "cohort", y = "gamma", title = "Gamma")
+    scale_color_manual(name="gamma", values = palette ) +
+    scale_fill_manual(name="gamma", values = palette ) +
+    scale_shape_manual(name="gamma", values = c(3,2,4)) + 
+    labs(x = "cohort", y = "", title = "Gamma")
   
   if(save){
     save.figure(p.gamma, name = "gamma_inlabru", path = path.to.storage)
