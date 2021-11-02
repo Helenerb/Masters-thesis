@@ -19,19 +19,19 @@
 	\RequirePackage{inputenc}	
 \RequirePackage{microtype}  % Subliminal refinements towards typogrpahical perfection. Optimizes spaces in typing?
 \RequirePackage{csquotes}
-% \RequirePackage{textcase}  % Easier upper and lowercase text when text is combined with maths (?)
+\RequirePackage{textcase}  % Easier upper and lowercase text when text is combined with maths (?)
 
 % Setting the font here:
-%\usepackage[charter]{mathdesign}
-%\usepackage{XCharter}
+\usepackage[charter]{mathdesign}
+\usepackage{XCharter}
 
-%\DeclareMathSizes{10}{10}{8.5}{7.5}
-%\RequirePackage[hmargin=2.5cm,vmargin=3cm,twoside,bindingoffset=0cm]{geometry}
-%\PassOptionsToPackage{onehalfspacing,nodisplayskipstretch}{setspace}
-%\RequirePackage{setspace}
-%\RequirePackage{multicol}
-%\columnsep=18pt
-%\RequirePackage{lastpage}
+\DeclareMathSizes{10}{10}{8.5}{7.5}
+\RequirePackage[hmargin=2.5cm,vmargin=3cm,twoside,bindingoffset=0cm]{geometry}
+\PassOptionsToPackage{onehalfspacing,nodisplayskipstretch}{setspace}
+\RequirePackage{setspace}
+\RequirePackage{multicol}
+\columnsep=18pt
+\RequirePackage{lastpage}
 
 %   ----   Numbering   ----
 \numberwithin{equation}{section}
@@ -68,6 +68,7 @@
 % Main body of thesis:
 \clearpage\pagenumbering{arabic}
 \import{}{literature-review.tex}
+\import{}{Results.tex}
 
 % Reference list
 \clearpage
