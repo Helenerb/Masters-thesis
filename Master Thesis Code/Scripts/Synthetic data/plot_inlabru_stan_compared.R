@@ -555,7 +555,6 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   obs <- underlying.effects$obs
   
   intercept.marginal <- data.frame(int = stan.marginals$intercept_draws)
-  print(head(intercept.marginal))
   
   #  ----   intercept   ----
   p.intercept <- ggplot() + 
@@ -674,6 +673,69 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
     labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
     facet_wrap(~x)
   
+  #   ----   hyperparameters: precisions   ----   
+  
+  
+  #  tau alpha 
+  
+  tau.alpha.stan <- data.frame(tau = stan.marginals$tau_alpha_draws)
+  tau.alpha.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`)
+  
+  p.tau.alpha <- ggplot() + 
+    geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of alpha", y = " ", title = "Precision of Alpha")
+  
+  #  tau beta
+  
+  tau.beta.stan <- data.frame(tau = stan.marginals$tau_beta_draws)
+  tau.beta.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`)
+  
+  p.tau.beta <- ggplot() + 
+    geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of beta", y = " ", title = "Precision of Beta")
+  
+  # tau kappa
+  tau.kappa.stan <- data.frame(tau = stan.marginals$tau_kappa_draws)
+  tau.kappa.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`)
+  
+  p.tau.kappa <- ggplot() + 
+    geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of kappa", y = " ", title = "Precision of Kappa")
+  
+  if (cohort){
+    # tau gamma
+    tau.gamma.stan <- data.frame(tau = stan.marginals$tau_gamma_draws)
+    tau.gamma.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for gamma`)
+    
+    p.tau.gamma <- ggplot() + 
+      geom_area(data = tau.gamma.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = tau.gamma.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      labs(x = "Value of precision of gamma", y = " ", title = "Precision of Gamma")
+  }
+  
+  # tau epsilon
+  tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws)
+  tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`)
+  
+  p.tau.epsilon <- ggplot() + 
+    geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
+  
+  
   plots <- list(p.intercept = p.intercept, 
                 p.alpha = p.alpha, 
                 p.beta = p.beta,
@@ -681,9 +743,14 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
                 p.eta = p.eta,
                 p.eta.2 = p.eta.2,
                 p.eta.t = p.eta.t,
-                p.eta.x = p.eta.x)
+                p.eta.x = p.eta.x,
+                p.tau.alpha = p.tau.alpha,
+                p.tau.beta = p.tau.beta,
+                p.tau.kappa = p.tau.kappa,
+                p.tau.epsilon = p.tau.epsilon)
   if(cohort){
     plots <- c(plots, p.gamma=p.gamma)
+    plots <- c(plots, p.tau.gamma=p.tau.gamma)
   }
   
   return(plots)
@@ -779,6 +846,14 @@ save.compared.rw2 <- function(plots, path.to.storage, cohort=TRUE){
   save.figure(p.random.effects, name = "random_effects_comparison", path = path.to.storage)
   
   save.figure(plots$p.intercept, name = "intercept_comparison", path = path.to.storage)
+  
+  if(cohort){
+    p.hypers <- (plots$p.tau.alpha | plots$p.tau.beta) / (plots$p.tau.kappa | plots$p.tau.gamma | plots$p.tau.epsilon) + plot_layout(guides = "collect")
+  }
+  else{
+    p.hypers <- (plots$p.tau.alpha | plots$p.tau.beta) / (plots$p.tau.kappa | plots$p.tau.epsilon) + plot_layout(guides = "collect")
+  }
+  save.figure(p.hypers, name = "hypers_comparison", path = path.to.storage)
   
   p.eta.xt <- (plots$p.eta | plots$p.eta.2) + plot_layout(guides = "collect")
   save.figure(p.eta.xt, name = "eta_xt_comparison", path = path.to.storage)

@@ -160,7 +160,7 @@ plots_compared <- produce.compared.plots(
   stan.summaries = stan.res$summaries,
   stan.marginals = stan.marginals,
   inlabru.summaries = plots.summaries.inlabru$summaries,
-  res.inlabru = res.inalbru.lc.1,
+  res.inlabru = res.inlabru.lc.1,
   underlying.effects = underlying.effects.lc,
   plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
