@@ -778,7 +778,7 @@ inlabru.ar1c.cohort.2.gamma.extraconstr <- function(obs){
   return(res.inlabru)
 }
 
-inlabru.rw2.lc.2 <- function(obs){
+inlabru.rw2.lc.2 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model using an ar1c to model the period effect
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -814,7 +814,7 @@ inlabru.rw2.lc.2 <- function(obs){
                                    bru_verbose = 1, 
                                    num.threads = "1:1",
                                    control.compute = c.c,
-                                   bru_max_iter=30,
+                                   bru_max_iter=max_iter,
                                    control.predictor = list(link = 1)
                     ))
   return(res.inlabru)

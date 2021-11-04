@@ -177,9 +177,6 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   #' @param path.to.storage ("/path/to/storage") path to local folder where figures should be stored if save=TRUE
   #' @param last.obs.t (int) the last observed value, given by the t index. 
   
-  
-  x.age.map <- cancer.data %>% select(c())
-  
   #   ----   plot random effects   ----
   
   data.alpha <- left_join(res.inlabru$summary.random$alpha, {cancer.data %>% select(age, x, age.int)}, by=c("ID" = "x"))
@@ -344,13 +341,232 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   
 }
 
-#' plot.comparison.real(res.inlabru, res.stan, cancer.data, cohort = TRUE){
-#'   #'Plots comparison of inlarbu and stan results for real data
-#'   #'
-#'   #'@param res.inlabru (bru.object): results of run with inlabru
-#'   #'@param res.stan (data.frame): results of run with stan, saved as a summary dataframe
-#'   #'@param cander.cata (data.frame): observed cancer (and population) data
-#'   #'@param cohort (bool): Whether the analysis included a cohort effect
-#'   
-#'   
-#' }
+plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort = TRUE){
+  #'Plots comparison of inlarbu and stan results for real data
+  #'
+  #'@param res.inlabru (bru.object): results of run with inlabru
+  #'@param res.stan (data.frame): results of run with stan, saved as a summary dataframe
+  #'@param stan.marginals (list<array>): list of draws from stan for random effects and hyperparams
+  #'@param cander.cata (data.frame): observed cancer (and population) data
+  #'@param cohort (bool): Whether the analysis included a cohort effect
+  
+  intercept.marginal <- data.frame(int = stan.marginals$intercept_draws)
+  intercept.inlabru <- data.frame(res.inlabru$marginals.fixed)
+  
+  #  ----   intercept   ----
+  p.intercept <- ggplot() + 
+    geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
+    geom_area(data=intercept.inlabru, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of intercept", y = " ", title = "Intercept")
+  
+  # ----   alpha   ----
+  alpha.inlabru <- left_join(res.inlabru$summary.random$alpha, {cancer.data %>% select(age, x, age.int)}, by=c("ID" = "x"))
+  
+  alpha.stan <- res.stan %>%
+    rownames_to_column("parameter") %>% filter(grepl('alpha', parameter)) %>%
+    filter(!grepl('tau_alpha', parameter)) %>%
+    filter(!grepl('alpha_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>% mutate(index = index - 1) %>%
+    left_join({cancer.data %>% select(age, x, age.int)}, by = c("index" = "x"))
+  
+  p.alpha <- ggplot() + 
+    geom_ribbon(data=alpha.inlabru, aes(x = age.int, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=alpha.inlabru, aes(x = age.int, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    geom_point(data=alpha.stan, aes(x=age.int, y=mean, fill="Stan", color="Stan"), size=0.5) + 
+    geom_line(data=alpha.stan, aes(x=age.int, y=`2.5%`, fill = "Stan", color="Stan"), alpha=0.5) + 
+    geom_line(data=alpha.stan, aes(x=age.int, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Alpha", x = "age", y='')
+  
+  # ----   beta   ----
+  beta.inlabru <- left_join(res.inlabru$summary.random$beta, {cancer.data %>% select(age, x, age.int)}, by=c("ID" = "x"))
+  
+  beta.stan <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('beta', parameter)) %>% 
+    filter(!grepl('tau_beta', parameter)) %>%
+    filter(!grepl('beta_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>% mutate(index = index - 1) %>%
+    left_join({cancer.data %>% select(age, x, age.int)}, by = c("index" = "x"))
+  
+  p.beta <- ggplot() + 
+    geom_ribbon(data=beta.inlabru, aes(x = age.int, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=beta.inlabru, aes(x = age.int, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    geom_point(data=beta.stan, aes(x=age.int, y=mean, fill="Stan", color="Stan"), size=0.5) + 
+    geom_line(data=beta.stan, aes(x=age.int, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
+    geom_line(data=beta.stan, aes(x=age.int, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Beta", x = "age", y='')
+  
+  #   ----   kappa   ----  
+  kappa.inlabru <- left_join(res.inlabru$summary.random$kappa, {cancer.data %>% select(year, t)}, by=c("ID" = "t")) %>%
+    mutate(year = parse_integer(year))
+  
+  kappa.stan <- stan_df %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('kappa', parameter)) %>%
+    filter(!grepl('tau_kappa', parameter)) %>%
+    filter(!grepl('kappa_raw', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>% mutate(index = index - 1) %>%
+    left_join({cancer.data %>% select(year, t)}, by=c("index" = "t")) %>%
+    mutate(year = parse_integer(year))
+  
+  p.kappa <- ggplot() + 
+    geom_ribbon(data=kappa.inlabru, aes(x = year, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=kappa.inlabru, aes(x = year, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    geom_point(data=kappa.stan, aes(x=year, y=mean, fill="Stan",color="Stan"), size=0.5) + 
+    geom_line(data=kappa.stan, aes(x=year, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
+    geom_line(data=kappa.stan, aes(x=year, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Kappa", x = "t", y='')
+  
+  
+  #   ----   gamma   ----  
+  if (cohort){
+    # Not tested
+    gamma.inlabru <- res.inlabru$summary.random$gamma
+    
+    gamma.stan <- stan_df %>%
+      rownames_to_column("parameter") %>%
+      filter(grepl('gamma', parameter)) %>%
+      filter(!grepl('tau_gamma', parameter)) %>%
+      filter(!grepl('gamma_raw', parameter)) %>%
+      mutate(index = parse_number(parameter)) %>% mutate(index = index - 1)
+    
+    p.gamma <- ggplot() + 
+      geom_ribbon(data=gamma.inlabru, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+      geom_point(data=gamma.inlabru, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+      geom_point(data=gamma.stan, aes(x=index, y=mean, fill="Stan", color="Stan"), size=0.5) + 
+      geom_line(data=gamma.stan, aes(x=index, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
+      geom_line(data=gamma.stan, aes(x=index, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
+      scale_color_manual(name = "",
+                         values = palette ) +
+      scale_fill_manual(name = "",
+                        values = palette ) +
+      labs(title="Gamma", x = "cohort", y='')
+  }
+  
+  #   ----   eta   ----
+  p.eta <- ggplot() +
+    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru")) + 
+    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    labs(x="Estimated eta", y="True value for eta", title = "Eta")
+  
+  p.eta.2 <- ggplot() +
+    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru")) +
+    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True")) +
+    geom_line(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="True")) +
+    scale_color_manual(name = "", values = palette ) +
+    labs(x=" ", y="Eta", title="Eta")
+  
+  p.eta.t <- ggplot() + 
+    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = eta.sim, color = "Inlabru")) +
+    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = true.eta, color = "True")) +
+    geom_line(data=stan.summaries$summary_eta, aes(x = x, y = mean, color = "Stan")) +
+    scale_color_manual(name = "", values = palette ) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
+    facet_wrap(~t)
+  
+  p.eta.x <- ggplot() + 
+    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = eta.sim, color = "Inlabru")) +
+    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = true.eta, color = "True")) +
+    geom_line(data=stan.summaries$summary_eta, aes(x = t, y = mean, color = "Stan")) +
+    scale_color_manual(name = "", values = palette ) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
+    facet_wrap(~x)
+  
+  #   ----   hyperparameters: precisions   ----   
+  
+  #  tau alpha 
+  
+  tau.alpha.stan <- data.frame(tau = stan.marginals$tau_alpha_draws)
+  tau.alpha.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`)
+  
+  p.tau.alpha <- ggplot() + 
+    geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of alpha", y = " ", title = "Precision of Alpha")
+  
+  #  tau beta
+  
+  tau.beta.stan <- data.frame(tau = stan.marginals$tau_beta_draws)
+  tau.beta.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`)
+  
+  p.tau.beta <- ggplot() + 
+    geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of beta", y = " ", title = "Precision of Beta")
+  
+  # tau kappa
+  tau.kappa.stan <- data.frame(tau = stan.marginals$tau_kappa_draws)
+  tau.kappa.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`)
+  
+  p.tau.kappa <- ggplot() + 
+    geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of kappa", y = " ", title = "Precision of Kappa")
+  
+  if (cohort){
+    # tau gamma
+    tau.gamma.stan <- data.frame(tau = stan.marginals$tau_gamma_draws)
+    tau.gamma.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for gamma`)
+    
+    p.tau.gamma <- ggplot() + 
+      geom_area(data = tau.gamma.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = tau.gamma.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      labs(x = "Value of precision of gamma", y = " ", title = "Precision of Gamma")
+  }
+  
+  # tau epsilon
+  tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws)
+  tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`)
+  
+  p.tau.epsilon <- ggplot() + 
+    geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
+  
+  
+  plots <- list(p.intercept = p.intercept, 
+                p.alpha = p.alpha, 
+                p.beta = p.beta,
+                p.kappa = p.kappa,
+                p.eta = p.eta,
+                p.eta.2 = p.eta.2,
+                p.eta.t = p.eta.t,
+                p.eta.x = p.eta.x,
+                p.tau.alpha = p.tau.alpha,
+                p.tau.beta = p.tau.beta,
+                p.tau.kappa = p.tau.kappa,
+                p.tau.epsilon = p.tau.epsilon)
+  if(cohort){
+    plots <- c(plots, p.gamma=p.gamma)
+    plots <- c(plots, p.tau.gamma=p.tau.gamma)
+  }
+  
+  return(plots)
+
+}
+

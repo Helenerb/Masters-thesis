@@ -558,8 +558,8 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   
   #  ----   intercept   ----
   p.intercept <- ggplot() + 
-    geom_area(data=inlabru.summaries$data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
     geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
+    geom_area(data=inlabru.summaries$data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
     #geom_vline(aes(xintercept = inlabru.summaries$intercept, color = "Inlabru", fill="Inlabru")) + 
     #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = mean[1], fill = "Stan", color = "Stan")) + 
     #geom_histogram(data = intercept.marginal, aes(x = int,color = "Stan", fill = "Stan")) + 

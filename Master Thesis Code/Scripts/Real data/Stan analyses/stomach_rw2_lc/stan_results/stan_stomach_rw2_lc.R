@@ -32,9 +32,6 @@ run_stan_stomach_rw2_lc <- function(stan_program, chains=4, warmup=1000, iter=10
               nx = 1,
               config_name = config)
   
-  print("nx: ")
-  print(data$nx)
-  
   stan_fit <- run_stan_program_lc(data, chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
   
   store_stan_results(fit=stan_fit, output.path=output.path, config=config,
@@ -43,4 +40,4 @@ run_stan_stomach_rw2_lc <- function(stan_program, chains=4, warmup=1000, iter=10
   
 }
 
-run_stan_stomach_rw2_lc(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 5000, iter = 50000, markov=TRUE)
+run_stan_stomach_rw2_lc(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 20000, iter = 200000, markov=TRUE)

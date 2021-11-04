@@ -13,6 +13,9 @@ source("Scripts/Synthetic data/Inlabru analyses/inlabru_analyses.R")
 
 res.stomach <- inlabru.rw2.cohort.2(stomach.cancer)
 
+# the lc-version:
+res.stomach.lc <- inlabru.rw2.lc.2(stomach.cancer)
+
 source("Scripts/Real data/plot_real_data.R")
 
 plots.stomach <- plot.inlabru.real(
@@ -26,6 +29,9 @@ plot.hypers.inlabru.real(
 
 # run for lung cancer
 res.lung <- inlabru.rw2.cohort.2(lung.cancer, max_iter = 100)
+
+# lc-version:
+res.lung.lc <- inlabru.rw2.lc.2(lung.cancer, max_iter = 100)
 
 plots.lung <- plot.inlabru.real(
   res.lung, lung.cancer, save=TRUE, 
@@ -126,9 +132,36 @@ plot.hypers.inlabru.real(
 
 #   ----   Compare results of STAN and inlabru:   ----
 
-#load("/Scripts/Real data/Stan analyses/lung_rw2/stan_results/stan_lung_rw2.Rda")  # TODO: Check that this is the correct path!
+load("Scripts/Real data/Stan analyses/lung_rw2_lc/stan_results/stan_lung_rw2_lc.Rda")  # TODO: Check that this is the correct path!
+stan_lung_rw2_lc <- stan_lc_df
 
-plots.compared.lung <- plot.comparison.real(res.inlabru.lung, res.stan = "TODO", lung.cancer)
+path.to.stan.results = "/Scripts/Real\ data/Stan analyses/lung_rw2_lc/stan_results"
+
+load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
+load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
+load(file.path(path.to.stan.results, "draws_tau_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_tau_beta.RData"))
+load(file.path(path.to.stan.results, "draws_tau_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_beta.RData"))
+load(file.path(path.to.stan.results, "draws_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_eta.RData"))
+
+stan.marginals <- list(intercept_draws = intercept_draws,
+                       tau_epsilon_draws = tau_epsilon_draws,
+                       tau_alpha_draws = tau_alpha_draws,
+                       tau_beta_draws = tau_beta_draws,
+                       tau_kappa_draws = tau_kappa_draws,
+                       alpha_draws = alpha_draws,
+                       beta_draws = beta_draws,
+                       kappa_draws = kappa_draws,
+                       eta_draws = eta_draws)
+
+
+plots.compared.lung <- plot.comparison.real(
+  res.lung.lc, res.stan = stan_lung_rw2_lc, 
+  stan.marginals, lung.cancer, 
+  path.to.storage="Scripts/Real data/Output/Figures/lung_rw2_lc")
 
 
 

@@ -9,12 +9,12 @@ source("configurations_synthetic_data.R")
 #underlying.effects.lc <- configuration.v10()
 #underlying.effects.lc <- configuration.v10.1()# config with coarser grid and larger variance in beta
 #underlying.effects.lc <- configuration.v10.2()
-underlying.effects.lc <- configuration.v10.3()
+#underlying.effects.lc <- configuration.v10.3()
 #underlying.effects.lc <- configuration.v11()  # config with coarser grid, larger variance in beta and steeper phi (compared to alpha)
 #underlying.effects.lc <- configuration.v11.1()
 #underlying.effects.lc <- configuration.v11.3()
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
-#underlying.effects.lc <- configuration.v12.3()
+underlying.effects.lc <- configuration.v12.3()
 #underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
@@ -30,9 +30,9 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v10dh")
 #storage_path = file.path(figures.folder, "v10_2_ar1c")
 #storage_path = file.path(figures.folder, "v10_3_ar1c")
-storage_path = file.path(figures.folder, "v10_3_rw2")
+#storage_path = file.path(figures.folder, "v10_3_rw2")
 #storage_path = file.path(figures.folder, "v11_3_rw2")
-#storage_path = file.path(figures.folder, "v12_3_rw2")
+storage_path = file.path(figures.folder, "v12_3_rw2")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -73,13 +73,14 @@ print(runtime.inlabru)
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10/stan_results/stan_v10.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10d/stan_results/stan_v10d.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10dh/stan_results/stan_v10dh.Rda")
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10_3/stan_results/stan_v10_3.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10_3/stan_results/stan_v10_3.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v11_3/stan_results/stan_v11_3.Rda")
-#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v12_3/stan_results/stan_v12_3.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v12_3/stan_results/stan_v12_3.Rda")
 
 #   ----   load STAN marginals   ---- 
 
-path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v10_3/stan_results"
+#path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v10_3/stan_results"
+path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v12_3/stan_results"
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
 load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
