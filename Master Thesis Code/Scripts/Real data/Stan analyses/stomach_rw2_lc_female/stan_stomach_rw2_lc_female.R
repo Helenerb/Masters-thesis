@@ -47,4 +47,4 @@ run_stan_stomach_rw2_lc_female <- function(stan_program, chains=4, warmup=1000, 
   
 }
 
-run_stan_stomach_rw2_lc_female(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 50, iter = 100, markov=TRUE)
+run_stan_stomach_rw2_lc_female(stan_program="../Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 10000, iter = 100000, markov=TRUE)
