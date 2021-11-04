@@ -27,6 +27,17 @@ plot.hypers.inlabru.real(
   res.stomach, stomach.cancer, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2")
 
+# plot lc
+plots.stomach <- plot.inlabru.real(
+  res.stomach.lc, stomach.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc",
+  cohort=F)
+
+plot.hypers.inlabru.real(
+  res.stomach.lc, stomach.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc",
+  cohort=F)
+
 # run for lung cancer
 res.lung <- inlabru.rw2.cohort.2(lung.cancer, max_iter = 100)
 
@@ -41,6 +52,18 @@ plots.lung <- plot.inlabru.real(
 plot.hypers.inlabru.real(
   res.lung, lung.cancer, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2")
+
+# plot lc:
+
+plots.lung <- plot.inlabru.real(
+  res.lung.lc, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_lc",
+  cohort=F)
+
+plot.hypers.inlabru.real(
+  res.lung.lc, lung.cancer, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2",
+  cohort=F)
 
 # run with extraconstraints on gamma, stomach
 res.stomach.extraconstr <- inlabru.rw2.cohort.2.gamma.extraconstr(stomach.cancer, real_data = TRUE)

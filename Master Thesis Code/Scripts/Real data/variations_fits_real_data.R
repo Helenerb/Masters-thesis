@@ -43,6 +43,8 @@ stomach.cancer.male <- stomach.cancer %>%
 #   ----   perform inlabru analyses   ----
 source("Scripts/Synthetic data/Inlabru analyses/inlabru_analyses.R")
 
+# lc-models 
+
 res.lung.lc.f <- inlabru.rw2.lc.2(lung.cancer.female)
 
 res.stomach.lc.f <- inlabru.rw2.lc.2(stomach.cancer.female)
@@ -50,6 +52,17 @@ res.stomach.lc.f <- inlabru.rw2.lc.2(stomach.cancer.female)
 res.lung.lc.m <- inlabru.rw2.lc.2(lung.cancer.male)
 
 res.stomach.lc.m <- inlabru.rw2.lc.2(stomach.cancer.male)
+
+# lcc-models
+
+res.lung.cohort.f <- inlabru.rw2.cohort.2(lung.cancer.female)
+
+res.stomach.cohort.f <- inlabru.rw2.cohort.2(stomach.cancer.female, max_iter = 100)
+
+res.lung.cohort.m <- inlabru.rw2.cohort.2(lung.cancer.male, max_iter=100)
+
+res.stomach.cohort.m <- inlabru.rw2.cohort.2(stomach.cancer.male, max_iter=100)
+
 
 #   ----   plot and save results   ----
 
@@ -98,3 +111,55 @@ plot.hypers.inlabru.real(
   res.stomach.lc.m, stomach.cancer.male, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male",
   cohort=FALSE)
+
+# plot lcc:
+
+# female lung
+plots.lung.female <- plot.inlabru.real(
+  res.lung.cohort.f, lung.cancer.female, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2/female",
+  cohort=TRUE)
+
+plot.hypers.inlabru.real(
+  res.lung.cohort.f, lung.cancer.female, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2/female",
+  cohort=TRUE)
+
+# female stomach
+plots.stomach.female <- plot.inlabru.real(
+  res.stomach.cohort.f, stomach.cancer.female, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2/female",
+  cohort=TRUE)
+
+plot.hypers.inlabru.real(
+  res.stomach.cohort.f, stomach.cancer.female, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2/female",
+  cohort=T)
+
+# male lung
+plots.lung.male <- plot.inlabru.real(
+  res.lung.cohort.m, lung.cancer.male, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2/male",
+  cohort=T)
+
+plot.hypers.inlabru.real(
+  res.lung.cohort.m, lung.cancer.male, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2/male",
+  cohort=T)
+
+# male stomach
+plots.stomach.male <- plot.inlabru.real(
+  res.stomach.cohort.m, stomach.cancer.male, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2/male",
+  cohort=T)
+
+plot.hypers.inlabru.real(
+  res.stomach.cohort.m, stomach.cancer.male, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2/male",
+  cohort=T)
+
+#   ----   Ready data for prediction   ----
+
+
+
+
