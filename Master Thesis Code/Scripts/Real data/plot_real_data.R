@@ -134,7 +134,7 @@ plot.inlabru.real <- function(res.inlabru, cancer.data, save=FALSE, path.to.stor
 plot.hypers.inlabru.real <- function(res.inlabru, cancer.data, cutoff_alpha = 10,
                                      cutoff_beta = 1000, cutoff_kappa = 1500, cutoff_gamma = 3000,
                                      cutoff_epsilon = 50000, save=FALSE,
-                                     path.to.storage=""){
+                                     path.to.storage="", cohort=TRUE){
   data.hyperpar <- data.frame(res.inlabru$marginals.hyperpar)
   
   p.alpha.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.alpha.x < cutoff_alpha)) + 
@@ -152,17 +152,24 @@ plot.hypers.inlabru.real <- function(res.inlabru, cancer.data, cutoff_alpha = 10
     geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[3]), color = palette[1]) + 
     labs(x = " ", y = " ", title = "Precision of kappa")
   
-  p.gamma.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.gamma.x < cutoff_gamma)) + 
-    geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), color = palette[1], fill = palette[1], alpha = 0.5) + 
-    geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[4]), color = palette[1]) + 
-    labs(x = " ", y = " ", title = "Precision of gamma")
+  if(cohort){
+    p.gamma.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.gamma.x < cutoff_gamma)) + 
+      geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), color = palette[1], fill = palette[1], alpha = 0.5) + 
+      geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[4]), color = palette[1]) + 
+      labs(x = " ", y = " ", title = "Precision of gamma")
+  }
   
   p.epsilon.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.epsilon.x < cutoff_epsilon)) + 
     geom_area(aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y), color = palette[1], fill = palette[1], alpha = 0.5) + 
     geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[5]), color = palette[1]) + 
     labs(x = " ", y = " ", title = "Precision of epsilon")
   
-  p.hyperpars <- (p.alpha.prec | p.beta.prec | p.kappa.prec)/(p.gamma.prec | p.epsilon.prec)
+  if(cohort){
+    p.hyperpars <- (p.alpha.prec | p.beta.prec | p.kappa.prec)/(p.gamma.prec | p.epsilon.prec)
+  } else {
+    p.hyperpars <- (p.alpha.prec | p.beta.prec )/(p.kappa.prec | p.epsilon.prec)
+  }
+  
   
   if(save){
     save.figure(p.hyperpars, name="hypers_inlabru", path=path.to.storage)
