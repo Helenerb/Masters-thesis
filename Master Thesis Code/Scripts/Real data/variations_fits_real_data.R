@@ -74,7 +74,8 @@ plots.stomach.female <- plot.inlabru.real(
 
 plot.hypers.inlabru.real(
   res.stomach.lc.f, stomach.cancer.female, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female",
+  cohort=FALSE)
 
 # male lung
 plots.lung.male <- plot.inlabru.real(
@@ -84,7 +85,8 @@ plots.lung.male <- plot.inlabru.real(
 
 plot.hypers.inlabru.real(
   res.lung.lc.m, lung.cancer.male, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_lc/male")
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_lc/male",
+  cohort=FALSE)
 
 # male stomach
 plots.stomach.male <- plot.inlabru.real(
@@ -94,4 +96,5 @@ plots.stomach.male <- plot.inlabru.real(
 
 plot.hypers.inlabru.real(
   res.stomach.lc.m, stomach.cancer.male, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male")
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male",
+  cohort=FALSE)
