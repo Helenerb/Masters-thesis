@@ -341,14 +341,16 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
   
 }
 
-plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort = TRUE){
+plot.comparison.real <- function(res.inlabru, res.stan, stan.marginals, cancer.data, path.to.storage, cohort = FALSE, save=FALSE){
   #'Plots comparison of inlarbu and stan results for real data
   #'
   #'@param res.inlabru (bru.object): results of run with inlabru
   #'@param res.stan (data.frame): results of run with stan, saved as a summary dataframe
   #'@param stan.marginals (list<array>): list of draws from stan for random effects and hyperparams
   #'@param cander.cata (data.frame): observed cancer (and population) data
+  #'@param path.to.storage (string): file path where output should be stored
   #'@param cohort (bool): Whether the analysis included a cohort effect
+  #'@param save (bool): whether figures should be stored
   
   intercept.marginal <- data.frame(int = stan.marginals$intercept_draws)
   intercept.inlabru <- data.frame(res.inlabru$marginals.fixed)
@@ -386,7 +388,7 @@ plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort 
   # ----   beta   ----
   beta.inlabru <- left_join(res.inlabru$summary.random$beta, {cancer.data %>% select(age, x, age.int)}, by=c("ID" = "x"))
   
-  beta.stan <- stan_df %>%
+  beta.stan <- res.stan %>%
     rownames_to_column("parameter") %>%
     filter(grepl('beta', parameter)) %>% 
     filter(!grepl('tau_beta', parameter)) %>%
@@ -410,7 +412,7 @@ plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort 
   kappa.inlabru <- left_join(res.inlabru$summary.random$kappa, {cancer.data %>% select(year, t)}, by=c("ID" = "t")) %>%
     mutate(year = parse_integer(year))
   
-  kappa.stan <- stan_df %>%
+  kappa.stan <- res.stan %>%
     rownames_to_column("parameter") %>%
     filter(grepl('kappa', parameter)) %>%
     filter(!grepl('tau_kappa', parameter)) %>%
@@ -437,7 +439,7 @@ plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort 
     # Not tested
     gamma.inlabru <- res.inlabru$summary.random$gamma
     
-    gamma.stan <- stan_df %>%
+    gamma.stan <- res.stan %>%
       rownames_to_column("parameter") %>%
       filter(grepl('gamma', parameter)) %>%
       filter(!grepl('tau_gamma', parameter)) %>%
@@ -457,35 +459,57 @@ plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort 
       labs(title="Gamma", x = "cohort", y='')
   }
   
-  #   ----   eta   ----
+  #   ----   mortality rate   ----
+  
+  eta.inlabru <- data.frame(mean = res.inlabru$summary.linear.predictor$mean[1:length(cancer.data$`mortality rate`)]) %>%
+    mutate(`0.975quant` = res.inlabru$summary.linear.predictor$`0.975quant`[1:length(cancer.data$`mortality rate`)]) %>%
+    mutate(`0.025quant` = res.inlabru$summary.linear.predictor$`0.025quant`[1:length(cancer.data$`mortality rate`)]) %>%
+    mutate(xt = cancer.data$xt, x = cancer.data$x, t = cancer.data$t) %>%
+    mutate(year = cancer.data$year, age=cancer.data$age, age.int = cancer.data$age.int) %>%
+    mutate(year = parse_integer(year)) 
+  
+  eta.stan <- res.stan %>%
+    rownames_to_column("parameter") %>%
+    filter(grepl('eta', parameter)) %>%
+    filter(!grepl('beta', parameter)) %>%
+    mutate(index = parse_number(parameter)) %>% mutate(index = index - 1) %>%
+    left_join({cancer.data %>% select(xt, Y, `mortality rate`, x, age.int, age, t, year, cohort, birth.year)}, by=c("index" = "xt")) %>%
+    mutate(year = parse_integer(year))
+  
+  eta.both <- left_join(eta.inlabru, eta.stan, by = c("xt" = "index"), suffix = c(".inlabru", ".stan"))
+  
   p.eta <- ggplot() +
-    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru")) + 
-    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan")) + 
-    scale_color_manual(name = " ", values = palette) + 
-    labs(x="Estimated eta", y="True value for eta", title = "Eta")
+    geom_point(data=eta.both, aes(x = mean.inlabru, y = mean.stan), color = palette[1]) + 
+    labs(x="Eta - inlabru", y="Eta - stan", title = "Eta")
   
   p.eta.2 <- ggplot() +
-    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru")) +
-    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True")) +
-    geom_line(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="True")) +
+    geom_line(data = eta.inlabru, aes(x=xt, y = mean, color="Inlabru", fill = "Inlabru")) +
+    geom_ribbon(data = eta.inlabru, aes(x = xt, ymin=`0.025quant`, ymax=`0.975quant`, fill="Inlabru"), alpha = 0.5) +
+    geom_line(data = eta.stan, aes(x=index, y = mean, color="Stan", fill="Stan")) +
+    geom_ribbon(data = eta.stan, aes(x=index, ymin=`2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5) +
     scale_color_manual(name = "", values = palette ) +
-    labs(x=" ", y="Eta", title="Eta")
+    scale_fill_manual(name = "", values = palette ) +
+    labs(x=" ", y="", title="Eta")
   
   p.eta.t <- ggplot() + 
-    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = eta.sim, color = "Inlabru")) +
-    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = true.eta, color = "True")) +
-    geom_line(data=stan.summaries$summary_eta, aes(x = x, y = mean, color = "Stan")) +
-    scale_color_manual(name = "", values = palette ) +
-    labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
-    facet_wrap(~t)
+    geom_line(data = eta.inlabru, aes(x = age.int, y = mean, color = "Inlabru", fill = "Inlabru")) +
+    geom_ribbon(data = eta.inlabru, aes(x = age.int, ymin=`0.025quant`, ymax=`0.975quant`, fill="Inlabru"), alpha = 0.5) +
+    geom_line(data = eta.stan, aes(x = age.int, y = mean, color = "Stan", fill="Stan")) +
+    geom_ribbon(data = eta.stan, aes(x = age.int, ymin=`2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5) +
+    scale_color_manual(name = "", values = palette) +
+    scale_fill_manual(name = "", values = palette ) +
+    labs(x = " ", y = " ", title = "Eta, for each year") + 
+    facet_wrap(~year)
   
   p.eta.x <- ggplot() + 
-    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = eta.sim, color = "Inlabru")) +
-    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = true.eta, color = "True")) +
-    geom_line(data=stan.summaries$summary_eta, aes(x = t, y = mean, color = "Stan")) +
+    geom_line(data = eta.inlabru, aes(x = year, y = mean, color = "Inlabru")) +
+    geom_ribbon(data = eta.inlabru, aes(x = year, ymin=`0.025quant`, ymax=`0.975quant`, fill="Inlabru"), alpha = 0.5) +
+    geom_line(data=eta.stan, aes(x = year, y = mean, color = "Stan")) +
+    geom_ribbon(data = eta.stan, aes(x = year, ymin=`2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5) +
     scale_color_manual(name = "", values = palette ) +
-    labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
-    facet_wrap(~x)
+    scale_fill_manual(name = "", values = palette ) +
+    labs(x = " ", y = " ", title = "Eta, for each age group") + 
+    facet_wrap(~age)
   
   #   ----   hyperparameters: precisions   ----   
   
@@ -548,6 +572,33 @@ plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort 
     scale_fill_manual(name = " ", values = palette) +
     labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
   
+  #   ----   if save: store figures   ----
+  
+  if(cohort){
+    p.random.effects <- (p.intercept | p.alpha | p.beta) / (p.kappa | p.gamma) + 
+      plot_layout(guides = "collect")
+    
+    p.hypers <- (p.tau.alpha | p.tau.beta)/(p.tau.kappa | p.tau.gamma | p.tau.epsilon) + 
+      plot_layout(guides = "collect")
+  } else {
+    p.random.effects <- (p.intercept | p.alpha ) / (p.beta | p.kappa ) + 
+      plot_layout(guides = "collect")
+    
+    p.hypers <- (p.tau.alpha | p.tau.beta)/(p.tau.kappa | p.tau.epsilon) + 
+      plot_layout(guides = "collect")
+  }
+  
+  print("Arriving at the place in the code where we save")
+  
+  if(save){
+    print("saving")
+    save.figure(p.random.effects, name="random_effects_compared", path=path.to.storage)
+    save.figure(p.eta, name="eta_xt_compared", path=path.to.storage)
+    save.figure(p.eta.2, name="eta_xt_2_compared", path=path.to.storage)
+    save.figure(p.eta.x, name="eta_x_compared", path=path.to.storage)
+    save.figure(p.eta.t, name="eta_t_compared", path=path.to.storage)
+    save.figure(p.hypers, name="hypers_compared", path=path.to.storage)
+  }
   
   plots <- list(p.intercept = p.intercept, 
                 p.alpha = p.alpha, 
@@ -560,13 +611,14 @@ plot.comparison.real(res.inlabru, res.stan, stan.marginals, cancer.data, cohort 
                 p.tau.alpha = p.tau.alpha,
                 p.tau.beta = p.tau.beta,
                 p.tau.kappa = p.tau.kappa,
-                p.tau.epsilon = p.tau.epsilon)
+                p.tau.epsilon = p.tau.epsilon,
+                p.random.effects=p.random.effects,
+                p.hypers = p.hypers)
   if(cohort){
     plots <- c(plots, p.gamma=p.gamma)
     plots <- c(plots, p.tau.gamma=p.tau.gamma)
   }
   
   return(plots)
-
 }
 

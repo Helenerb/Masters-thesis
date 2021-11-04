@@ -782,6 +782,7 @@ inlabru.rw2.lc.2 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model using an ar1c to model the period effect
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
+  #'@param max_iter (int): maximum number of iterations in inlabru
   
   nx = length(unique(obs$x))
   nt = length(unique(obs$t))
@@ -799,7 +800,8 @@ inlabru.rw2.lc.2 <- function(obs, max_iter=30){
     Int(1) +
     alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
     beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
-    kappa(t.c, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    #kappa(t.c, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
     epsilon(xt, model = "iid", hyper = loggamma.prior)
   
   formula = Y ~ Int + alpha + beta*kappa + epsilon

@@ -132,10 +132,13 @@ plot.hypers.inlabru.real(
 
 #   ----   Compare results of STAN and inlabru:   ----
 
-load("Scripts/Real data/Stan analyses/lung_rw2_lc/stan_results/stan_lung_rw2_lc.Rda")  # TODO: Check that this is the correct path!
-stan_lung_rw2_lc <- stan_lc_df
+# load("Scripts/Real data/Stan analyses/lung_rw2_lc/stan_results/stan_lung_rw2_lc.Rda")  # TODO: Check that this is the correct path!
+# stan_lung_rw2_lc <- stan_lc_df
 
-path.to.stan.results = "/Scripts/Real\ data/Stan analyses/lung_rw2_lc/stan_results"
+load("Scripts/Real data/Stan analyses/stomach_rw2_lc/stan_results/stan_stomach_rw2_lc.Rda")  # TODO: Check that this is the correct path!
+stan_stomach_rw2_lc <- stan_lc_df
+
+path.to.stan.results = "Scripts/Real\ data/Stan analyses/stomach_rw2_lc/stan_results"
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
 load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
@@ -158,10 +161,17 @@ stan.marginals <- list(intercept_draws = intercept_draws,
                        eta_draws = eta_draws)
 
 
-plots.compared.lung <- plot.comparison.real(
-  res.lung.lc, res.stan = stan_lung_rw2_lc, 
-  stan.marginals, lung.cancer, 
-  path.to.storage="Scripts/Real data/Output/Figures/lung_rw2_lc")
+# plots.compared.lung <- plot.comparison.real(
+#   res.lung.lc, res.stan=stan_lung_rw2_lc, 
+#   stan.marginals=stan.marginals, cancer.data=lung.cancer, 
+#   path.to.storage="Scripts/Real data/Output/Figures/lung_rw2_lc",
+#   cohort=FALSE, save=TRUE)
+
+plots.compared.stomach <- plot.comparison.real(
+  res.stomach.lc, res.stan=stan_stomach_rw2_lc,
+  stan.marginals=stan.marginals, cancer.data=stomach.cancer,
+  path.to.storage="Scripts/Real data/Output/Figures/stomach_rw2_lc",
+  cohort=FALSE, save=TRUE)
 
 
 
