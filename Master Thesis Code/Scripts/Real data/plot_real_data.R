@@ -1,6 +1,7 @@
 # functions for plotting analysis results for real data
 library(ggplot2)
 library(patchwork)
+library(tidyverse)
 
 source("Scripts/Misc/palette.R")
 source("Scripts/Functions/plotters.R")

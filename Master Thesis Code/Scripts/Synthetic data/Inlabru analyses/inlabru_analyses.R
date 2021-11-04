@@ -2,6 +2,8 @@
 # All functions take an obs-dataframe containing data for analysis as argument
 # and returns a bru-object. 
 
+library("inlabru")
+
 inlabru.lc.cohort.1 <- function(obs){
   # set-up of inlabru analysis of Poisson Lee-Carter model (no cohort effect)
   # Includes separate intercept

@@ -157,8 +157,8 @@ stan.marginals <- list(intercept_draws = intercept_draws,
                        tau_kappa_draws = tau_kappa_draws,
                        alpha_draws = alpha_draws,
                        beta_draws = beta_draws,
-                       kappa_draws = kappa_draws,
-                       eta_draws = eta_draws)
+                       kappa_draws = kappa_draws)#,
+                      # eta_draws = eta_draws)
 
 
 # plots.compared.lung <- plot.comparison.real(
