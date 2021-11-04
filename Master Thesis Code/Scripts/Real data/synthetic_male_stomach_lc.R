@@ -10,9 +10,12 @@ synthetic.male.stomach.lc <- function(){
   # working directory at .../Synthetic data/Stan analyses
   load(file.path("../Real data/Output/Data/stomach_rw2_lc_male", "inlabru_res.RData"))
   
-  load("../../Data/population-germany.Rda")
+  source("../Functions/formatters.R")
   
-  load("../../Data/stomachCancer-germany.Rda")
+  population <- format_population_data("../../Data/population-germany.xlsx",
+                                       save=FALSE)
+  cancer.data =  format_cancer_data("../../Data/stomachCancer-germany.xls", 
+                                    population=population, save=FALSE)
   stomach.cancer <- cancer.data
   
   stomach.cancer.male <- stomach.cancer %>%
