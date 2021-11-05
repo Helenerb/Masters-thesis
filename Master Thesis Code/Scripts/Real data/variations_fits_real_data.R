@@ -1,4 +1,5 @@
 # test different variations of fits to the real data
+library("tidyverse")
 
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/population-germany.Rda")
 
@@ -47,7 +48,7 @@ source("Scripts/Synthetic data/Inlabru analyses/inlabru_analyses.R")
 
 res.lung.lc.f <- inlabru.rw2.lc.2(lung.cancer.female)
 
-res.stomach.lc.f <- inlabru.rw2.lc.2(stomach.cancer.female)
+res.stomach.lc.f <- inlabru.rw2.lc.2(stomach.cancer.female, max_iter=100)
 
 res.lung.lc.m <- inlabru.rw2.lc.2(lung.cancer.male)
 
@@ -158,7 +159,139 @@ plot.hypers.inlabru.real(
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2/male",
   cohort=T)
 
-#   ----   Ready data for prediction   ----
+#   ----   Comparison plots   ----
+
+# stomach male:
+load("Scripts/Real data/Stan analyses/stomach_rw2_lc_male/stan_results/stan_stomach_rw2_lc_male.Rda") 
+stan_stomach_rw2_lc_m <- stan_lc_df
+
+path.to.stan.results = "Scripts/Real\ data/Stan analyses/stomach_rw2_lc_male/stan_results"
+
+load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
+load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
+load(file.path(path.to.stan.results, "draws_tau_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_tau_beta.RData"))
+load(file.path(path.to.stan.results, "draws_tau_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_beta.RData"))
+load(file.path(path.to.stan.results, "draws_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_eta.RData"))
+
+stan.marginals.stomach.m <- list(intercept_draws = intercept_draws,
+                       tau_epsilon_draws = tau_epsilon_draws,
+                       tau_alpha_draws = tau_alpha_draws,
+                       tau_beta_draws = tau_beta_draws,
+                       tau_kappa_draws = tau_kappa_draws,
+                       alpha_draws = alpha_draws,
+                       beta_draws = beta_draws,
+                       kappa_draws = kappa_draws,
+                       eta_draws = eta_draws)
+
+
+plots.compared.stomach.male <- plot.comparison.real(
+  res.stomach.lc.m, res.stan=stan_stomach_rw2_lc_m,
+  stan.marginals=stan.marginals.stomach.m, cancer.data=stomach.cancer,
+  path.to.storage="Scripts/Real data/Output/Figures/stomach_rw2_lc/male",
+  cohort=FALSE, save=TRUE)
+
+# stomach female:
+load("Scripts/Real data/Stan analyses/stomach_rw2_lc_female/stan_results/stan_stomach_rw2_lc_female.Rda") 
+stan_stomach_rw2_lc_f <- stan_lc_df
+
+path.to.stan.results = "Scripts/Real\ data/Stan analyses/stomach_rw2_lc_female/stan_results"
+
+load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
+load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
+load(file.path(path.to.stan.results, "draws_tau_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_tau_beta.RData"))
+load(file.path(path.to.stan.results, "draws_tau_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_beta.RData"))
+load(file.path(path.to.stan.results, "draws_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_eta.RData"))
+
+stan.marginals.stomach.f <- list(intercept_draws = intercept_draws,
+                                 tau_epsilon_draws = tau_epsilon_draws,
+                                 tau_alpha_draws = tau_alpha_draws,
+                                 tau_beta_draws = tau_beta_draws,
+                                 tau_kappa_draws = tau_kappa_draws,
+                                 alpha_draws = alpha_draws,
+                                 beta_draws = beta_draws,
+                                 kappa_draws = kappa_draws,
+                                 eta_draws = eta_draws)
+
+
+plots.compared.stomach.female <- plot.comparison.real(
+  res.stomach.lc.f, res.stan=stan_stomach_rw2_lc_f,
+  stan.marginals=stan.marginals.stomach.f, cancer.data=stomach.cancer,
+  path.to.storage="Scripts/Real data/Output/Figures/stomach_rw2_lc/female",
+  cohort=FALSE, save=TRUE)
+
+# lung male:
+load("Scripts/Real data/Stan analyses/lung_rw2_lc_male/stan_results/stan_lung_rw2_lc_male.Rda") 
+stan_lung_rw2_lc_m <- stan_lc_df
+
+path.to.stan.results = "Scripts/Real\ data/Stan analyses/lung_rw2_lc_male/stan_results"
+
+load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
+load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
+load(file.path(path.to.stan.results, "draws_tau_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_tau_beta.RData"))
+load(file.path(path.to.stan.results, "draws_tau_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_beta.RData"))
+load(file.path(path.to.stan.results, "draws_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_eta.RData"))
+
+stan.marginals.lung.m <- list(intercept_draws = intercept_draws,
+                                 tau_epsilon_draws = tau_epsilon_draws,
+                                 tau_alpha_draws = tau_alpha_draws,
+                                 tau_beta_draws = tau_beta_draws,
+                                 tau_kappa_draws = tau_kappa_draws,
+                                 alpha_draws = alpha_draws,
+                                 beta_draws = beta_draws,
+                                 kappa_draws = kappa_draws,
+                                 eta_draws = eta_draws)
+
+
+plots.compared.lung.male <- plot.comparison.real(
+  res.lung.lc.m, res.stan=stan_lung_rw2_lc_m,
+  stan.marginals=stan.marginals.lung.m, cancer.data=lung.cancer,
+  path.to.storage="Scripts/Real data/Output/Figures/lung_rw2_lc/male",
+  cohort=FALSE, save=TRUE)
+
+# lung female:
+load("Scripts/Real data/Stan analyses/lung_rw2_lc_female/stan_results/stan_lung_rw2_lc_female.Rda") 
+stan_lung_rw2_lc_f <- stan_lc_df
+
+path.to.stan.results = "Scripts/Real\ data/Stan analyses/lung_rw2_lc_female/stan_results"
+
+load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
+load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
+load(file.path(path.to.stan.results, "draws_tau_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_tau_beta.RData"))
+load(file.path(path.to.stan.results, "draws_tau_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_alpha.RData"))
+load(file.path(path.to.stan.results, "draws_beta.RData"))
+load(file.path(path.to.stan.results, "draws_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_eta.RData"))
+
+stan.marginals.lung.f <- list(intercept_draws = intercept_draws,
+                              tau_epsilon_draws = tau_epsilon_draws,
+                              tau_alpha_draws = tau_alpha_draws,
+                              tau_beta_draws = tau_beta_draws,
+                              tau_kappa_draws = tau_kappa_draws,
+                              alpha_draws = alpha_draws,
+                              beta_draws = beta_draws,
+                              kappa_draws = kappa_draws,
+                              eta_draws = eta_draws)
+
+
+plots.compared.lung.female <- plot.comparison.real(
+  res.lung.lc.f, res.stan=stan_lung_rw2_lc_f,
+  stan.marginals=stan.marginals.lung.f, cancer.data=lung.cancer,
+  path.to.storage="Scripts/Real data/Output/Figures/lung_rw2_lc/female",
+  cohort=FALSE, save=TRUE)
 
 
 
