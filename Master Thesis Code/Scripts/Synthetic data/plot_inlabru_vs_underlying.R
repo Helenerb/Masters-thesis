@@ -803,6 +803,9 @@ plot.inlabru.vs.underlying.lc.only.kappa.2 <- function(res.inlabru, underlying.e
   }
   
   data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
+    mutate(mean  = eta.sim) %>%
+    mutate(`0.975quant` = res.inlabru$summary.linear.predictor$`0.975quant`[1:length(obs$eta)]) %>%
+    mutate(`0.025quant` = res.inlabru$summary.linear.predictor$`0.025quant`[1:length(obs$eta)]) %>%
     mutate(true.eta = obs$eta) %>%
     mutate(xt = obs$xt, x = obs$x, t = obs$t)
   

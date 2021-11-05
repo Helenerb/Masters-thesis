@@ -560,11 +560,6 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   p.intercept <- ggplot() + 
     geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
     geom_area(data=inlabru.summaries$data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
-    #geom_vline(aes(xintercept = inlabru.summaries$intercept, color = "Inlabru", fill="Inlabru")) + 
-    #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = mean[1], fill = "Stan", color = "Stan")) + 
-    #geom_histogram(data = intercept.marginal, aes(x = int,color = "Stan", fill = "Stan")) + 
-    #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `2.5%`[1], fill = "Stan", color = "Stan"), alpha = 0.5) +
-    #geom_vline(data=stan.summaries$summary_fixed, aes(xintercept = `97.5%`[1], fill = "Stan", color = "Stan"), alpha = 0.5) + 
     geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
@@ -651,25 +646,34 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
     labs(x="Estimated eta", y="True value for eta", title = "Eta")
   
   p.eta.2 <- ggplot() +
-    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru")) +
-    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True")) +
-    geom_line(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="True")) +
+    geom_point(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru", fill="Inlabru"), size=0.5) +
+    geom_ribbon(data = inlabru.summaries$data.eta, aes(x = xt, ymin = `0.025quant`, ymax=`0.975quant`, fill = "Inlabru"), alpha = 0.5)  +
+    geom_point(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="Stan", fill="Stan"), size=0.5) +
+    geom_ribbon(data = stan.summaries$summary_eta, aes(x = xt, ymin = `2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5)  +
+    geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True", fill="True")) +
     scale_color_manual(name = "", values = palette ) +
+    scale_fill_manual(name = "", values = palette ) +
     labs(x=" ", y="Eta", title="Eta")
   
   p.eta.t <- ggplot() + 
-    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = eta.sim, color = "Inlabru")) +
-    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = true.eta, color = "True")) +
-    geom_line(data=stan.summaries$summary_eta, aes(x = x, y = mean, color = "Stan")) +
+    geom_point(data = inlabru.summaries$data.eta, aes(x = x, y = eta.sim, color = "Inlabru", fill="Inlabru"), size=0.5) +
+    geom_ribbon(data = inlabru.summaries$data.eta, aes(x = x, ymin = `0.025quant`, ymax=`0.975quant`, fill = "Inlabru"), alpha = 0.5)  +
+    geom_point(data=stan.summaries$summary_eta, aes(x = x, y = mean, color = "Stan", fill="Stan"), size=0.5) +
+    geom_ribbon(data = stan.summaries$summary_eta, aes(x = x, ymin = `2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5)  +
+    geom_line(data = inlabru.summaries$data.eta, aes(x = x, y = true.eta, color = "True", fill="True")) +
     scale_color_manual(name = "", values = palette ) +
+    scale_fill_manual(name = "", values = palette ) +
     labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
     facet_wrap(~t)
   
   p.eta.x <- ggplot() + 
-    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = eta.sim, color = "Inlabru")) +
-    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = true.eta, color = "True")) +
-    geom_line(data=stan.summaries$summary_eta, aes(x = t, y = mean, color = "Stan")) +
+    geom_point(data = inlabru.summaries$data.eta, aes(x = t, y = eta.sim, color = "Inlabru", fill="Inlabru"), size=0.5) +
+    geom_ribbon(data = inlabru.summaries$data.eta, aes(x = t, ymin = `0.025quant`, ymax=`0.975quant`, fill = "Inlabru"), alpha = 0.5)  +
+    geom_point(data=stan.summaries$summary_eta, aes(x = t, y = mean, color = "Stan", fill="Stan"), size=0.5) +
+    geom_ribbon(data = stan.summaries$summary_eta, aes(x = t, ymin = `2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5)  +
+    geom_line(data = inlabru.summaries$data.eta, aes(x = t, y = true.eta, color = "True", fill="True")) +
     scale_color_manual(name = "", values = palette ) +
+    scale_fill_manual(name = "", values = palette ) +
     labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
     facet_wrap(~x)
   
@@ -855,11 +859,14 @@ save.compared.rw2 <- function(plots, path.to.storage, cohort=TRUE){
   }
   save.figure(p.hypers, name = "hypers_comparison", path = path.to.storage)
   
-  p.eta.xt <- (plots$p.eta | plots$p.eta.2) + plot_layout(guides = "collect")
+  p.eta.xt <- (plots$p.eta | plots$p.eta.2) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
   save.figure(p.eta.xt, name = "eta_xt_comparison", path = path.to.storage)
   
-  p.eta.facet <- (plots$p.eta.x | plots$p.eta.t) + plot_layout(guides = "collect")
+  p.eta.facet <- (plots$p.eta.x | plots$p.eta.t) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
   save.figure(p.eta.facet, name = "eta_facet_comparison", path = path.to.storage)
+  
+  save.figure(plots$p.eta.x, "eta_x_comparison", path = path.to.storage)
+  save.figure(plots$p.eta.t, "eta_t_comparison", path = path.to.storage)
 }
 
 produce.compared.plots <- function(

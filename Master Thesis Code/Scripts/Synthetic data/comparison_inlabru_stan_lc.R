@@ -19,6 +19,9 @@ underlying.effects.lc <- configuration.v12.3()
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
+source("../Real\ data/synthetic_male_stomach_lc.R")
+#underlying.effects.lc <- synthetic.male.stomach.lc()
+
 #underlying.effects.lc <- configuration.test.1()
 
 figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures"
@@ -33,6 +36,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v10_3_rw2")
 #storage_path = file.path(figures.folder, "v11_3_rw2")
 storage_path = file.path(figures.folder, "v12_3_rw2")
+
+#storage_path = file.path(figures.folder, "synthetic_male_stomach_lc")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -59,6 +64,7 @@ source("plot_inlabru_vs_underlying.R")
 #   save=TRUE,
 #   phi.plus.kappa.func = phi.plus.kappa.v17)
 
+
 plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.only.kappa.2(
   res.inlabru.lc.1,
   underlying.effects.lc,
@@ -77,10 +83,16 @@ print(runtime.inlabru)
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v11_3/stan_results/stan_v11_3.Rda")
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v12_3/stan_results/stan_v12_3.Rda")
 
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/synthetic_male_stomach_lc/stan_results/stan_synthetic_male_stomach_lc.Rda")
+
+
 #   ----   load STAN marginals   ---- 
 
 #path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v10_3/stan_results"
 path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v12_3/stan_results"
+
+#path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/synthetic_male_stomach_lc/stan_results"
+
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
 load(file=file.path(path.to.stan.results, "draws_tau_epsilon.RData"))
