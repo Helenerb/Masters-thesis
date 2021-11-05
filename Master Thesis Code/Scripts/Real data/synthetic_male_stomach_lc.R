@@ -58,6 +58,7 @@ synthetic.male.stomach.lc <- function(){
     age.intercept.true= intercept.true,
     beta.true = beta.true,
     kappa.true = kappa.true,
+    kappa.drifted=kappa.true,
     tau.beta.true = NA,
     tau.kappa.true = NA,
     tau.epsilon.true= NA,

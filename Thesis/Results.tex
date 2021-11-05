@@ -5,10 +5,49 @@ First, we use synthetic data to show that $\texttt{inlabru}$ produces restults t
 \label{sec:stan}
 STAN is a method for Bayesian inference using a Hamiltonian Monte Carlo approach. It was proposed by ... and has since its introduction gained popularity for its computational power compared to traditional MCMC approaches. bla bla ikke ferdig!!!
 
+\newpage
 \subsection{Preliminary Analysis With Synthetic Data}
 \label{sec:synthetic-data}
 
+\newpage
+\subsection{German Cancer Data}
+Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the observed mortality rates for males and females, averaged over all years 1999-2016 and all ages 0-85+ respectively. 
 
+\begin{figure}
+    \centering
+    \textbf{Mortality rates averaged over the period 1999-2016}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_stomach_by_age.pdf}
+        \caption{\textbf{Stomach}: Average mortality rates for stomach cancer, male and female}
+        \label{fig:obs-mr-stomach-by-age}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_lung_by_age.pdf}
+        \caption{\textbf{Lung}: Average mortality rates for lung cancer, male and female}
+        \label{fig:obs-mr-lung-by-age}
+    \end{subfigure}
+    \caption{Mortality rates averaged over all years, for male and females}
+    \label{fig:obs-mr-by-age}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \textbf{Mortality rates averaged over ages 0-85+}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_stomach_by_period.pdf}
+        \caption{\textbf{Stomach}: Average mortality rates for stomach cancer, male and female}
+        \label{fig:obs-mr-stomach-by-period}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_lung_by_period.pdf}
+        \caption{\textbf{Lung}: Average mortality rates for lung cancer, male and female}
+        \label{fig:obs-mr-lung-by-period}
+    \end{subfigure}
+    \caption{Mortality rates averaged over all age groups, for male and females}
+    \label{fig:obs-mr-by-period}
+\end{figure}
+
+\newpage
 \subsection{Applying $\texttt{inlabru}$ to German Cancer Data}
 \label{sec:real-data}
 
@@ -18,6 +57,7 @@ Figures \ref{fig:mr-lcc-stomach} and \ref{fig:random-effects-lcc-stomach} displa
 
 \begin{figure}
     \centering
+    \textbf{LCC-model: estimated mortality rates for stomach cancer}
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2/mr_x_inlabru.pdf}
         \caption{Mortality rates displayed as a function of calendar year, for each age group. }
@@ -34,6 +74,7 @@ Figures \ref{fig:mr-lcc-stomach} and \ref{fig:random-effects-lcc-stomach} displa
 
 \begin{figure}
     \centering
+    \textbf{LCC-model: estimated age, period and cohort effects for stomach cancer}
     \begin{subfigure}[b]{.85\linewidth}
         \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2/random_effects_inlabru.pdf}
         \caption{Estimated random effects.}
@@ -53,6 +94,7 @@ Figures \ref{fig:mr-lcc-lung} and \ref{fig:random-effects-lcc-lung} displays the
 
 \begin{figure}
     \centering
+    \textbf{LCC-model: estimated mortality rates for lung cancer}
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/lung_rw2/mr_x_inlabru.pdf}
         \caption{Mortality rates displayed as a function of calendar year, for each age group. }
@@ -69,6 +111,7 @@ Figures \ref{fig:mr-lcc-lung} and \ref{fig:random-effects-lcc-lung} displays the
 
 \begin{figure}
     \centering
+    \textbf{LCC-model: estimated age, period and cohort effects for lung cancer}
     \begin{subfigure}[b]{.85\linewidth}
         \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/lung_rw2/random_effects_inlabru.pdf}
         \caption{Estimated random effects.}
@@ -84,10 +127,16 @@ Figures \ref{fig:mr-lcc-lung} and \ref{fig:random-effects-lcc-lung} displays the
     \label{fig:random-effects-lcc-lung}
 \end{figure}
 
+
+
+\newpage
+\subsection{Using LCC-model for Prediction}
+
 Figures \ref{fig:mr-pred-stomach} and \ref{fig:random-effects-pred-stomach} displays the results of applying the LCC-model to German stomach cancer mortality data. The observed mortality rates for years 1999-2007 are used to predict the mortality rates, and the associated age, period and cohort effects, for the years 2008-2016. These results are produced in the script \url{Master Thesis Code/Scripts/Real data/run_inlabru_real_data.R}.
 
 \begin{figure}
     \centering
+    \textbf{Prediction with LCC-model for stomach cancer mortality}
     \begin{subfigure}[b]{.85\linewidth}
         \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2_predict/mr_x_inlabru.pdf}
         \caption{Mortality rates displayed as a function of calendar year, for each age group. }
@@ -105,6 +154,7 @@ Figures \ref{fig:mr-pred-stomach} and \ref{fig:random-effects-pred-stomach} disp
 
 \begin{figure}
     \centering
+    \textbf{Estimated and predicted age, period and cohort effects with LCC-model for stomach cancer mortality}
     \begin{subfigure}[b]{.85\linewidth}
         \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/stomach_rw2_predict/random_effects_inlabru.pdf}
         \caption{Estimated random effects. The estimates for the period effect $\kappa_t$ for the unobserved years are marked with yellow triangles. The estimates for the cohort effect $\gamma_c$ for the partially observed and unobserved cohorts are marked with green crosses and yellow triangles, respectively. }
