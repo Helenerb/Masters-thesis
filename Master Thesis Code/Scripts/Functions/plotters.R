@@ -3,24 +3,31 @@
 # assuming working directory at .../Master Thesis Code
 source("Scripts/Misc/palette.R")
 
-save.figure <- function(plot, name, path){
+save.figure <- function(plot, name, path, pdf=TRUE, png=TRUE){
   #'@param plot gg object
   #'@param name string:  on the format '<name>.png'
   #'@param path string: path to location where figure should be stored
-  ggsave(paste(name, '.png', sep=""),
-         plot = plot,
-         device = "png",
-         path = path,
-         height = 5, width = 8,
-         dpi = "retina"
-  )
-  # ggsave(paste(name, '.pdf', sep=""),
-  #        plot = plot,
-  #        device = "pdf",
-  #        path = path,
-  #        height = 5, width = 8, 
-  #        dpi = "retina"
-  # )
+  #'@param pdf (boolean): whether to save as pdf
+  #'@param png (boolean) whether to save as png
+  
+  if (png){
+    ggsave(paste(name, '.png', sep=""),
+           plot = plot,
+           device = "png",
+           path = path,
+           height = 5, width = 8,
+           dpi = "retina"
+    )
+  }
+  if (pdf) {
+    ggsave(paste(name, '.pdf', sep=""),
+           plot = plot,
+           device = "pdf",
+           path = path,
+           height = 5, width = 8,
+           dpi = "retina"
+    )
+  }
 }
 
 trace_plot <- function(draws, iterations, warmup, chains, title){
