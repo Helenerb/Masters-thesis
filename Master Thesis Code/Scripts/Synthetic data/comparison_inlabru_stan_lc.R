@@ -14,13 +14,13 @@ source("configurations_synthetic_data.R")
 #underlying.effects.lc <- configuration.v11.1()
 #underlying.effects.lc <- configuration.v11.3()
 #underlying.effects.lc <- configuration.v12()  #  config with coarser grid, smaller variance in beta, steeper phi (compared to alpha)
-underlying.effects.lc <- configuration.v12.3()
+#underlying.effects.lc <- configuration.v12.3()
 #underlying.effects.lc <- configuration.v13()  # config with coarser grid, even smaller variance in beta, a bit less steep phi, higher variance in kappa
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
 source("../Real\ data/synthetic_male_stomach_lc.R")
-#underlying.effects.lc <- synthetic.male.stomach.lc()
+underlying.effects.lc <- synthetic.male.stomach.lc()
 
 #underlying.effects.lc <- configuration.test.1()
 
@@ -35,9 +35,9 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "v10_3_ar1c")
 #storage_path = file.path(figures.folder, "v10_3_rw2")
 #storage_path = file.path(figures.folder, "v11_3_rw2")
-storage_path = file.path(figures.folder, "v12_3_rw2")
+#storage_path = file.path(figures.folder, "v12_3_rw2")
 
-#storage_path = file.path(figures.folder, "synthetic_male_stomach_lc")
+storage_path = file.path(figures.folder, "synthetic_male_stomach_lc")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -47,6 +47,8 @@ source("Inlabru\ analyses/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc(obs.lc)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc.2(obs.lc)})
 runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
+
+res.inlabru.no.int <- inlabru.rw2.lc.no.intercept(obs.lc, max_iter = 100)
 
 source("plot_inlabru_vs_underlying.R")
 
@@ -72,26 +74,36 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.only.kappa.2(
   save=TRUE,
   phi.plus.kappa.func = phi.plus.kappa.v17)
 
+plots.inlabru.no.int <- plot.inlabru.vs.underlying.lc.only.kappa.no.intercept(
+  res.inlabru.no.int,
+  underlying.effects.lc,
+  path.to.storage = storage_path,
+  save = TRUE
+)
+
 
 print("Runtime for inlabru: ")
 print(runtime.inlabru)
+
+#save(res.inlabru.lc.1, file="/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures/synthetic_male_stomach_lc/results_1115/inlabru_1115.RData")
+save(res.inlabru.lc.1, file="/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Output/Figures/synthetic_male_stomach_lc/inlabru_1139.RData")
 
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10/stan_results/stan_v10.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10d/stan_results/stan_v10d.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10dh/stan_results/stan_v10dh.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v10_3/stan_results/stan_v10_3.Rda")
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v11_3/stan_results/stan_v11_3.Rda")
-load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v12_3/stan_results/stan_v12_3.Rda")
+#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/v12_3/stan_results/stan_v12_3.Rda")
 
-#load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/synthetic_male_stomach_lc/stan_results/stan_synthetic_male_stomach_lc.Rda")
+load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/synthetic_male_stomach_lc/stan_results/stan_synthetic_male_stomach_lc.Rda")
 
 
 #   ----   load STAN marginals   ---- 
 
 #path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v10_3/stan_results"
-path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v12_3/stan_results"
+#path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/v12_3/stan_results"
 
-#path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/synthetic_male_stomach_lc/stan_results"
+path.to.stan.results = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Stan analyses/synthetic_male_stomach_lc/stan_results"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))

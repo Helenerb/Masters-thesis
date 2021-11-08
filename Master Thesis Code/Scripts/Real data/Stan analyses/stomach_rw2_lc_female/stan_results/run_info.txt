@@ -8,3 +8,8 @@ stomach_rw2_lc_female
 10000
 1e+05
 stomach_rw2_lc_female
+../Synthetic data/Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
+6
+20000
+2e+05
+stomach_rw2_lc_female
