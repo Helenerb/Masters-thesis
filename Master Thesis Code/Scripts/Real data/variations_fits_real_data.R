@@ -177,6 +177,32 @@ load(file.path(path.to.stan.results, "draws_beta.RData"))
 load(file.path(path.to.stan.results, "draws_kappa.RData"))
 load(file.path(path.to.stan.results, "draws_eta.RData"))
 
+# save trace plots:
+source("Scripts/Functions/plotters.R")
+
+# save trace of intercept:
+trace.intercept <- trace_plot(intercept_draws, chains = 6, iterations = 200000, warmup = 20000, title= "Trace plot intercept - stomach cancer, male")
+save.figure(trace.intercept, name="trace_intercept", path="Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+trace.alpha <- trace_plot_matrix(alpha_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot alpha - stomach cancer, male")
+save.figure(trace.alpha, name="trace_alpha", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+trace.beta <- trace_plot_matrix(beta_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot beta - stomach cancer, male")
+save.figure(trace.beta, name="trace_beta", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+trace.kappa <- trace_plot_matrix(kappa_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot kappa - stomach cancer, male")
+save.figure(trace.kappa, name="trace_kappa", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+trace.tau.alpha <- trace_plot(tau_alpha_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Alpha - stomach cancer, male")
+save.figure(trace.tau.alpha, name = "trace_tau_alpha", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+trace.tau.beta <- trace_plot(tau_beta_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Beta - stomach cancer, male")
+save.figure(trace.tau.beta, name = "trace_tau_beta", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+trace.tau.kappa <- trace_plot(tau_kappa_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Kappa - stomach cancer, male")
+save.figure(trace.tau.kappa, name = "trace_tau_kappa", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/male", pdf=F)
+
+
 stan.marginals.stomach.m <- list(intercept_draws = intercept_draws,
                        tau_epsilon_draws = tau_epsilon_draws,
                        tau_alpha_draws = tau_alpha_draws,
@@ -184,8 +210,8 @@ stan.marginals.stomach.m <- list(intercept_draws = intercept_draws,
                        tau_kappa_draws = tau_kappa_draws,
                        alpha_draws = alpha_draws,
                        beta_draws = beta_draws,
-                       kappa_draws = kappa_draws,
-                       eta_draws = eta_draws)
+                       kappa_draws = kappa_draws)#,
+                       #eta_draws = eta_draws)
 
 
 plots.compared.stomach.male <- plot.comparison.real(
@@ -318,6 +344,30 @@ plots.compared.lung.female <- plot.comparison.real(
   stan.marginals=stan.marginals.lung.f, cancer.data=lung.cancer,
   path.to.storage="Scripts/Real data/Output/Figures/lung_rw2_lc/female",
   cohort=FALSE, save=TRUE)
+
+
+
+#   ----   Omitting ages < 45, x < 9
+
+# male stomach
+
+stomach.cancer.male.above.45 <- stomach.cancer.male %>%
+  select(age >= 45)
+
+res.stomach.lc.m.a45 <- inlabru.rw2.lc.2(stomach.cancer.male.above.45)
+
+plots.stomach.male <- plot.inlabru.real(
+  res.stomach.lc.m.a45, stomach.cancer.male.above.45, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc_a45/male",
+  cohort=FALSE)
+
+plot.hypers.inlabru.real(
+  res.stomach.lc.m.a45, stomach.cancer.male.above.45, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc_a45/male",
+  cohort=FALSE)
+
+
+
 
 
 
