@@ -217,8 +217,33 @@ stan.marginals.stomach.f <- list(intercept_draws = intercept_draws,
                                  tau_kappa_draws = tau_kappa_draws,
                                  alpha_draws = alpha_draws,
                                  beta_draws = beta_draws,
-                                 kappa_draws = kappa_draws,
-                                 eta_draws = eta_draws)
+                                 kappa_draws = kappa_draws)#,
+                                 #eta_draws = eta_draws)
+
+# save trace plots:
+source("Scripts/Functions/plotters.R")
+
+# save trace of intercept:
+trace.intercept <- trace_plot(intercept_draws, chains = 6, iterations = 200000, warmup = 20000, title= "Trace plot intercept")
+save.figure(trace.intercept, name="trace_intercept", path="Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+
+trace.alpha <- trace_plot_matrix(alpha_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot alpha")
+save.figure(trace.alpha, name="trace_alpha", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+
+trace.beta <- trace_plot_matrix(beta_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot beta")
+save.figure(trace.beta, name="trace_beta", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+
+trace.kappa <- trace_plot_matrix(kappa_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot kappa")
+save.figure(trace.kappa, name="trace_kappa", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+
+trace.tau.alpha <- trace_plot(tau_alpha_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Alpha")
+save.figure(trace.tau.alpha, name = "trace_tau_alpha", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+
+trace.tau.beta <- trace_plot(tau_beta_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Beta")
+save.figure(trace.tau.beta, name = "trace_tau_beta", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
+
+trace.tau.kappa <- trace_plot(tau_kappa_draws, chains = 6, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Kappa")
+save.figure(trace.tau.kappa, name = "trace_tau_kappa", path = "Scripts/Real data/Output/Figures/stomach_rw2_lc/female")
 
 
 plots.compared.stomach.female <- plot.comparison.real(
@@ -226,6 +251,7 @@ plots.compared.stomach.female <- plot.comparison.real(
   stan.marginals=stan.marginals.stomach.f, cancer.data=stomach.cancer,
   path.to.storage="Scripts/Real data/Output/Figures/stomach_rw2_lc/female",
   cohort=FALSE, save=TRUE)
+
 
 # lung male:
 load("Scripts/Real data/Stan analyses/lung_rw2_lc_male/stan_results/stan_lung_rw2_lc_male.Rda") 
