@@ -44,7 +44,7 @@ trace_plot <- function(draws, iterations, warmup, chains, title){
     mutate(chain = as.character(rep(1:chains, each = iterations - warmup)))
   
   trace_plot <- ggplot(data = draws.df) + 
-    geom_line(aes(x=no, y = draw, color=chain)) + 
+    geom_line(aes(x=no, y = draw, color=chain), alpha = 0.7) + 
     scale_color_manual(values=palette) + 
     labs(title=title, x = "iterations", y = " ")
     
@@ -60,7 +60,7 @@ trace_plot_matrix <- function(draws_mat, iterations, warmup, chains, title){
                names_transform = list("parameter" = as.integer))
   
   trace_plot <- ggplot(data = draws.df) +
-    geom_line(aes(x=no, y = draw, color = chain)) + 
+    geom_line(aes(x=no, y = draw, color = chain), alpha = 0.7) + 
     scale_color_manual(values = palette) +
     facet_wrap(~parameter) + 
     labs(title=title, x = "iterations", y = " ")
