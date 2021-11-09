@@ -846,7 +846,8 @@ inlabru.rw2.cohort.2 <- function(obs, max_iter=30){
     Int(1) +
     alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
     beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
-    kappa(t, model = "rw2", values = 0:(nt - 1), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    #kappa(t, model = "rw2", values = 0:(nt - 1), constr = TRUE, hyper = loggamma.prior.high.variance) +
+    kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance) +
     gamma(c, model = "rw1", values = unique(obs$c), constr = TRUE, hyper = loggamma.prior) +
     epsilon(xt, model = "iid", hyper = loggamma.prior)
   

@@ -352,7 +352,7 @@ plots.compared.lung.female <- plot.comparison.real(
 # male stomach
 
 stomach.cancer.male.above.45 <- stomach.cancer.male %>%
-  select(age >= 45)
+  filter(age.int >= 45)
 
 res.stomach.lc.m.a45 <- inlabru.rw2.lc.2(stomach.cancer.male.above.45)
 
@@ -366,7 +366,35 @@ plot.hypers.inlabru.real(
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc_a45/male",
   cohort=FALSE)
 
+# lcc-model
+res.stomach.cohort.m.a45 <- inlabru.rw2.cohort.2(stomach.cancer.male.above.45)
 
+plots.stomach.male.cohort <- plot.inlabru.real(
+  res.stomach.cohort.m.a45, stomach.cancer.male.above.45, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_a45/male",
+  cohort=TRUE)
+
+plot.hypers.inlabru.real(
+  res.stomach.cohort.m.a45, stomach.cancer.male.above.45, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_a45/male",
+  cohort=TRUE)
+
+# female stomach
+
+stomach.cancer.female.above.45 <- stomach.cancer.female %>%
+  filter(age.int >= 45)
+
+res.stomach.lc.f.a45 <- inlabru.rw2.lc.2(stomach.cancer.female.above.45)
+
+plots.stomach.female <- plot.inlabru.real(
+  res.stomach.lc.f.a45, stomach.cancer.female.above.45, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc_a45/female",
+  cohort=FALSE)
+
+plot.hypers.inlabru.real(
+  res.stomach.lc.f.a45, stomach.cancer.female.above.45, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc_a45/female",
+  cohort=FALSE)
 
 
 
