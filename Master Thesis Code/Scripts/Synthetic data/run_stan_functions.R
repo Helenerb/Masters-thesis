@@ -142,6 +142,9 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     gamma_draws <- list_of_draws$gamma
   }
   eta_draws <- list_of_draws$eta
+  eta_draws_reduced <- eta_draws[seq(1,nrow(eta_draws),5), ]
+  eta_draws_100 <- eta_draws[seq(1,nrow(eta_draws), 100), ]
+  
   
   # save info about run to txt file
   run_info <- list(
@@ -176,6 +179,8 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     }
     save(tau_epsilon_draws, file = file.path(output.path, 'draws_tau_epsilon.RData'))
     save(intercept_draws, file = file.path(output.path, 'draws_intercept.RData'))
+    save(eta_draws_100, file = file.path(output.path, "draws_eta_100.RData"))
+    save(eta_draws_reduced, file = file.path(output.path, "draws_eta_reduced.RData"))
     save(eta_draws, file = file.path(output.path, 'draws_eta.RData'))
   },
   error = function(cond){
@@ -189,38 +194,27 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     message(" ")
   },
   finally = {
-    # Saving trace plots etc:
+    
+    params <- row.names(stan_lc_df)
+    alphas <- str_extract(params, "alpha\\[([0-9+])\\]"); alphas <- alphas[!is.na(alphas)]
+    betas <- str_extract(params, "beta\\[([0-9+])\\]"); betas <- betas[!is.na(betas)]
+    kappas <- str_extract(params, "beta\\[([0-9+])\\]"); kappas <- kappas[!is.na(kappas)]
     
     tryCatch({
       trace.eta <- traceplot(fit, pars=c("eta[1]", "eta[2]", "eta[3]", "eta[4]", "eta[5]",
                                          "eta[6]", "eta[7]", "eta[8]", "eta[9]", "eta[10]" ))
       save.figure(trace.eta,'trace_eta', figures.path)
       
-      save.figure(traceplot(fit, pars=c("kappa[1]", "kappa[2]", "kappa[3]", "kappa[4]",
-                                        "kappa[5]", "kappa[6]", "kappa[7]", "kappa[8]",
-                                        "kappa[9]", "kappa[10]" )),
+      save.figure(traceplot(fit, pars=kappas),
                   'trace_kappa', figures.path)
       
-      save.figure(traceplot(fit, pars=c("beta[1]", "beta[2]", "beta[3]", "beta[4]",
-                                        "beta[5]", "beta[6]", "beta[7]", "beta[8]",
-                                        "beta[9]", "beta[10]" )),
+      save.figure(traceplot(fit, pars=betas),
                   'trace_beta', figures.path)
       
       
-      save.figure(traceplot(fit, pars=c("alpha[1]", "alpha[3]", "alpha[11]", "alpha[13]",
-                                        "alpha[5]", "alpha[15]", "alpha[7]", "alpha[8]",
-                                        "alpha[12]", "alpha[10]" )),
+      save.figure(traceplot(fit, pars=alphas),
                   'trace_alpha', figures.path)
-      
-      save.figure(traceplot(fit, pars=c("alpha_raw[1]", "alpha_raw[3]", "alpha_raw[11]", "alpha_raw[13]",
-                                        "alpha_raw[5]", "alpha_raw[15]", "alpha_raw[7]", "alpha_raw[8]",
-                                        "alpha_raw[12]", "alpha_raw[10]" )),
-                  'trace_alpha_raw', figures.path)
-      
-      save.figure(traceplot(fit, pars=c("beta_raw[1]", "beta_raw[3]", "beta_raw[11]", "beta_raw[13]",
-                                        "beta_raw[5]", "beta_raw[15]", "beta_raw[7]", "beta_raw[8]",
-                                        "beta_raw[12]", "beta_raw[10]" )),
-                  'trace_beta_raw', figures.path)
+
       if(cohort){
         save.figure(traceplot(fit,pars = c("tau_alpha", "tau_beta", "tau_kappa",
                                            "tau_gamma", "tau_epsilon",
@@ -228,8 +222,7 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
                     figures.path)
       } else {
         save.figure(traceplot(fit,pars = c("tau_alpha", "tau_beta", "tau_kappa",
-                                           "tau_epsilon",
-                                           "intercept")), 'trace_hyperpars',
+                                           "tau_epsilon", "intercept")), 'trace_hyperpars',
                     figures.path)
       }
     },

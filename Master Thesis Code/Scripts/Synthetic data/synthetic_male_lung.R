@@ -380,9 +380,10 @@ obs.7 <- data.frame(x = lung.cancer.male.above.45$x, t = lung.cancer.male.above.
 
 #write.csv(obs.7, "Data/synthetic_male_lung_7.csv")
 obs.7 <- read.csv("Data/synthetic_male_lung_7.csv")
+obs.7 <- obs.7 %>% mutate(year.str = as.character(year))
 
-ggplot(obs.7) + geom_line(aes(x = x, y = mr, color = year))
-ggplot(obs.7) + geom_line(aes(x = x, y = eta, color = year))
+ggplot(obs.7) + geom_line(aes(x = x, y = mr, color = year.str))
+ggplot(obs.7) + geom_line(aes(x = x, y = eta, color = year.str))
 ggplot(obs.7) + geom_line(aes(x = x, y = alpha))
 ggplot(obs.7) + geom_line(aes(x = x, y = beta))
 ggplot(obs.7) + geom_line(aes(x = t, y = kappa))
