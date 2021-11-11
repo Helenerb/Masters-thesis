@@ -10,7 +10,7 @@ load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/
 stomach.cancer <- cancer.data
 
 # working directory at <Master\ Thesis\ Code>
-source("Scripts/Synthetic data/Inlabru analyses/inlabru_analyses.R")
+source("Scripts/Functions/inlabru_analyses.R")
 
 # run analyisis for male and female cancer mortality separately:
 
@@ -42,7 +42,6 @@ stomach.cancer.male <- stomach.cancer %>%
   mutate(E = male.t, Y = male, `mortality rate` = male.mr)
 
 #   ----   perform inlabru analyses   ----
-source("Scripts/Synthetic data/Inlabru analyses/inlabru_analyses.R")
 
 # lc-models 
 
@@ -295,6 +294,16 @@ load(file.path(path.to.stan.results, "draws_beta.RData"))
 load(file.path(path.to.stan.results, "draws_kappa.RData"))
 load(file.path(path.to.stan.results, "draws_eta.RData"))
 
+trace.tau.alpha <- trace_plot(tau_alpha_draws, chains = 5, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Alpha - lung cancer, male")
+save.figure(trace.tau.alpha, name = "trace_tau_alpha", path = "Scripts/Real data/Output/Figures/lung_rw2_lc/male")
+
+trace.tau.beta <- trace_plot(tau_beta_draws, chains = 5, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Beta - lung cancer, male")
+save.figure(trace.tau.beta, name = "trace_tau_beta", path = "Scripts/Real data/Output/Figures/lung_rw2_lc/male")
+
+trace.tau.kappa <- trace_plot(tau_kappa_draws, chains = 5, iterations = 200000, warmup = 20000, title = "Trace plot Precision of Kappa - lung cancer, male")
+save.figure(trace.tau.kappa, name = "trace_tau_kappa", path = "Scripts/Real data/Output/Figures/lung_rw2_lc/male")
+
+
 stan.marginals.lung.m <- list(intercept_draws = intercept_draws,
                                  tau_epsilon_draws = tau_epsilon_draws,
                                  tau_alpha_draws = tau_alpha_draws,
@@ -302,8 +311,8 @@ stan.marginals.lung.m <- list(intercept_draws = intercept_draws,
                                  tau_kappa_draws = tau_kappa_draws,
                                  alpha_draws = alpha_draws,
                                  beta_draws = beta_draws,
-                                 kappa_draws = kappa_draws,
-                                 eta_draws = eta_draws)
+                                 kappa_draws = kappa_draws)#,
+                                 #eta_draws = eta_draws)
 
 
 plots.compared.lung.male <- plot.comparison.real(

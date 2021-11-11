@@ -2,8 +2,12 @@ library(ggplot2)
 library(patchwork)
 
 #   ----   Source relevant functions
-source("../Functions/plotters.R")
-source("../Misc/palette.R")
+#source("../Functions/plotters.R")
+#source("../Misc/palette.R")
+
+# assume working directory at ../Master Thesis Code
+source("Scripts/Functions/plotters.R")
+source("Scripts/Misc/palette.R")
 
 phi.plus.kappa.v7 <- function(){
   t = 0:(100-1)
@@ -621,7 +625,7 @@ plot.inlabru.vs.underlying.lc <- function(res.inlabru, underlying.effects,
 
 plot.inlabru.vs.underlying.lc.only.kappa <- function(res.inlabru, underlying.effects,
                                           path.to.storage="", save=FALSE,
-                                          phi.plus.kappa.func=phi.plus.kappa.v17){
+                                          phi.plus.kappa.func=""){
   
   obs <- underlying.effects$obs
   nx <- underlying.effects$nx
@@ -719,6 +723,223 @@ plot.inlabru.vs.underlying.lc.only.kappa <- function(res.inlabru, underlying.eff
   if(save){
     save.figure(p.eta.facet, name="eta_facet_inlabru", path=path.to.storage)
   }
+  
+  plots <- list(p.alpha = p.alpha, p.beta = p.beta, p.kappa = p.kappa,
+                p.phi = p.phi, p.eta = p.eta,
+                p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
+                p.eta.t = p.eta.t, p.intercept = p.intercept,
+                p.random.effects = p.random.effects,
+                p.phi.kappa = p.phi.kappa,
+                p.eta.all = p.eta.xt,
+                p.eta.facet = p.eta.facet)
+  
+  summaries <- list(data.alpha = data.alpha,
+                    data.beta = data.beta,
+                    data.kappa = data.kappa,
+                    data.eta = data.eta,
+                    data.fixed = data.fixed,
+                    data.period = results.period$posterior.data,
+                    intercept = res.inlabru$summary.fixed$mean[1],
+                    phi = res.inlabru$summary.fixed$mean[2]
+  )
+  return(list(plots=plots, summaries=summaries))
+}
+
+plot.inlabru.vs.underlying.synthetic.cancer <- function(
+  res.inlabru, underlying.effects, path.to.storage="",
+  cutoff_alpha = 100, cutoff_beta = 100, cutoff_kappa = 100, cutoff_epsilon=100,
+  save=FALSE, pdf = TRUE, png = TRUE, cohort = FALSE){
+  
+  obs <- underlying.effects$obs
+  nx <- underlying.effects$nx
+  nt <- underlying.effects$nt
+  
+  data.alpha = cbind(res.inlabru$summary.random$alpha,
+                     alpha.true = underlying.effects$alpha.true[res.inlabru$summary.random$alpha$ID + 1])
+  p.alpha <- ggplot(data = data.alpha, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = alpha.true, color = "True value", fill = "True value"), size = 0.5) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated"), size = 0.5) + 
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(title="Alpha - inlabru", x = "x", y='')
+  
+  data.beta = cbind(res.inlabru$summary.random$beta,
+                    beta.true = underlying.effects$beta.true[res.inlabru$summary.random$beta$ID + 1])
+  p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = beta.true, color = "True value", fill = "True value"), size = 0.5) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated"), size = 0.5) + 
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(x = "x", y = "beta", title = "Beta - inlabru")
+  
+  data.kappa = cbind(res.inlabru$summary.random$kappa,
+                     kappa.true = underlying.effects$kappa.true[res.inlabru$summary.random$kappa$ID + 1])
+  p.kappa <- ggplot(data = data.kappa, aes(x = ID)) + 
+    geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
+    geom_point(aes(y = kappa.true, color = "True value", fill = "True value"), size = 0.5) + 
+    geom_point(aes(y = mean, color = "Estimated", fill = "Estimated"), size = 0.5) + 
+    scale_color_manual(name = "",
+                       values = palette ) +
+    scale_fill_manual(name = "",
+                      values = palette ) +
+    labs(x = "t", y = "kappa", title = "Kappa - inlabru")
+  
+  data.fixed  <- data.frame(res.inlabru$marginals.fixed)
+  
+  p.intercept <- ggplot(data.fixed) + 
+    geom_area(aes(x = Int.x, y = Int.y, fill = "Estimated"), alpha = 0.4) + 
+    geom_vline(data = res.inlabru$summary.fixed, aes(xintercept = mean[1], color = "Estimated", fill="Estimated")) + 
+    geom_vline(aes(xintercept = underlying.effects$intercept, color="True", fill="True")) +
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = "Value of phi", y = " ", title = "Intercept - inlabru")
+  
+  p.random.effects <- (p.intercept | p.alpha ) / (p.beta | p.kappa ) + 
+    plot_layout(guides = "collect")
+  
+  if(save){
+    save.figure(p.random.effects, name = "random_effects_inlabru", path = path.to.storage,
+                pdf=pdf, png=png)
+  }
+  
+  data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
+    mutate(true.eta = obs$eta) %>%
+    mutate(xt = obs$xt, x = obs$x, t = obs$t)
+  
+  p.eta <- ggplot(data = data.eta) +
+    geom_point(aes(x = eta.sim, y = true.eta), color = palette[1]) + 
+    labs(x="Estimated eta", y="True value for eta", title = "Eta")
+  
+  p.eta.2 <- ggplot(data = data.eta) +
+    geom_line(aes(x=xt, y = eta.sim, color="Estimated")) +
+    geom_line(aes(x=xt, y = true.eta, color="True")) +
+    labs(x=" ", y="Eta", title="Eta- inlabru")
+  
+  p.eta.t <- ggplot(data = data.eta) + 
+    geom_line(aes(x = x, y = eta.sim, color = "Estimated")) +
+    geom_line(aes(x = x, y = true.eta, color = "True")) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
+    facet_wrap(~t)
+  
+  p.eta.x <- ggplot(data = data.eta) + 
+    geom_line(aes(x = t, y = eta.sim, color = "Estimated")) +
+    geom_line(aes(x = t, y = true.eta, color = "True")) +
+    labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
+    facet_wrap(~x)
+  
+  p.eta.xt <- (p.eta | p.eta.2) + 
+    plot_layout(guides = "collect") & theme(legend.position = "bottom")
+  
+  if(save){
+    save.figure(p.eta.xt, name="eta_xt_inlabru", path=path.to.storage, pdf=pdf, png=png)
+  }
+  
+  p.eta.facet <- (p.eta.t | p.eta.x) + 
+    plot_layout(guides = "collect") & theme(legend.position = "bottom")
+  
+  if(save){
+    save.figure(p.eta.facet, name="eta_facet_inlabru", path=path.to.storage, pdf=pdf, png = png)
+  }
+  
+  data.mr <- data.frame(mr.sim = res.inlabru$summary.fitted.values$mean[1:length(obs$eta)]) %>%
+    mutate(true.mr = obs$mr) %>%
+    mutate(xt = obs$xt, x = obs$x, t = obs$t)
+  
+  p.mr <- ggplot(data = data.mr) +
+    geom_point(aes(x = mr.sim, y = true.mr), color = palette[1]) + 
+    labs(x="Estimated mortality rate", y="Observed mortality rate", title = "Mortality rate")
+  
+  p.mr.2 <- ggplot(data = data.mr) +
+    geom_line(aes(x=xt, y = mr.sim, color="Estimated")) +
+    geom_line(aes(x=xt, y = true.mr, color="True")) +
+    labs(x=" ", y="Mortality rate", title="Mortality rate - inlabru")
+  
+  p.mr.t <- ggplot(data = data.mr) + 
+    geom_line(aes(x = x, y = mr.sim, color = "Estimated")) +
+    geom_line(aes(x = x, y = true.mr, color = "True")) +
+    labs(x = " ", y = " ", title = "Mortality rate - inlabru, for each year") + 
+    facet_wrap(~t)
+  
+  p.mr.x <- ggplot(data = data.mr) + 
+    geom_line(aes(x = t, y = mr.sim, color = "Estimated")) +
+    geom_line(aes(x = t, y = true.mr, color = "True")) +
+    labs(x = " ", y = " ", title = "Mortality rate - inlabru, for each age") + 
+    facet_wrap(~x)
+  
+  p.mr.xt <- (p.mr | p.mr.2) + 
+    plot_layout(guides = "collect") & theme(legend.position = "bottom")
+  
+  if(save){
+    save.figure(p.mr.xt, name="mr_xt_inlabru", path=path.to.storage, pdf=pdf, png=png)
+  }
+  
+  p.mr.facet <- (p.mr.t | p.mr.x) + 
+    plot_layout(guides = "collect") & theme(legend.position = "bottom")
+  
+  if(save){
+    save.figure(p.mr.facet, name="mr_facet_inlabru", path=path.to.storage, pdf = pdf, png=png)
+  }
+  
+  data.hyperpar <- data.frame(res.inlabru$marginals.hyperpar)
+  
+  p.alpha.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.alpha.x < cutoff_alpha)) + 
+    geom_area(aes(x = Precision.for.alpha.x, y = Precision.for.alpha.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[1], color = "Inlabru", fill = "Inlabru")) +
+    geom_vline(aes(xintercept = underlying.effects$tau.alpha.true, color = "Observed", fill = "Observed")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = " ", y = " ", title = "Precision of alpha")
+  
+  p.beta.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.beta.x < cutoff_beta)) + 
+    geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[2], color = "Inlabru", fill = "Inlabru")) + 
+    geom_vline(aes(xintercept = underlying.effects$tau.beta.true, color = "Observed", fill = "Observed")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = " ", y = " ", title = "Precision of beta")
+  
+  p.kappa.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.kappa.x < cutoff_kappa)) + 
+    geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[3], color = "Inlabru", fill = "Inlabru")) + 
+    geom_vline(aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = " ", y = " ", title = "Precision of kappa")
+  
+  if(cohort){
+    p.gamma.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.gamma.x < cutoff_gamma)) + 
+      geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), color = palette[1], fill = palette[1], alpha = 0.5) + 
+      geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[4]), color = palette[1]) + 
+      labs(x = " ", y = " ", title = "Precision of gamma")
+  }
+  
+  p.epsilon.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.epsilon.x < cutoff_epsilon)) + 
+    geom_area(aes(x = Precision.for.epsilon.x, y = Precision.for.epsilon.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    geom_vline(aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = " ", y = " ", title = "Precision of epsilon")
+  
+  if(save){
+    save.figure(p.epsilon.prec, name="beta_epsilon_inlabru", path=path.to.storage, pdf = pdf, png=png)
+  }
+  
+  if(cohort){
+    p.hyperpars <- (p.alpha.prec | p.beta.prec | p.kappa.prec)/(p.gamma.prec | p.epsilon.prec) + plot_layout(guides = "collect")
+  } else {
+    p.hyperpars <- (p.alpha.prec | p.beta.prec )/(p.kappa.prec | p.epsilon.prec) + plot_layout(guides = "collect")
+  }
+  
+  if(save){
+    save.figure(p.hyperpars, name="hypers_inlabru", path=path.to.storage, pdf = pdf, png=png)
+  }
+  
   
   plots <- list(p.alpha = p.alpha, p.beta = p.beta, p.kappa = p.kappa,
                 p.phi = p.phi, p.eta = p.eta,

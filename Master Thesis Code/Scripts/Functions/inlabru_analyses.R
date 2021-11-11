@@ -787,7 +787,9 @@ inlabru.rw2.lc.2 <- function(obs, max_iter=30){
   #'@param max_iter (int): maximum number of iterations in inlabru
   
   nx = length(unique(obs$x))
+  print(nx)
   nt = length(unique(obs$t))
+  print(nt)
   
   # constraints for the age effect beta
   A.beta = matrix(1, nrow = 1, ncol = nx)  

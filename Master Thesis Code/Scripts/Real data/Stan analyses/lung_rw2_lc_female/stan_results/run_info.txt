@@ -13,3 +13,8 @@ lung_rw2_lc_female
 20000
 2e+05
 lung_rw2_lc_female
+../Synthetic data/Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
+5
+20000
+2e+05
+lung_rw2_lc_female
