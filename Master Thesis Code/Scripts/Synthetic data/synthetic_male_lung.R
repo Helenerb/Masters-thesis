@@ -2,7 +2,7 @@
 
 # assuming workspace at .../Master Thesis Code
 
-library("tidyverse")
+library("tidyverse")xx
 library("ggplot2")
 
 load("Data/population-germany.Rda")
@@ -59,6 +59,8 @@ rw1 <- function(tau, nx){
 }
 
 
+#   ----   v4   ----
+
 # attempt to find a configuration that is of somewhat comparable size to real data
 set.seed(14) # quite good for alpha and eta, we try this. Note - still not very steep kappa
 alpha.4 <- rw1(inlabru.tau.alpha, 18); alpha.4 = alpha.4 - mean(alpha.4)
@@ -113,6 +115,7 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
   path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v4",
   save=TRUE)
 
+#   ----   v5   ----
 # attempt to find a configuration that is of somewhat comparable size to real data
 # v4 was ok, try to find configuration with more realistic span for kappa and beta. 
 set.seed(26)
@@ -163,20 +166,24 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
   path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v5",
   save=TRUE)
   
+###    ----    v6   ----
 
-# attempt with stan hyperpars instead:
+# attempt 6 - with adjusted stan hyperpars instead
 
 stan.tau.alpha = 2
 stan.tau.beta = 1000
 stan.tau.kappa = 192
 
-#set.seed(14) # at least hight enough mortality rates, very little period effect
+adjusted.tau.alpha = stan.tau.alpha - 1
+adjusted.tau.beta = stan.tau.beta
+adjusted.tau.kappa = stan.tau.kappa - 150
+
 set.seed(17) # could work, somewhat ok mr
 
 
-alpha.6 <- rw1(stan.tau.alpha - 1, 18); alpha.6 = alpha.6 - mean(alpha.6)
-beta.6 <- rnorm(18, sd = sqrt(1/stan.tau.beta)); beta.6 = beta.6 - mean(beta.6) + 1/18
-kappa.6 <- rw2(stan.tau.kappa - 150, 18); kappa.6 = kappa.6 - mean(kappa.6)
+alpha.6 <- rw1(adjusted.tau.alpha, 18); alpha.6 = alpha.6 - mean(alpha.6)
+beta.6 <- rnorm(18, sd = sqrt(1/adjusted.tau.beta)); beta.6 = beta.6 - mean(beta.6) + 1/18
+kappa.6 <- rw2(adjusted.tau.kappa, 18); kappa.6 = kappa.6 - mean(kappa.6)
 epsilon.6 <- rnorm(18*18, sd = sqrt(1/inlabru.tau.epsilon))
 
 obs.6 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.cancer.male$xt, E = lung.cancer.male$E) %>%
@@ -190,9 +197,9 @@ obs.6 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.ca
   mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
   mutate(Y = rpois(length(x), E*exp(eta))) %>%
   mutate(mr = Y/E) %>%
-  mutate(tau.alpha = inlabru.tau.alpha) %>%
-  mutate(tau.beta = inlabru.tau.beta) %>%
-  mutate(tau.kappa = inlabru.tau.kappa) %>%
+  mutate(tau.alpha = adjusted.tau.alpha) %>%
+  mutate(tau.beta = adjusted.tau.beta) %>%
+  mutate(tau.kappa = adjusted.tau.kappa) %>%
   mutate(tau.epsilon = inlabru.tau.epsilon)
 
 ggplot(obs.6) + geom_line(aes(x = x, y = mr, color = year))
@@ -201,13 +208,19 @@ ggplot(obs.6) + geom_line(aes(x = x, y = alpha))
 ggplot(obs.6) + geom_line(aes(x = x, y = beta))
 ggplot(obs.6) + geom_line(aes(x = t, y = kappa))
 
-write.csv(obs.6, "Data/synthetic_male_lung_6.csv")
+#write.csv(obs.6, "Data/synthetic_male_lung_6.csv")
+obs.6 <- read.csv("Data/synthetic_male_lung_6.csv")
 
 underlying.effects.6 <- list(obs = obs.6, nx = 18, nt = 18,
                              alpha.true = {obs.6 %>% filter(t == 0)}$alpha,
                              beta.true = {obs.6 %>% filter(t == 0)}$beta,
                              kappa.true = {obs.6 %>% filter(x == 0)}$kappa,
-                             intercept = unique(obs.6$intercept))
+                             intercept = unique(obs.6$intercept),
+                             tau.alpha.true = unique(obs.6$tau.alpha),
+                             tau.beta.true = unique(obs.6$tau.beta),
+                             tau.kappa.true = unique(obs.6$tau.kappa),
+                             tau.epsilon.true = unique(obs.6$tau.epsilon)
+                             )
 
 source("Scripts/Functions/inlabru_analyses.R")
 
