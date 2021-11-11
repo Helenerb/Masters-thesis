@@ -58,119 +58,8 @@ rw1 <- function(tau, nx){
   return(random.walk)
 }
 
-# sample tree different versions - set seeds accordingly
-set.seed(123)
-alpha.1 <- rw1(inlabru.tau.alpha, 18); alpha.1 = alpha.1 - mean(alpha.1)
-beta.1 <- rnorm(18, sd = sqrt(1/inlabru.tau.beta)); beta.1 = beta.1 - mean(beta.1) + 1/18
-kappa.1 <- rw2(inlabru.tau.kappa, 18); kappa.1 = kappa.1 - mean(kappa.1)
-epsilon.1 <- rnorm(18*18, sd = sqrt(1/inlabru.tau.epsilon))
-
-obs.1 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.cancer.male$xt, E = lung.cancer.male$E) %>%
-  mutate(age.int = lung.cancer.male$age.int, year = lung.cancer.male$year) %>%
-  mutate(x.c = x) %>%
-  mutate(alpha = alpha.1[x + 1]) %>%
-  mutate(beta = beta.1[x + 1]) %>%
-  mutate(kappa = kappa.1[t + 1]) %>%
-  mutate(intercept = inlabru.intercept) %>%
-  mutate(epsilon = epsilon.1[xt + 1]) %>%
-  mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
-  mutate(Y = rpois(length(x), E*exp(eta))) %>%
-  mutate(mr = Y/E) %>%
-  mutate(tau.alpha = inlabru.tau.alpha) %>%
-  mutate(tau.beta = inlabru.tau.beta) %>%
-  mutate(tau.kappa = inlabru.tau.kappa) %>%
-  mutate(tau.epsilon = inlabru.tau.epsilon)
-
-#write.csv(obs.1, "Data/synthetic_male_lung_1.csv", row.names = FALSE)
-obs.1 <- read.csv("Data/synthetic_male_lung_1.csv")
-underlying.effects.1 <- list(obs = obs.1, nx = 18, nt = 18,
-                             alpha.true = {obs.1 %>% filter(t == 0)}$alpha,
-                             beta.true = {obs.1 %>% filter(t == 0)}$beta,
-                             kappa.true = {obs.1 %>% filter(x == 0)}$kappa,
-                             intercept = unique(obs.1$intercept))
-
-source("Scripts/Functions/inlabru_analyses.R")
-
-inlabru.synthetic.male.lung.lc <- inlabru.rw2.lc.2(obs.1, max_iter = 100)
-
-source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
-
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
-  inlabru.synthetic.male.lung.lc,
-  underlying.effects.1,
-  path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v1",
-  save=TRUE)
-
-set.seed(124)
-alpha.2 <- rw1(inlabru.tau.alpha, 18); alpha.2 = alpha.2 - mean(alpha.2)
-beta.2 <- rnorm(18, sd = sqrt(1/inlabru.tau.beta)); beta.2 = beta.2 - mean(beta.2) + 1/18
-kappa.2 <- rw2(inlabru.tau.kappa, 18); kappa.2 = kappa.2 - mean(kappa.2)
-epsilon.2 <- rnorm(18*18, sd = sqrt(1/inlabru.tau.epsilon))
-
-obs.2 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.cancer.male$xt, E = lung.cancer.male$E) %>%
-  mutate(age.int = lung.cancer.male$age.int, year = lung.cancer.male$year) %>%
-  mutate(x.c = x) %>%
-  mutate(alpha = alpha.2[x + 1]) %>%
-  mutate(beta = beta.2[x + 1]) %>%
-  mutate(kappa = kappa.2[t + 1]) %>%
-  mutate(intercept = inlabru.intercept) %>%
-  mutate(epsilon = epsilon.2[xt + 1]) %>%
-  mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
-  mutate(Y = rpois(length(x), E*exp(eta))) %>%
-  mutate(mr = Y/E) %>%
-  mutate(tau.alpha = inlabru.tau.alpha) %>%
-  mutate(tau.beta = inlabru.tau.beta) %>%
-  mutate(tau.kappa = inlabru.tau.kappa) %>%
-  mutate(tau.epsilon = inlabru.tau.epsilon)
-
-#write.csv(obs.2, "Data/synthetic_male_lung_2.csv")
-#obs.2 <- read.csv("Data/synthetic_male_lung_2.csv")
-
-underlying.effects.2 <- list(obs = obs.1, nx = 18, nt = 18,
-                             alpha.true = {obs.2 %>% filter(t == 0)}$alpha,
-                             beta.true = {obs.2 %>% filter(t == 0)}$beta,
-                             kappa.true = {obs.2 %>% filter(x == 0)}$kappa,
-                             intercept = unique(obs.2$intercept))
-
-source("Scripts/Functions/inlabru_analyses.R")
-
-inlabru.synthetic.male.lung.lc.2 <- inlabru.rw2.lc.2(obs.2, max_iter = 100)
-
-source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
-
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
-  inlabru.synthetic.male.lung.lc.2,
-  underlying.effects.2,
-  path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v2",
-  save=TRUE)
-
-set.seed(125)
-alpha.3 <- rw1(inlabru.tau.alpha, 18); alpha.3 = alpha.3 - mean(alpha.3)
-beta.3 <- rnorm(18, sd = sqrt(1/inlabru.tau.beta)); beta.3 = beta.3 - mean(beta.3) + 1/18
-kappa.3 <- rw2(inlabru.tau.kappa, 18); kappa.3 = kappa.3 - mean(kappa.3)
-epsilon.3 <- rnorm(18*18, sd = sqrt(1/inlabru.tau.epsilon))
-
-obs.3 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.cancer.male$xt, E = lung.cancer.male$E) %>%
-  mutate(age.int = lung.cancer.male$age.int, year = lung.cancer.male$year) %>%
-  mutate(x.c = x) %>%
-  mutate(alpha = alpha.3[x + 1]) %>%
-  mutate(beta = beta.3[x + 1]) %>%
-  mutate(kappa = kappa.3[t + 1]) %>%
-  mutate(intercept = inlabru.intercept) %>%
-  mutate(epsilon = epsilon.3[xt + 1]) %>%
-  mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
-  mutate(Y = rpois(length(x), E*exp(eta))) %>%
-  mutate(mr = Y/E) %>%
-  mutate(tau.alpha = inlabru.tau.alpha) %>%
-  mutate(tau.beta = inlabru.tau.beta) %>%
-  mutate(tau.kappa = inlabru.tau.kappa) %>%
-  mutate(tau.epsilon = inlabru.tau.epsilon)
-
-write.csv(obs.3, "Data/synthetic_male_lung_3.csv")
 
 # attempt to find a configuration that is of somewhat comparable size to real data
-#set.seed(4) # OK, try to find better
-# set.seed(7) # Ok for alpha and eta, worse for kappa
 set.seed(14) # quite good for alpha and eta, we try this. Note - still not very steep kappa
 alpha.4 <- rw1(inlabru.tau.alpha, 18); alpha.4 = alpha.4 - mean(alpha.4)
 beta.4 <- rnorm(18, sd = sqrt(1/inlabru.tau.beta)); beta.4 = beta.4 - mean(beta.4) + 1/18
@@ -194,17 +83,23 @@ obs.4 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.ca
   mutate(tau.epsilon = inlabru.tau.epsilon)
 
 ggplot(obs.4) + geom_line(aes(x = x, y = eta, color = year))
+ggplot(obs.4) + geom_line(aes(x = x, y = mr, color = year))
 ggplot(obs.4) + geom_line(aes(x = x, y = alpha))
 ggplot(obs.4) + geom_line(aes(x = x, y = beta))
 ggplot(obs.4) + geom_line(aes(x = t, y = kappa))
 
-write.csv(obs.4, "Data/synthetic_male_lung_4.csv")
+#write.csv(obs.4, "Data/synthetic_male_lung_4.csv")
+obs.4 <- read.csv("Data/synthetic_male_lung_4.csv")
 
 underlying.effects.4 <- list(obs = obs.4, nx = 18, nt = 18,
                              alpha.true = {obs.4 %>% filter(t == 0)}$alpha,
                              beta.true = {obs.4 %>% filter(t == 0)}$beta,
                              kappa.true = {obs.4 %>% filter(x == 0)}$kappa,
-                             intercept = unique(obs.4$intercept))
+                             intercept = unique(obs.4$intercept),
+                             tau.alpha.true = unique(obs.4$tau.alpha),
+                             tau.beta.true = unique(obs.4$tau.beta),
+                             tau.kappa.true = unique(obs.4$tau.kappa),
+                             tau.epsilon.true = unique(obs.4$tau.epsilon))
 
 source("Scripts/Functions/inlabru_analyses.R")
 
