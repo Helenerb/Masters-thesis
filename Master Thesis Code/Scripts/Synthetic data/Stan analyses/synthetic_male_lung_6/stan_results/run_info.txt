@@ -1,0 +1,15 @@
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
+2
+50
+100
+synthetic_male_lung_6
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
+2
+50
+100
+synthetic_male_lung_6
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
+4
+10000
+1e+05
+synthetic_male_lung_6

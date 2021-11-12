@@ -3,8 +3,13 @@
 library(ggplot2)
 library(patchwork)
 
-source("../Functions/plotters.R")
-source("../Misc/palette.R")
+# source relevant functions
+# source("../Functions/plotters.R")
+# source("../Misc/palette.R")
+
+# assume wokring directory at ---Master Thesis Code
+source("Scripts/Functions/plotters.R")
+source("Scripts/Misc/palette.R")
 
 plot.inlabru.stan.compared.lc <- function(stan.summaries, inlabru.summaries, underlying.effects){
   obs <- underlying.effects$obs
@@ -556,10 +561,13 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   
   intercept.marginal <- data.frame(int = stan.marginals$intercept_draws)
   
+  inlabru.data.fixed = data.frame(res.inlabru$marginals.fixed)
+  print(inlabru.data.fixed)
+  
   #  ----   intercept   ----
   p.intercept <- ggplot() + 
     geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
-    geom_area(data=inlabru.summaries$data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
+    geom_area(data=inlabru.data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
     geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
@@ -583,15 +591,19 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   
   # ---   beta   ----
   p.beta <- ggplot() + 
-    geom_ribbon(data=inlabru.summaries$data.beta, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
-    geom_point(data=inlabru.summaries$data.beta, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    # geom_ribbon(data=inlabru.summaries$data.beta, aes(x = ID, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    # geom_point(data=inlabru.summaries$data.beta, aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
+    geom_ribbon(data=inlabru.summaries$data.beta, aes(x = ID - 9, ymin = `0.025quant`, ymax = `0.975quant`, fill = "Inlabru"), alpha = 0.4) + 
+    geom_point(data=inlabru.summaries$data.beta, aes(x = ID - 9, y = mean, color = "Inlabru", fill = "Inlabru"), size = 0.5) + 
     
     geom_point(data=stan.summaries$summary_beta, aes(x=index - 1, y=mean, fill="Stan", color="Stan"), size=0.5) + 
     geom_line(data=stan.summaries$summary_beta, aes(x=index - 1, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
     geom_line(data=stan.summaries$summary_beta, aes(x=index - 1, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
     
+    # geom_point(data=inlabru.summaries$data.beta, 
+    #            aes(x = ID, y = underlying.effects$beta.true, color = "True", fill = "True"), size = 0.5) + 
     geom_point(data=inlabru.summaries$data.beta, 
-               aes(x = ID, y = underlying.effects$beta.true, color = "True", fill = "True"), size = 0.5) + 
+               aes(x = ID - 9, y = underlying.effects$beta.true, color = "True", fill = "True"), size = 0.5) + 
     scale_color_manual(name = "",
                        values = palette ) +
     scale_fill_manual(name = "",
@@ -607,8 +619,8 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
     geom_line(data=stan.summaries$summary_kappa, aes(x=index - 1, y=`2.5%`, fill="Stan", color="Stan"), alpha=0.5) + 
     geom_line(data=stan.summaries$summary_kappa, aes(x=index - 1, y=`97.5%`, fill="Stan", color="Stan"), alpha=0.5) +
     
-    geom_point(data=inlabru.summaries$data.kappa, 
-               aes(x = ID, y = underlying.effects$kappa.drifted, color = "True", fill = "True"), size = 0.5) + 
+    #geom_point(data=inlabru.summaries$data.kappa, 
+    #           aes(x = ID, y = underlying.effects$kappa.true, color = "True", fill = "True"), size = 0.5) + 
     scale_color_manual(name = "",
                        values = palette ) +
     scale_fill_manual(name = "",

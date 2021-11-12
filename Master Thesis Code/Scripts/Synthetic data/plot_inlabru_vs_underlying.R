@@ -747,7 +747,7 @@ plot.inlabru.vs.underlying.lc.only.kappa <- function(res.inlabru, underlying.eff
 
 plot.inlabru.vs.underlying.synthetic.cancer <- function(
   res.inlabru, underlying.effects, path.to.storage="",
-  cutoff_alpha = 100, cutoff_beta = 100, cutoff_kappa = 100, cutoff_epsilon=100,
+  cutoff_alpha = 1000, cutoff_beta = 1000, cutoff_kappa = 1000, cutoff_epsilon=1000,
   save=FALSE, pdf = TRUE, png = TRUE, cohort = FALSE){
   
   obs <- underlying.effects$obs
@@ -808,7 +808,9 @@ plot.inlabru.vs.underlying.synthetic.cancer <- function(
                 pdf=pdf, png=png)
   }
   
-  data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)]) %>%
+  data.eta <- data.frame(eta.sim = res.inlabru$summary.linear.predictor$mean[1:length(obs$eta)],
+                         `0.025quant` = res.inlabru$summary.linear.predictor$`0.025quant`[1:length(obs$eta)],
+                         `0.975quant` = res.inlabru$summary.linear.predictor$`0.975quant`[1:length(obs$eta)]) %>%
     mutate(true.eta = obs$eta) %>%
     mutate(xt = obs$xt, x = obs$x, t = obs$t)
   
@@ -896,6 +898,10 @@ plot.inlabru.vs.underlying.synthetic.cancer <- function(
     scale_fill_manual(name = " ", values = palette) +
     labs(x = " ", y = " ", title = "Precision of alpha")
   
+  if(save){
+    save.figure(p.alpha.prec, name="alpha_prec_inlabru", path=path.to.storage, pdf = pdf, png=png)
+  }
+  
   p.beta.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.beta.x < cutoff_beta)) + 
     geom_area(aes(x = Precision.for.beta.x, y = Precision.for.beta.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_vline(aes(xintercept = res.inlabru$summary.hyperpar$mean[2], color = "Inlabru", fill = "Inlabru")) + 
@@ -903,6 +909,10 @@ plot.inlabru.vs.underlying.synthetic.cancer <- function(
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
     labs(x = " ", y = " ", title = "Precision of beta")
+  
+  if(save){
+    save.figure(p.beta.prec, name="beta_prec_inlabru", path=path.to.storage, pdf = pdf, png=png)
+  }
   
   p.kappa.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.kappa.x < cutoff_kappa)) + 
     geom_area(aes(x = Precision.for.kappa.x, y = Precision.for.kappa.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
@@ -942,11 +952,10 @@ plot.inlabru.vs.underlying.synthetic.cancer <- function(
   
   
   plots <- list(p.alpha = p.alpha, p.beta = p.beta, p.kappa = p.kappa,
-                p.phi = p.phi, p.eta = p.eta,
+                p.eta = p.eta,
                 p.eta.2 = p.eta.2, p.eta.x = p.eta.x, 
                 p.eta.t = p.eta.t, p.intercept = p.intercept,
                 p.random.effects = p.random.effects,
-                p.phi.kappa = p.phi.kappa,
                 p.eta.all = p.eta.xt,
                 p.eta.facet = p.eta.facet)
   
@@ -954,10 +963,7 @@ plot.inlabru.vs.underlying.synthetic.cancer <- function(
                     data.beta = data.beta,
                     data.kappa = data.kappa,
                     data.eta = data.eta,
-                    data.fixed = data.fixed,
-                    data.period = results.period$posterior.data,
-                    intercept = res.inlabru$summary.fixed$mean[1],
-                    phi = res.inlabru$summary.fixed$mean[2]
+                    intercept = res.inlabru$summary.fixed$mean[1]
   )
   return(list(plots=plots, summaries=summaries))
 }
