@@ -19,7 +19,7 @@ source("Scripts/Synthetic data/configurations_synthetic_data.R")
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
-source("Scritps/Real\ data/synthetic_male_stomach_lc.R")
+source("Scripts/Real\ data/synthetic_male_stomach_lc.R")
 #underlying.effects.lc <- synthetic.male.stomach.lc()
 
 # source("Scripts/Synthetic\ data/config_synthetic_male_lung_v6.R")
