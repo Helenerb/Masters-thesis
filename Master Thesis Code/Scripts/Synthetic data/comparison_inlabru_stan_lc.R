@@ -25,11 +25,11 @@ source("Scripts/Real\ data/synthetic_male_stomach_lc.R")
 # source("Scripts/Synthetic\ data/config_synthetic_male_lung_v6.R")
 # config_data <- synthetic.male.lung.v6()
 
-# source("Scripts/Synthetic\ data/config_synthetic_male_lung_v4.R")
-# config_data <- synthetic.male.lung.v4()
+source("Scripts/Synthetic\ data/config_synthetic_male_lung_v4.R")
+config_data <- synthetic.male.lung.v4()
 
-source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
-config_data <- synthetic.male.lung.a45.v7()
+#source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
+#config_data <- synthetic.male.lung.a45.v7()
 
 underlying.effects.lc <- config_data$underlying.effects
 
@@ -52,8 +52,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "synthetic_male_stomach_lc")
 
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v6")
-#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
-storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
+storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
+#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -121,8 +121,8 @@ print(runtime.inlabru)
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/synthetic_male_stomach_lc/stan_results/stan_synthetic_male_stomach_lc.Rda")
 
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_6/stan_results/stan_synthetic_male_lung_6.Rda")
-#load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
-load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
+load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
+#load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
 
 #   ----   load STAN marginals   ---- 
 
@@ -131,8 +131,8 @@ load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/st
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_stomach_lc/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_6/stan_results"
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
