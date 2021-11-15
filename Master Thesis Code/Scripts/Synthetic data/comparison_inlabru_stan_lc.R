@@ -209,3 +209,52 @@ plots_compared <- produce.compared.plots(
   plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
+
+
+#   ----    generate and plot posterior counts   ----
+
+# inlabru
+
+inlabru.samps <- generate(
+  res.inlabru.lc.1,
+  data = data.frame(x = obs.lc$x, t = obs.lc$t, x.c = obs.lc$x.c, xt = obs.lc$xt),
+  formula = ~ Int + alpha + beta*kappa + epsilon)
+
+inlabru.lambda <- obs.lc$E * exp(inlabru.samps)
+
+inlabru.Y <- matrix(rpois(324*100, lambda = inlabru.lambda), nrow = 324, ncol = 100)
+
+inlabru.Y.df <- data.frame(x = obs.lc$x, t = obs.lc$t, xt = obs.lc$xt,
+                           mean = apply(inlabru.Y, 1, mean),
+                           X0.975 = apply(inlabru.Y, 1, quantile, 0.975),
+                           X0.025 = apply(inlabru.Y, 1, quantile, 0.025))
+
+# stan
+
+stan.samps <- eta_draws_reduced[sample(nrow(eta_draws_reduced), size = 1000, replace = F),]
+stan.samps <- t(stan.samps)  # transpose to get on same format as inlabru samples
+
+stan.lambda <- obs.lc$E * exp(stan.samps)
+
+stan.Y <- matrix(rpois(324*1000, lambda = stan.lambda), nrow = 324, ncol = 1000)
+stan.Y.df <- data.frame(x = obs.lc$x, t = obs.lc$t, xt = obs.lc$xt,
+                        mean = apply(stan.Y, 1, mean),
+                        X0.975 = apply(stan.Y, 1, quantile, 0.975),
+                        X0.025 = apply(stan.Y, 1, quantile, 0.025))
+
+comparison.Y <- inlabru.Y.df %>%
+  left_join(stan.Y.df, by = c("x" = "x", "t" = "t", "xt" = "xt"), suffix = c(".inlabru", ".stan")) %>%
+  mutate(Y.observed = obs.lc$Y)
+
+p.counts.xt <- ggplot(data = comparison.Y, aes(x = xt)) + 
+  geom_point(aes(y = mean.inlabru, color = "Inlabru", fill = "Inlabru")) + 
+  #geom_ribbon(aes(ymin = X0.025.inlabru, ymax = X0.975.inlabru, fill = "Inlabru"), alpha = 0.5) + 
+  #geom_point(aes(y = mean.stan, color = "Stan", fill = "Stan")) +
+  #geom_ribbon(aes(ymin = X0.025.stan, ymax = X0.975.stan, fill = "Stan"), alpha = 0.5) + 
+  #geom_point(aes(y = Y.observed, color = "Observed", fill = "Observed"), shape = 4) + 
+  #scale_color_manual(name = "", values = palette ) +
+  #scale_fill_manual(name = "", values = palette ) +
+  #scale_shape_manual(name = "") + 
+  theme_classic() + 
+  labs(title = "Estimated cancer death counts", x = "x,t", y = " ")
+p.counts.xt
