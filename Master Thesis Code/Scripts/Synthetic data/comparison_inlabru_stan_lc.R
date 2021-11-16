@@ -143,8 +143,30 @@ load(file.path(path.to.stan.results, "draws_tau_kappa.RData"))
 load(file.path(path.to.stan.results, "draws_alpha.RData"))
 load(file.path(path.to.stan.results, "draws_beta.RData"))
 load(file.path(path.to.stan.results, "draws_kappa.RData"))
+load(file.path(path.to.stan.results, "draws_eta_100.RData"))
 load(file.path(path.to.stan.results, "draws_eta.RData"))
 load(file.path(path.to.stan.results, "draws_eta_reduced.RData"))
+
+source("Scripts/Functions/plotters.R")
+
+# save trace of intercept:
+trace.intercept <- trace_plot(intercept_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot intercept - lsynthetic male lung cancer")
+save.figure(trace.intercept, name="trace_intercept", path=storage_path, pdf=F)
+
+trace.tau.beta <- trace_plot(tau_beta_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau beta - synthetic male lung cancer")
+save.figure(trace.tau.beta, name="trace_tau_beta", path=storage_path, pdf=F)
+
+trace.beta.1 <- trace_plot(beta_draws[,1], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[1] - synthetic male lung cancer")
+save.figure(trace.beta.1, name="trace_beta_1", path=storage_path, pdf=F)
+
+trace.beta.9 <- trace_plot(beta_draws[,9], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[9] - synthetic male lung cancer")
+save.figure(trace.beta.9, name="trace_beta_9", path=storage_path, pdf=F)
+
+trace.beta.18 <- trace_plot(beta_draws[,18], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[18] - synthetic male lung cancer")
+save.figure(trace.beta.18, name="trace_beta_18", path=storage_path, pdf=F)
+
+
+
 
 stan.marginals <- list(intercept_draws = intercept_draws,
                   tau_epsilon_draws = tau_epsilon_draws,
@@ -154,7 +176,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
                   alpha_draws = alpha_draws,
                   beta_draws = beta_draws,
                   kappa_draws = kappa_draws,
-                  eta_draws = eta_draws_reduced)
+                  eta_draws = eta_draws_100)
 
 # intercept.marginal = data.frame(int = marginals$intercept_draws)
 # library("bayesplot")
@@ -206,7 +228,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.lc.1,
   underlying.effects = underlying.effects.lc,
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 20000)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 
@@ -222,7 +244,7 @@ inlabru.samps <- generate(
 
 inlabru.lambda <- obs.lc$E * exp(inlabru.samps)
 
-inlabru.Y <- matrix(rpois(324*100, lambda = inlabru.lambda), nrow = 324, ncol = 100)
+inlabru.Y <- matrix(rpois(324*1000, lambda = inlabru.lambda), nrow = 324, ncol = 1000)
 
 inlabru.Y.df <- data.frame(x = obs.lc$x, t = obs.lc$t, xt = obs.lc$xt,
                            mean = apply(inlabru.Y, 1, mean),
@@ -246,15 +268,7 @@ comparison.Y <- inlabru.Y.df %>%
   left_join(stan.Y.df, by = c("x" = "x", "t" = "t", "xt" = "xt"), suffix = c(".inlabru", ".stan")) %>%
   mutate(Y.observed = obs.lc$Y)
 
-p.counts.xt <- ggplot(data = comparison.Y, aes(x = xt)) + 
-  geom_point(aes(y = mean.inlabru, color = "Inlabru", fill = "Inlabru")) + 
-  #geom_ribbon(aes(ymin = X0.025.inlabru, ymax = X0.975.inlabru, fill = "Inlabru"), alpha = 0.5) + 
-  #geom_point(aes(y = mean.stan, color = "Stan", fill = "Stan")) +
-  #geom_ribbon(aes(ymin = X0.025.stan, ymax = X0.975.stan, fill = "Stan"), alpha = 0.5) + 
-  #geom_point(aes(y = Y.observed, color = "Observed", fill = "Observed"), shape = 4) + 
-  #scale_color_manual(name = "", values = palette ) +
-  #scale_fill_manual(name = "", values = palette ) +
-  #scale_shape_manual(name = "") + 
-  theme_classic() + 
-  labs(title = "Estimated cancer death counts", x = "x,t", y = " ")
-p.counts.xt
+source("Scripts/Functions/plotters.R")
+
+plot.counts.inlabru.stan.compared(comparison.Y, path.to.storage = storage_path, png = F)
+  

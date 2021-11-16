@@ -68,3 +68,56 @@ trace_plot_matrix <- function(draws_mat, iterations, warmup, chains, title){
   return(trace_plot)
   
 }
+
+plot.counts.inlabru.stan.compared <- function(comparison.Y, path.to.storage, pdf=T, png=F){
+  #' Produces and saves plots of counts
+  #' 
+  #' @param comparison.Y (data.frame): containts counts estimated by stan and inlabru, as well as observed counts. 
+  #' @param path.to.storage (string): path to loaction where plots should be stored
+  #' @param pdf (boolean): whether to save figures in pdf format
+  #' @param png (boolean): whether to save figures in png format
+  #' 
+  p.counts.xt <- ggplot(data = comparison.Y, aes(x = xt)) + 
+    geom_point(aes(y = mean.inlabru, color = "Inlabru", fill = "Inlabru")) + 
+    geom_ribbon(aes(ymin = X0.025.inlabru, ymax = X0.975.inlabru, fill = "Inlabru"), alpha = 0.5) +
+    geom_point(aes(y = mean.stan, color = "Stan", fill = "Stan")) +
+    geom_ribbon(aes(ymin = X0.025.stan, ymax = X0.975.stan, fill = "Stan"), alpha = 0.5) +
+    geom_point(aes(y = Y.observed, color = "Observed", fill = "Observed"), shape = 4) +
+    scale_color_manual(name = "", values = palette ) +
+    scale_fill_manual(name = "", values = palette ) +
+    scale_shape_manual(name = "") +
+    theme_classic() + 
+    labs(title = "Estimated cancer death counts", x = "t, x", y = " ")
+  
+  save.figure(p.counts.xt, "counts_xt_comparison", path = path.to.storage, pdf = pdf, png = png)
+  
+  p.counts.t <- ggplot(data = comparison.Y, aes(x = x)) + 
+    geom_point(aes(y = mean.inlabru, color = "Inlabru", fill = "Inlabru")) + 
+    geom_ribbon(aes(ymin = X0.025.inlabru, ymax = X0.975.inlabru, fill = "Inlabru"), alpha = 0.5) +
+    geom_point(aes(y = mean.stan, color = "Stan", fill = "Stan")) +
+    geom_ribbon(aes(ymin = X0.025.stan, ymax = X0.975.stan, fill = "Stan"), alpha = 0.5) +
+    geom_point(aes(y = Y.observed, color = "Observed", fill = "Observed"), shape = 4) +
+    scale_color_manual(name = "", values = palette ) +
+    scale_fill_manual(name = "", values = palette ) +
+    scale_shape_manual(name = "") +
+    theme_classic() + 
+    labs(title = "Estimated cancer death counts", x = "t, x", y = " ") + 
+    facet_wrap(~t)
+  
+  save.figure(p.counts.t, "counts_t_comparison", path = path.to.storage, pdf = pdf, png = png)
+  
+  p.counts.x <- ggplot(data = comparison.Y, aes(x = t)) + 
+    geom_point(aes(y = mean.inlabru, color = "Inlabru", fill = "Inlabru")) + 
+    geom_ribbon(aes(ymin = X0.025.inlabru, ymax = X0.975.inlabru, fill = "Inlabru"), alpha = 0.5) +
+    geom_point(aes(y = mean.stan, color = "Stan", fill = "Stan")) +
+    geom_ribbon(aes(ymin = X0.025.stan, ymax = X0.975.stan, fill = "Stan"), alpha = 0.5) +
+    geom_point(aes(y = Y.observed, color = "Observed", fill = "Observed"), shape = 4) +
+    scale_color_manual(name = "", values = palette ) +
+    scale_fill_manual(name = "", values = palette ) +
+    scale_shape_manual(name = "") +
+    theme_classic() + 
+    labs(title = "Estimated cancer death counts", x = "t, x", y = " ") + 
+    facet_wrap(~x)
+  
+  save.figure(p.counts.x, "counts_x_comparison", path = path.to.storage, pdf = pdf, png = png)
+}
