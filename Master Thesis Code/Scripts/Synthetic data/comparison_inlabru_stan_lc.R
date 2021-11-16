@@ -165,6 +165,12 @@ save.figure(trace.beta.9, name="trace_beta_9", path=storage_path, pdf=F)
 trace.beta.18 <- trace_plot(beta_draws[,18], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[18] - synthetic male lung cancer")
 save.figure(trace.beta.18, name="trace_beta_18", path=storage_path, pdf=F)
 
+trace.kappa.1.first <- trace_plot(kappa_draws[1:5000,1], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot kappa[1], first 5000 - synthetic male lung cancer")
+save.figure(trace.kappa.1.first, name = "trace_kappa_1_first", path = storage_path, pdf = F)
+
+trace.kappa.1.last <- trace_plot(kappa_draws[3055001:3060000,1], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot kappa[1], last 5000 - synthetic male lung cancer")
+save.figure(trace.kappa.1.last, name = "trace_kappa_1_last", path = storage_path, pdf = F)
+
 
 
 
@@ -228,7 +234,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.lc.1,
   underlying.effects = underlying.effects.lc,
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 20000)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 
