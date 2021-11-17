@@ -8,6 +8,33 @@ lung.cancer <- cancer.data
 load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Data/stomachCancer-germany.Rda")
 stomach.cancer <- cancer.data
 
+#   ----    format data   ----
+lung.cancer <- lung.cancer %>%
+  mutate(female.mr = female/female.t, male.mr = male/male.t) %>%
+  mutate(year = parse_integer(year))
+
+stomach.cancer <- stomach.cancer %>%
+  mutate(female.mr = female/female.t, male.mr = male/male.t)  %>%
+  mutate(year = parse_integer(year))
+
+# separate dfs for male and female mortality:
+
+lung.cancer.female <- lung.cancer %>%
+  select(x, x.c, t, xt, cohort, c, age, age.int, year, birth.year, female.t, female, female.mr) %>%
+  mutate(E = female.t, Y = female, `mortality rate` = female.mr)
+
+stomach.cancer.female <- stomach.cancer %>%
+  select(x, x.c, t, xt, cohort, c, age, age.int, year, birth.year, female.t, female, female.mr) %>%
+  mutate(E = female.t, Y = female, `mortality rate` = female.mr)
+
+lung.cancer.male <- lung.cancer %>%
+  select(x, x.c, t, xt, cohort, c, age, age.int, year, birth.year, male.t, male, male.mr) %>%
+  mutate(E = male.t, Y = male, `mortality rate` = male.mr)
+
+stomach.cancer.male <- stomach.cancer %>%
+  select(x, x.c, t, xt, cohort, c, age, age.int, year, birth.year, male.t, male, male.mr) %>%
+  mutate(E = male.t, Y = male, `mortality rate` = male.mr)
+
 # working directory at <Master\ Thesis\ Code>
 source("Scripts/Synthetic data/Inlabru analyses/inlabru_analyses.R")
 
@@ -65,30 +92,6 @@ plot.hypers.inlabru.real(
   path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2",
   cohort=F)
 
-# run with extraconstraints on gamma, stomach
-res.stomach.extraconstr <- inlabru.rw2.cohort.2.gamma.extraconstr(stomach.cancer, real_data = TRUE)
-
-plot.hypers.inlabru.real(
-  res.stomach.extraconstr, stomach.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_extraconstr")
-
-plots.stomach.extraconstr <- plot.inlabru.real(
-  res.stomach.extraconstr, stomach.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_extraconstr")
-
-# run with extraconstraints on gamma, lung
-res.lung.extraconstr <- inlabru.rw2.cohort.2.gamma.extraconstr(lung.cancer, real_data = TRUE, max_iter=100)
-
-plot.hypers.inlabru.real(
-  res.lung.extraconstr, lung.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_extraconstr")
-
-plots.lung.extraconstr <- plot.inlabru.real(
-  res.lung.extraconstr, lung.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_extraconstr")
-
-save(res.lung.extraconstr, file="Scripts/Real data/Output/Data/lung_rw2_extraconstr/res_inlabru.RData")
-
 #   ----    Run predictions   ----   
 stomach.cancer.until2007 <- stomach.cancer %>% 
   mutate(Y_full = Y) %>%
@@ -107,18 +110,6 @@ plots.stomach <- plot.inlabru.real.predicted(
 plot.hypers.inlabru.real(
   res.stomach.predict, stomach.cancer, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_predict")
-
-# prediction with ar1c:
-
-res.stomach.predict.ar1c <- inlabru.ar1c.cohort.2(stomach.cancer.until2007)
-
-plots.stomach <- plot.inlabru.real.predicted(
-  res.stomach.predict.ar1c, stomach.cancer.until2007, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_ar1c_predict")
-
-plot.hypers.inlabru.real(
-  res.stomach.predict.ar1c, stomach.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/stomach_ar1c_predict")
 
 # same for lung cancer:
 
@@ -140,17 +131,7 @@ plot.hypers.inlabru.real(
   res.lung.predict, lung.cancer, save=TRUE, 
   path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict")
 
-# prediction with ar1c:
-
-res.lung.predict.ar1c <- inlabru.ar1c.cohort.2(lung.cancer.until2007)
-
-plots.lung <- plot.inlabru.real.predicted(
-  res.lung.predict.ar1c, lung.cancer.until2007, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/lung_ar1c_predict")
-
-plot.hypers.inlabru.real(
-  res.lung.predict.ar1c, lung.cancer, save=TRUE, 
-  path.to.storage = "Scripts/Real data/Output/Figures/lung_ar1c_predict")
+#   ----   
 
 
 #   ----   Compare results of STAN and inlabru:   ----

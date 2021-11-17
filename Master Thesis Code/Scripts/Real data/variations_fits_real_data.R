@@ -356,7 +356,7 @@ plots.compared.lung.female <- plot.comparison.real(
 
 
 
-#   ----   Omitting ages < 45, x < 9
+#   ----   Omitting ages < 45, x < 9   ----
 
 # male stomach
 
@@ -405,6 +405,58 @@ plot.hypers.inlabru.real(
   path.to.storage = "Scripts/Real data/Output/Figures/stomach_rw2_lc_a45/female",
   cohort=FALSE)
 
+
+
+
+
+
+
+#   ----   Prediction    ----
+
+lung.cancer.female.until2011 <- lung.cancer.female %>% 
+  mutate(Y_full = Y) %>%
+  mutate(Y = replace(Y, year %in% c("2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(female = replace(female, year %in% c("2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(female.mr = replace(female.mr, year %in% c("2012", "2013", "2014", "2015", "2016"), NA)) %>%
+  mutate(predict = "observed") %>% mutate(predict = replace(predict, year %in% c("2012", "2013", "2014", "2015", "2016"), "predicted"))
+
+res.lung.f.u11.predict <- inlabru.rw2.cohort.2(lung.cancer.female.until2011, max_iter = 100)
+
+# produce posterior samples
+lung.cancer.female.until2011.samps <- generate(
+  res.lung.f.u11.predict,
+  data = data.frame(
+    x = lung.cancer.female.until2011$x, t = lung.cancer.female.until2011$t,
+    x.c = lung.cancer.female.until2011$x.c, c = lung.cancer.female.until2011$c,
+    xt = lung.cancer.female.until2011$xt),
+  formula = ~ Int + alpha + beta*kappa + gamma + epsilon,
+  n.samples = 1000)
+
+lung.cancer.female.until2011.lambda <- lung.cancer.female.until2011$E * exp(lung.cancer.female.until2011.samps)
+
+lung.cancer.female.until2011.Y <- matrix(rpois(324*1000, lambda = lung.cancer.female.until2011.lambda), nrow = 324, ncol = 1000)
+
+lung.cancer.female.until2011.Y.df <- data.frame(x = lung.cancer.female.until2011$x, t = lung.cancer.female.until2011$t,
+                           xt = lung.cancer.female.until2011$xt, c = lung.cancer.female.until2011$c,
+                           mean = apply(lung.cancer.female.until2011.Y, 1, mean),
+                           X0.975 = apply(lung.cancer.female.until2011.Y, 1, quantile, 0.975),
+                           X0.025 = apply(lung.cancer.female.until2011.Y, 1, quantile, 0.025))
+
+
+source("Scripts/Real data/plot_real_data.R")
+
+plots.lung <- plot.inlabru.real.predicted(
+  res.lung.f.u11.predict, lung.cancer.female.until2011, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict/female")
+
+plot.hypers.inlabru.real(
+  res.lung.f.u11.predict, lung.cancer.female, save=TRUE, 
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict/female")
+
+plot.counts.inlabru.real.predicted(
+  lung.cancer.female.until2011.Y.df, lung.cancer.female.until2011, save = TRUE,
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict/female"
+)
 
 
 

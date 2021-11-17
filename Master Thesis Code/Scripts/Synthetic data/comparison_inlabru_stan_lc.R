@@ -65,7 +65,8 @@ source("Scripts/Functions/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc.2(obs.lc)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
 
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.other.priors(obs.lc)})
 
 #res.inlabru.no.int <- inlabru.rw2.lc.no.intercept(obs.lc, max_iter = 100)
 
@@ -156,8 +157,34 @@ save.figure(trace.intercept, name="trace_intercept", path=storage_path, pdf=F)
 trace.tau.beta <- trace_plot(tau_beta_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau beta - synthetic male lung cancer")
 save.figure(trace.tau.beta, name="trace_tau_beta", path=storage_path, pdf=F)
 
+trace.tau.kappa <- trace_plot(tau_kappa_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau kappa - synthetic male lung cancer")
+save.figure(trace.tau.kappa, name="trace_tau_kappa", path=storage_path, pdf=F)
+
+trace.tau.kappa.first <- trace_plot(tau_kappa_draws[1:5000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau kappa, first 5000 - synthetic male lung cancer")
+save.figure(trace.tau.kappa.first, name = "trace_tau_kappa_first", path = storage_path, pdf = F)
+
+trace.tau.kappa.last <- trace_plot(tau_kappa_draws[3055001:3060000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau kappa, last 5000 - synthetic male lung cancer")
+save.figure(trace.tau.kappa.last, name = "trace_tau_kappa_last", path = storage_path, pdf = F)
+
+
 trace.beta.1 <- trace_plot(beta_draws[,1], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[1] - synthetic male lung cancer")
 save.figure(trace.beta.1, name="trace_beta_1", path=storage_path, pdf=F)
+
+trace.beta.1.first <- trace_plot(beta_draws[1:5000,1], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot beta[1], first 5000 - synthetic male lung cancer")
+save.figure(trace.beta.1.first, name = "trace_beta_1_first", path = storage_path, pdf = F)
+
+trace.beta.1.last <- trace_plot(beta_draws[3055001:3060000,1], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot beta[1], last 5000 - synthetic male lung cancer")
+save.figure(trace.beta.1.last, name = "trace_beta_1_last", path = storage_path, pdf = F)
+
+# beta[12] - low neff
+trace.beta.12 <- trace_plot(beta_draws[,12], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[12] - synthetic male lung cancer")
+save.figure(trace.beta.12, name="trace_beta_12", path=storage_path, pdf=F)
+
+trace.beta.12.first <- trace_plot(beta_draws[1:5000,12], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot beta[12], first 5000 - synthetic male lung cancer")
+save.figure(trace.beta.12.first, name = "trace_beta_12_first", path = storage_path, pdf = F)
+
+trace.beta.12.last <- trace_plot(beta_draws[3055001:3060000,12], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot beta[12], last 5000 - synthetic male lung cancer")
+save.figure(trace.beta.12.last, name = "trace_beta_12_last", path = storage_path, pdf = F)
 
 trace.beta.9 <- trace_plot(beta_draws[,9], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[9] - synthetic male lung cancer")
 save.figure(trace.beta.9, name="trace_beta_9", path=storage_path, pdf=F)
@@ -170,6 +197,12 @@ save.figure(trace.kappa.1.first, name = "trace_kappa_1_first", path = storage_pa
 
 trace.kappa.1.last <- trace_plot(kappa_draws[3055001:3060000,1], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot kappa[1], last 5000 - synthetic male lung cancer")
 save.figure(trace.kappa.1.last, name = "trace_kappa_1_last", path = storage_path, pdf = F)
+
+trace.kappa.9.first <- trace_plot(kappa_draws[1:5000,9], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot kappa[9], first 5000 - synthetic male lung cancer")
+save.figure(trace.kappa.9.first, name = "trace_kappa_9_first", path = storage_path, pdf = F)
+
+trace.kappa.9.last <- trace_plot(kappa_draws[3055001:3060000,9], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot kappa[9], last 5000 - synthetic male lung cancer")
+save.figure(trace.kappa.9.last, name = "trace_kappa_9_last", path = storage_path, pdf = F)
 
 
 
