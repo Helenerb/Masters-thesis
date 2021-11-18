@@ -330,6 +330,7 @@ produce.summaries.stan.lc.rw2 <- function(stan_df, obs, underlying.effects){
     rownames_to_column("parameter") %>%
     filter(grepl('alpha', parameter)) %>%
     filter(!grepl('tau_alpha', parameter)) %>%
+    filter(!grepl('theta_alpha', parameter)) %>%
     filter(!grepl('alpha_raw', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
     mutate(true_alpha = obs$alpha[index])
@@ -338,6 +339,7 @@ produce.summaries.stan.lc.rw2 <- function(stan_df, obs, underlying.effects){
     rownames_to_column("parameter") %>%
     filter(grepl('beta', parameter)) %>%
     filter(!grepl('tau_beta', parameter)) %>%
+    filter(!grepl('theta_beta', parameter)) %>%
     filter(!grepl('beta_raw', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
     mutate(true_beta = underlying.effects$beta.true[index])
@@ -352,6 +354,7 @@ produce.summaries.stan.lc.rw2 <- function(stan_df, obs, underlying.effects){
     rownames_to_column("parameter") %>%
     filter(grepl('kappa', parameter)) %>%
     filter(!grepl('tau_kappa', parameter)) %>%
+    filter(!grepl('theta_kappa', parameter)) %>%
     filter(!grepl('kappa_raw', parameter)) %>%
     filter(!grepl('kappa_0', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
@@ -362,6 +365,7 @@ produce.summaries.stan.lc.rw2 <- function(stan_df, obs, underlying.effects){
     rownames_to_column("parameter") %>%
     filter(grepl('eta', parameter)) %>%
     filter(!grepl('beta', parameter)) %>%
+    filter(!grepl('theta', parameter)) %>%
     mutate(index = parse_number(parameter)) %>%
     mutate(true_eta = obs$eta) %>%
     mutate(xt = obs$xt, x = obs$x, t = obs$t)

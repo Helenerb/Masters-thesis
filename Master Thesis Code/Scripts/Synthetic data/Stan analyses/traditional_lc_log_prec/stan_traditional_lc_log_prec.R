@@ -1,4 +1,5 @@
-# Running configuraton v10.3 with stan on Markov
+# Running traditional lc version of stan, 
+# implemented with log-precisions. 
 
 set_workspace <- function(config, markov=TRUE){
   if(markov){
@@ -12,8 +13,8 @@ set_workspace <- function(config, markov=TRUE){
   return(output.path)
 }
 
-run_stan_traditional_lc <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
-  output.path <- set_workspace(config="traditional_lc", markov)
+run_stan_traditional_lc_log_prec <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
+  output.path <- set_workspace(config="traditional_lc_log_prec", markov)
   library("tidyverse")
   source("Scripts/Synthetic\ data/run_stan_functions.R")
   
@@ -32,7 +33,7 @@ run_stan_traditional_lc <- function(stan_program, chains=4, warmup=1000, iter=10
   
   stan_fit <- run_stan_program_traditional_lc(list(obs = obs.trad), chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
   
-  store_stan_results_traditional(fit=stan_fit, output.path=output.path, config="traditional_lc", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
+  store_stan_results_traditional(fit=stan_fit, output.path=output.path, config="traditional_lc_log_prec", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_traditional_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_traditional.stan", chains=1, warmup = 100, iter = 400, markov=F)
+run_stan_traditional_lc_log_prec(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_traditional_lc_log_prec.stan", chains=1, warmup = 100, iter = 400, markov=T)

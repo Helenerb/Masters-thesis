@@ -157,7 +157,8 @@ source("Scripts/Synthetic data/plot_inlabru_stan_compared.R")
 source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 figures.folder = "Scripts/Synthetic data/Output/Figures"
-storage_path = file.path(figures.folder, "traditional_lc")
+#storage_path = file.path(figures.folder, "traditional_lc")
+storage_path = file.path(figures.folder, "traditional_lc_log_prec")
 
 # only inlabru
 #plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
@@ -168,8 +169,11 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
   save=TRUE, cutoff_alpha = 500)
   
 # when results are produced locally
-load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_traditional_lc.Rda")
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc"
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_traditional_lc.Rda")
+load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/stan_traditional_lc_log_prec.Rda")
+
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
