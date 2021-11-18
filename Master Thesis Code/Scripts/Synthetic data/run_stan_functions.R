@@ -32,8 +32,6 @@ run_stan_program_lc <- function(data, chains, warmup, iter, stan_program="stan_a
   
   obs <- data$obs
   
-  print(obs)
-  
   library("rstan")
   
   input_stan.lc <- list(
@@ -137,7 +135,6 @@ store_stan_results_traditional <- function(fit, output.path, config, stan_progra
   results.path <- output.path
   
   list_of_draws <- rstan::extract(fit)
-  print(list_of_draws)
   
   # extract draws for hyperparameters, and save histograms
   tau_alpha_draws <- list_of_draws$tau_alpha
