@@ -35,4 +35,4 @@ run_stan_traditional_lc <- function(stan_program, chains=4, warmup=1000, iter=10
   store_stan_results_traditional(fit=stan_fit, output.path=output.path, config="traditional_lc", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_traditional_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_traditional.stan", chains=1, warmup = 100, iter = 400, markov=F)
+run_stan_traditional_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_traditional.stan", chains=3, warmup = 13000, iter = 130000, markov=F)

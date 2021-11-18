@@ -36,4 +36,4 @@ run_stan_traditional_lc_log_prec <- function(stan_program, chains=4, warmup=1000
   store_stan_results_traditional(fit=stan_fit, output.path=output.path, config="traditional_lc_log_prec", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_traditional_lc_log_prec(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_traditional_lc_log_prec.stan", chains=1, warmup = 100, iter = 400, markov=T)
+run_stan_traditional_lc_log_prec(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_traditional_lc_log_prec.stan", chains=3, warmup = 13000, iter = 130000, markov=T)
