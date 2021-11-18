@@ -629,3 +629,7 @@ plot.comparison.real <- function(res.inlabru, res.stan, stan.marginals, cancer.d
   return(plots)
 }
 
+plot.counts.inlabru.real.predicted <- function(
+  inlabru.Y.df, lung.cancer.female.until2011, save = TRUE,
+  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict/female"
+)

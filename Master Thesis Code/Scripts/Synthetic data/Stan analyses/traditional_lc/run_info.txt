@@ -1,0 +1,10 @@
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_lc_traditional.stan
+2
+100
+400
+traditional_lc
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_lc_traditional.stan
+4
+100
+1000
+traditional_lc

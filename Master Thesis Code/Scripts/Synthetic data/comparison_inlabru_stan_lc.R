@@ -25,11 +25,11 @@ source("Scripts/Real\ data/synthetic_male_stomach_lc.R")
 # source("Scripts/Synthetic\ data/config_synthetic_male_lung_v6.R")
 # config_data <- synthetic.male.lung.v6()
 
-source("Scripts/Synthetic\ data/config_synthetic_male_lung_v4.R")
-config_data <- synthetic.male.lung.v4()
+# source("Scripts/Synthetic\ data/config_synthetic_male_lung_v4.R")
+# config_data <- synthetic.male.lung.v4()
 
-#source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
-#config_data <- synthetic.male.lung.a45.v7()
+source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
+config_data <- synthetic.male.lung.a45.v7()
 
 underlying.effects.lc <- config_data$underlying.effects
 
@@ -52,8 +52,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "synthetic_male_stomach_lc")
 
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v6")
-storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
-#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
+#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
+storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -65,8 +65,8 @@ source("Scripts/Functions/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc.2(obs.lc)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
 
-#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.other.priors(obs.lc)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.other.priors(obs.lc)})
 
 #res.inlabru.no.int <- inlabru.rw2.lc.no.intercept(obs.lc, max_iter = 100)
 
@@ -122,8 +122,8 @@ print(runtime.inlabru)
 #load("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses/synthetic_male_stomach_lc/stan_results/stan_synthetic_male_stomach_lc.Rda")
 
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_6/stan_results/stan_synthetic_male_lung_6.Rda")
-load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
-#load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
+#load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
+load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
 
 #   ----   load STAN marginals   ---- 
 
@@ -132,8 +132,8 @@ load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/st
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_stomach_lc/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_6/stan_results"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
@@ -157,6 +157,13 @@ save.figure(trace.intercept, name="trace_intercept", path=storage_path, pdf=F)
 trace.tau.beta <- trace_plot(tau_beta_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau beta - synthetic male lung cancer")
 save.figure(trace.tau.beta, name="trace_tau_beta", path=storage_path, pdf=F)
 
+trace.tau.beta.first <- trace_plot(tau_beta_draws[1:5000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau beta, first 5000 - synthetic male lung cancer")
+save.figure(trace.tau.beta.first, name = "trace_tau_beta_first", path = storage_path, pdf = F)
+
+trace.tau.beta.last <- trace_plot(tau_beta_draws[3055001:3060000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau beta, last 5000 - synthetic male lung cancer")
+save.figure(trace.tau.beta.last, name = "trace_tau_beta_last", path = storage_path, pdf = F)
+
+
 trace.tau.kappa <- trace_plot(tau_kappa_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau kappa - synthetic male lung cancer")
 save.figure(trace.tau.kappa, name="trace_tau_kappa", path=storage_path, pdf=F)
 
@@ -165,6 +172,27 @@ save.figure(trace.tau.kappa.first, name = "trace_tau_kappa_first", path = storag
 
 trace.tau.kappa.last <- trace_plot(tau_kappa_draws[3055001:3060000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau kappa, last 5000 - synthetic male lung cancer")
 save.figure(trace.tau.kappa.last, name = "trace_tau_kappa_last", path = storage_path, pdf = F)
+
+
+trace.tau.alpha <- trace_plot(tau_alpha_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau alpha - synthetic male lung cancer")
+save.figure(trace.tau.alpha, name="trace_tau_alpha", path=storage_path, pdf=F)
+
+trace.tau.alpha.first <- trace_plot(tau_alpha_draws[1:5000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau alpha, first 5000 - synthetic male lung cancer")
+save.figure(trace.tau.alpha.first, name = "trace_tau_alpha_first", path = storage_path, pdf = F)
+
+trace.tau.alpha.last <- trace_plot(tau_alpha_draws[3055001:3060000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau alpha, last 5000 - synthetic male lung cancer")
+save.figure(trace.tau.alpha.last, name = "trace_tau_alpha_last", path = storage_path, pdf = F)
+
+
+trace.tau.epsilon <- trace_plot(tau_epsilon_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot tau epsilon - synthetic male lung cancer")
+save.figure(trace.tau.epsilon, name="trace_tau_epsilon", path=storage_path, pdf=F)
+
+trace.tau.epsilon.first <- trace_plot(tau_epsilon_draws[1:5000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau epsilon, first 5000 - synthetic male lung cancer")
+save.figure(trace.tau.epsilon.first, name = "trace_tau_epsilon_first", path = storage_path, pdf = F)
+
+trace.tau.epsilon.last <- trace_plot(tau_epsilon_draws[3055001:3060000], chains = 1, iterations = 5000, warmup = 0, title = "Trace plot tau epsilon, last 5000 - synthetic male lung cancer")
+save.figure(trace.tau.epsilon.last, name = "trace_tau_epsilon_last", path = storage_path, pdf = F)
+
 
 
 trace.beta.1 <- trace_plot(beta_draws[,1], chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot beta[1] - synthetic male lung cancer")
@@ -215,7 +243,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
                   alpha_draws = alpha_draws,
                   beta_draws = beta_draws,
                   kappa_draws = kappa_draws,
-                  eta_draws = eta_draws_100)
+                  eta_draws = eta_draws_reduced)
 
 # intercept.marginal = data.frame(int = marginals$intercept_draws)
 # library("bayesplot")
@@ -267,7 +295,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.lc.1,
   underlying.effects = underlying.effects.lc,
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 
@@ -279,7 +307,8 @@ plots_compared <- produce.compared.plots(
 inlabru.samps <- generate(
   res.inlabru.lc.1,
   data = data.frame(x = obs.lc$x, t = obs.lc$t, x.c = obs.lc$x.c, xt = obs.lc$xt),
-  formula = ~ Int + alpha + beta*kappa + epsilon)
+  formula = ~ Int + alpha + beta*kappa + epsilon,
+  n.sample = 1000)
 
 inlabru.lambda <- obs.lc$E * exp(inlabru.samps)
 
