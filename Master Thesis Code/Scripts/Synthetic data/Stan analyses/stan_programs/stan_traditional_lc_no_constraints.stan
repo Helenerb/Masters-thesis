@@ -1,4 +1,4 @@
-// This STAN model implements the traditional lee-carter model
+ // This STAN model implements the traditional lee-carter model
 
 // The input data is a vector 'y' of length 'N'.
 functions {
@@ -29,12 +29,13 @@ parameters {
   real theta_kappa;  // log-precision of kappa
   real theta_epsilon;  // log-precision of epsilon
   
+  // remove intercept when removing constraint on alpha
   real intercept;  // included intercept
   
-  vector[X] alpha_raw;  //  before sum-to-zero is implemented
-  vector[X] beta_raw;  //  before sum-to-unit is implemented
-  
-  vector[T] kappa_raw;  //  before sum-to-zero is implemented
+  // do not impose constraints
+  vector[X] alpha;  //  before sum-to-zero is implemented
+  vector[X] beta;  //  before sum-to-unit is implemented
+  vector[T] kappa;  //  before sum-to-zero is implemented
   
   //vector[X*T] epsilon;  // unconstrained
 }
@@ -47,9 +48,9 @@ transformed parameters {
   real tau_kappa  = exp(theta_kappa);  // precision of random walk, kappa
   real tau_epsilon = exp(theta_epsilon);  // precision of normal distribution of epsilon - error term
   
-  vector[X] alpha = alpha_raw - mean(alpha_raw);
-  vector[X] beta = beta_raw - mean(beta_raw) + 1/nx;
-  vector[T] kappa = kappa_raw - mean(kappa_raw);
+  //vector[X] alpha = alpha_raw - mean(alpha_raw);
+  //vector[X] beta = beta_raw - mean(beta_raw) + 1/nx;
+  //vector[T] kappa = kappa_raw - mean(kappa_raw);
   
   // split kappa into driftless rw and linear term
   //vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
@@ -81,11 +82,11 @@ model {
   // prior distributions
   //target += normal_lpdf(alpha_raw[2:X] | alpha_raw[1:X-1], 1/sqrt(tau_alpha));
   
-  alpha_raw[1] ~ normal(0, 100);  // flat prior
-  alpha_raw[2:X] ~ normal(alpha_raw[1:X-1], 1/sqrt(tau_alpha));
+  alpha[1] ~ normal(0, 100);  // flat prior
+  alpha[2:X] ~ normal(alpha[1:X-1], 1/sqrt(tau_alpha));
   
   //target += normal_lpdf(beta_raw | 0, 1/sqrt(tau_beta));
-  beta_raw ~ normal(0, 1/sqrt(tau_beta));  // Should I explicitly say that this is a vector?
+  beta ~ normal(0, 1/sqrt(tau_beta));  // Should I explicitly say that this is a vector?
   
   // random walk of order two
   //kappa_raw[1] ~ normal(0, 1/sqrt(tau_kappa));
@@ -93,14 +94,12 @@ model {
   //kappa_raw[3:T] ~ normal(2*kappa_raw[2:T-1] - kappa_raw[1:T-2], 1/sqrt(tau_kappa));
   
   // to show: kappa as rw1:
-  kappa_raw[1] ~ normal(0, 100);
-  kappa_raw[2:T] ~ normal(kappa_raw[1:T-1], 1/sqrt(tau_kappa));
+  kappa[1] ~ normal(0, 100);
+  kappa[2:T] ~ normal(kappa[1:T-1], 1/sqrt(tau_kappa));
   
   //epsilon ~ normal(0, 1/sqrt(tau_epsilon));
   
-  // send exp_mr as response in the first place - to get identical model to inlabru
-  
-  exp_mr ~ normal(eta, 1/sqrt(tau_epsilon));
   //log(mr) ~ normal(eta, 1/sqrt(tau_epsilon));
+  exp_mr ~ normal(eta, 1/sqrt(tau_epsilon));
 }
 

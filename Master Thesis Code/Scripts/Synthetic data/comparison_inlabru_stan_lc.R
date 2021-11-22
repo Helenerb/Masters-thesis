@@ -25,11 +25,11 @@ source("Scripts/Real\ data/synthetic_male_stomach_lc.R")
 # source("Scripts/Synthetic\ data/config_synthetic_male_lung_v6.R")
 # config_data <- synthetic.male.lung.v6()
 
-# source("Scripts/Synthetic\ data/config_synthetic_male_lung_v4.R")
-# config_data <- synthetic.male.lung.v4()
+source("Scripts/Synthetic\ data/config_synthetic_male_lung_v4.R")
+config_data <- synthetic.male.lung.v4()
 
-source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
-config_data <- synthetic.male.lung.a45.v7()
+#source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
+#config_data <- synthetic.male.lung.a45.v7()
 
 underlying.effects.lc <- config_data$underlying.effects
 
@@ -53,7 +53,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v6")
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
-storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
+storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4/rw1")
+#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -65,7 +66,8 @@ source("Scripts/Functions/inlabru_analyses.R")
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.ar1c.lc.2(obs.lc)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
 
-runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
+#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
+runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw1.lc(obs.lc)})
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.other.priors(obs.lc)})
 
 #res.inlabru.no.int <- inlabru.rw2.lc.no.intercept(obs.lc, max_iter = 100)
@@ -123,7 +125,9 @@ print(runtime.inlabru)
 
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_6/stan_results/stan_synthetic_male_lung_6.Rda")
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
-load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
+#load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
+load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_synthetic_male_lung_4.Rda")
+
 
 #   ----   load STAN marginals   ---- 
 
@@ -133,7 +137,8 @@ load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/st
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_stomach_lc/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_6/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
@@ -150,7 +155,7 @@ load(file.path(path.to.stan.results, "draws_eta_reduced.RData"))
 
 source("Scripts/Functions/plotters.R")
 
-# save trace of intercept:
+#   ----   trace plots for stan results   ----
 trace.intercept <- trace_plot(intercept_draws, chains = 1, iterations = 3400000, warmup = 340000, title= "Trace plot intercept - lsynthetic male lung cancer")
 save.figure(trace.intercept, name="trace_intercept", path=storage_path, pdf=F)
 
@@ -233,7 +238,7 @@ trace.kappa.9.last <- trace_plot(kappa_draws[3055001:3060000,9], chains = 1, ite
 save.figure(trace.kappa.9.last, name = "trace_kappa_9_last", path = storage_path, pdf = F)
 
 
-
+#   ----   Plot stan results   ----
 
 stan.marginals <- list(intercept_draws = intercept_draws,
                   tau_epsilon_draws = tau_epsilon_draws,
@@ -339,4 +344,34 @@ comparison.Y <- inlabru.Y.df %>%
 source("Scripts/Functions/plotters.R")
 
 plot.counts.inlabru.stan.compared(comparison.Y, path.to.storage = storage_path, png = F)
+
+#   ----   Compare marginals of predictor from stan and inlabru   ----
+
+# inlabru
+
+inlabru.samps.predictor <- generate(
+  res.inlabru.lc.1,
+  data = data.frame(x = obs.lc$x, t = obs.lc$t, x.c = obs.lc$x.c, xt = obs.lc$xt),
+  formula = ~ Int + alpha + beta*kappa + epsilon,
+  n.sample = 1000)
+
+inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
+
+# stan
+
+stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 100, replace = F),]
+#stan.samps <- eta_draws_reduced[sample(nrow(eta_draws_reduced), size = 1000, replace = F),]
+
+stan.predictor.df <- data.frame(stan.samps.predictor)
+
+
+comparison.Y <- inlabru.Y.df %>%
+  left_join(stan.Y.df, by = c("x" = "x", "t" = "t", "xt" = "xt"), suffix = c(".inlabru", ".stan")) %>%
+  mutate(Y.observed = obs.lc$Y)
+
+source("Scripts/Functions/plotters.R")
+
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = storage_path, a45=T)
+
+
   

@@ -70,7 +70,8 @@ run_stan_program_traditional_lc <- function(data, chains, warmup, iter, stan_pro
     T=length(unique(obs.trad$t)),
     x=(obs.trad$x + 1),
     t=(obs.trad$t + 1),
-    exp_mortality_rate = obs.trad$eta,
+    #mr = obs.trad$mr_gaussian,
+    exp_mr = obs.trad$eta,
     nx = length(unique(obs.trad$x)),
     nt = length(unique(obs.trad$t))
   )

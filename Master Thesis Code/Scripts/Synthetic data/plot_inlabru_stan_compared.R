@@ -277,7 +277,8 @@ plot.inlabru.stan.traditional.lc <- function(stan.summaries,
                                            tau.alpha.cutoff = 20,
                                            tau.beta.cutoff = 50000,
                                            tau.kappa.cutoff = 50000,
-                                           tau.epsilon.cutoff = 1500
+                                           tau.epsilon.cutoff = 1500,
+                                           predictor_marginal_idx = c(1,2,3,4,5)
 ){
   #' Produces plots with comparison of estimation results from inlabru and STAN
   #' 
@@ -417,6 +418,10 @@ plot.inlabru.stan.traditional.lc <- function(stan.summaries,
     theme_classic() + 
     labs(x = " ", y = " ", title = "Eta - inlabru, for each age") + 
     facet_wrap(~x)
+  
+  #   ----   predictor - marginals   ----
+  
+  p.eta.marg.1 <- 
   
   #   ----   hyperparameters: precisions   ----   
   

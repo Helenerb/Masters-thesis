@@ -1,4 +1,6 @@
 # script containing functions for plotting. 
+library(ggplot2)
+library(patchwork)
 
 # assuming working directory at .../Master Thesis Code
 source("Scripts/Misc/palette.R")
@@ -120,4 +122,119 @@ plot.counts.inlabru.stan.compared <- function(comparison.Y, path.to.storage, pdf
     facet_wrap(~x)
   
   save.figure(p.counts.x, "counts_x_comparison", path = path.to.storage, pdf = pdf, png = png)
+}
+
+plot.predictor.inlabru.stan.compared <- function(
+  inlabru.predictor.df, stan.predictor.df,
+  path.to.storage, columns, pdf=T, png=F, a45=F) {
+  
+  if(!a45){
+    p.predictor.1 <- ggplot() + 
+      geom_histogram(data = inlabru.predictor.df, aes(x = X1, y = after_stat(density), color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[1]")
+    
+    p.predictor.2 <- ggplot(data = data.frame(), aes(x = X64, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[64]")
+    
+    p.predictor.3 <- ggplot(data = data.frame(), aes(x = X128, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[128]")
+    
+    p.predictor.4 <- ggplot(data = data.frame(), aes(x = X192, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[192]")
+    
+    p.predictor.5 <- ggplot(data = data.frame(), aes(x = X256, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[256]")
+    
+    p.predictor.6 <- ggplot(data = data.frame(), aes(x = X324, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[324]")
+    
+    p.predictor <- (p.predictor.1 | p.predictor.2 | p.predictor.3)/(p.predictor.4 | p.predictor.5 | p.predictor.6) + 
+      plot_layout(guides = "collect")
+    
+    save.figure(p.predictor, "predictor_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+  }
+  if(a45){
+    
+    p.predictor.1 <- ggplot() + 
+      geom_histogram(data = inlabru.predictor.df, aes(x = X1, y = after_stat(density), color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[1]")
+    
+    p.predictor.2 <- ggplot(data = data.frame(), aes(x = X32, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[32]")
+    
+    p.predictor.3 <- ggplot(data = data.frame(), aes(x = X64, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[64]")
+    
+    p.predictor.4 <- ggplot(data = data.frame(), aes(x = X96, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[96]")
+    
+    p.predictor.5 <- ggplot(data = data.frame(), aes(x = X128, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[128]")
+    
+    p.predictor.6 <- ggplot(data = data.frame(), aes(x = X162, y = after_stat(density))) + 
+      geom_histogram(data = inlabru.predictor.df, aes(color = "Inlabru", fill = "Inlabru"), alpha = 0.5, bins = 50) + 
+      geom_histogram(data = stan.predictor.df, aes(color = "Stan", fill = "Stan"), alpha = 0.5, bins = 50) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of predictor", y = " ", title = "Marginal of eta[162]")
+    
+    p.predictor <- (p.predictor.1 | p.predictor.2 | p.predictor.3)/(p.predictor.4 | p.predictor.5 | p.predictor.6) + 
+      plot_layout(guides = "collect")
+    
+    save.figure(p.predictor, "predictor_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+  }
 }

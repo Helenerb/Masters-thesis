@@ -670,7 +670,7 @@ plot.inlabru.vs.underlying.traditional.lc <- function(
   
   data.beta = cbind(res.inlabru$summary.random$beta,
                     beta.true = underlying.effects$beta.true[res.inlabru$summary.random$beta$ID + 1])
-  print(data.beta)
+  
   p.beta <- ggplot(data = data.beta, aes(x = ID)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`, fill = "Estimated"), alpha = 0.4) + 
     geom_point(aes(y = beta.true, color = "True value", fill = "True value"), size = 0.5) + 
@@ -715,6 +715,7 @@ plot.inlabru.vs.underlying.traditional.lc <- function(
                          `0.025quant` = res.inlabru$summary.linear.predictor$`0.025quant`[1:length(obs$eta)],
                          `0.975quant` = res.inlabru$summary.linear.predictor$`0.975quant`[1:length(obs$eta)]) %>%
     mutate(true.eta = obs$eta.no.error) %>%
+    mutate(true.eta.error = obs$eta) %>%
     mutate(xt = obs$xt, x = obs$x, t = obs$t)
   
   p.eta <- ggplot(data = data.eta) +
@@ -722,13 +723,19 @@ plot.inlabru.vs.underlying.traditional.lc <- function(
     labs(x="Estimated eta", y="True value for eta", title = "Eta")
   
   p.eta.2 <- ggplot(data = data.eta) +
-    geom_line(aes(x=xt, y = eta.sim, color="Estimated")) +
-    geom_line(aes(x=xt, y = true.eta, color="True")) +
+    geom_line(aes(x=xt, y = eta.sim, color="Estimated", fill = "Estimated")) +
+    geom_line(aes(x=xt, y = true.eta, color="True", fill = "True")) +
+    geom_point(aes(x = xt, y = true.eta.error, color = "True, with error", fill = "True, with error"), alpha = 0.7) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
     labs(x=" ", y="Eta", title="Eta- inlabru")
   
   p.eta.t <- ggplot(data = data.eta) + 
-    geom_line(aes(x = x, y = eta.sim, color = "Estimated")) +
-    geom_line(aes(x = x, y = true.eta, color = "True")) +
+    geom_line(aes(x = x, y = eta.sim, color = "Estimated", fill = "Estimated")) +
+    geom_line(aes(x = x, y = true.eta, color = "True", fill = "True")) +
+    geom_point(aes(x = x, y = true.eta.error, color = "True, with error", fill = "True, with error"), alpha = 0.7) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
     labs(x = " ", y = " ", title = "Eta - inlabru, for each year") + 
     facet_wrap(~t)
   

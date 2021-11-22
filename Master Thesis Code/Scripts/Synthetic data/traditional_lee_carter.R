@@ -8,6 +8,22 @@ setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 synthetic.male.lung.v4 <- function(){
   obs <- read.csv("Data/synthetic_male_lung_4.csv")
   
+  underlying.effects <- list(obs = obs, nx = 18, nt = 18,
+                             alpha.true = {obs %>% filter(t == 0)}$alpha,
+                             beta.true = {obs %>% filter(t == 0)}$beta,
+                             kappa.true = {obs %>% filter(x == 9)}$kappa,
+                             intercept = unique(obs$intercept),
+                             tau.alpha.true = unique(obs$tau.alpha),
+                             tau.beta.true = unique(obs$tau.beta),
+                             tau.kappa.true = unique(obs$tau.kappa),
+                             tau.epsilon.true = unique(obs$tau.epsilon))
+  return(list(obs = obs, underlying.effects = underlying.effects))
+}
+
+
+synthetic.male.lung.v7 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_7.csv")
+  
   underlying.effects <- list(obs = obs, nx = 9, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
                              beta.true = {obs %>% filter(t == 0)}$beta,
@@ -43,9 +59,11 @@ inlabru.traditional.lc <- function(obs, max_iter=30){
     Int(1, prec.linear = 0.001, mean.linear = 0) +
     alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
     beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
-    kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
+    #kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
+    kappa(t, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
   
-  formula = eta ~ Int + alpha + beta*kappa 
+  #formula = log(mr_gaussian) ~ Int + alpha + beta*kappa 
+  formula = eta ~ Int + alpha + beta*kappa
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
@@ -54,7 +72,8 @@ inlabru.traditional.lc <- function(obs, max_iter=30){
     theta = list(
       initial = log(1), fixed = F, prior = "loggamma", param = c(1,0.00005)
     )
-  ))
+  ))#,
+  #control.link = list(model = "log"))
   #c.fixed <- list(mean = list(Int = 0), prec = list(Int = 1))
   
   res.inlabru = bru(components = comp,
@@ -64,13 +83,65 @@ inlabru.traditional.lc <- function(obs, max_iter=30){
                                    num.threads = "1:1",
                                    control.compute = c.c,
                                    bru_max_iter=max_iter,
-                                   # control.predictor = list(link = 1), # Dont know if this still applies
+                                   control.predictor = list(compute = TRUE), # Dont know if this still applies
                                    control.family  = c.family
                     ))
   return(res.inlabru)
 }
 
-config_data <- synthetic.male.lung.v4()
+inlabru.traditional.lc.unconstrained <- function(obs, max_iter=30){
+  #' TODO: Implement traditional lee-carter
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  #'@param max_iter (int): maximum number of iterations in inlabru
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  #pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
+  
+  comp = ~ -1 +
+    Int(1, prec.linear = 0.001, mean.linear = 0) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior) +
+    beta(x.c, model = "iid", hyper = loggamma.prior) +
+    #kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
+    kappa(t, model = "rw1", values = unique(obs$t), hyper = loggamma.prior.high.variance)
+  
+  #formula = log(mr_gaussian) ~ Int + alpha + beta*kappa 
+  formula = eta ~ Int + alpha + beta*kappa
+  
+  likelihood = like(formula = formula, family = "gaussian", data = obs)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  c.family <- list(hyper = list(
+    theta = list(
+      initial = log(1), fixed = F, prior = "loggamma", param = c(1,0.00005)
+    )
+  ))#,
+  #control.link = list(model = "log"))
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=max_iter,
+                                   control.predictor = list(compute = TRUE), # Dont know if this still applies
+                                   control.family  = c.family
+                    ))
+  return(res.inlabru)
+}
+
+#config_data <- synthetic.male.lung.v4()
+config_data <- synthetic.male.lung.v7()
 
 underlying.effects.lc.poiss <- config_data$underlying.effects
 
@@ -78,9 +149,11 @@ obs.lc.poiss <- underlying.effects.lc.poiss$obs
 
 obs.trad <- obs.lc.poiss %>% 
   select(c(x, t, xt, age.int, year, x.c, alpha, beta, kappa, intercept, epsilon,
-           eta, tau.alpha, tau.beta, tau.kappa, tau.epsilon)) %>%
-  mutate(mu = exp(eta)) %>%
-  mutate(eta.no.error = intercept + alpha + beta*kappa)
+           eta, tau.alpha, tau.beta, tau.kappa, tau.epsilon, E)) %>%
+  mutate(eta = eta) %>%
+  mutate(eta.no.error = intercept + alpha + beta*kappa) %>%
+  mutate(mr_gaussian = exp(eta)) %>%
+  mutate(Y_gaussian  = mr_gaussian * E)
 
 underlying.effects.trad <- list(obs = obs.trad, nx = 18, nt = 18,
                                 alpha.true = underlying.effects.lc.poiss$alpha.true,
@@ -93,7 +166,8 @@ underlying.effects.trad <- list(obs = obs.trad, nx = 18, nt = 18,
                                 tau.kappa.true = underlying.effects.lc.poiss$tau.kappa.true,
                                 tau.epsilon.true = underlying.effects.lc.poiss$tau.epsilon.true)
 
-runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc(obs.trad)})
+runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc(obs.trad, max_iter = 100)})
+#runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.unconstrained(obs.trad, max_iter = 100)})
 
 #    ----   plot inlabru results   ----
 ggplot(data = data.frame(res.inlabru.trad$marginals.fixed)) + 
@@ -119,8 +193,9 @@ ggplot(data = data.frame(mean = res.inlabru.trad$summary.fitted.values$mean[1:32
                          X0.025quant = res.inlabru.trad$summary.fitted.values$`0.025quant`[1:324],
                          X0.975quant = res.inlabru.trad$summary.fitted.values$`0.975quant`[1:324]) %>%
          mutate(ID = seq_along(mean))) + 
-  geom_point(data = obs.trad, aes(x = xt + 1, y = eta.no.error, color = "True", fill  ="True")) + 
+  geom_point(data = obs.trad, aes(x = xt + 1, y = eta, color = "True, error", fill  ="True, error"), alpha = 0.5) + 
   geom_point(aes(x = ID, y = mean, color = "Inlabru", fill = "Inlabru")) + 
+  #geom_line(data = obs.trad, aes(x = xt + 1, y = eta.no.error, color = "True", fill  ="True")) + 
   geom_errorbar(aes(x = ID, ymin = X0.025quant, ymax = X0.975quant, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) 
 
 #   ----    run stan analysis   ----
@@ -158,7 +233,9 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 figures.folder = "Scripts/Synthetic data/Output/Figures"
 #storage_path = file.path(figures.folder, "traditional_lc")
-storage_path = file.path(figures.folder, "traditional_lc_log_prec")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_unconstrained")
+storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7")
 
 # only inlabru
 #plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
@@ -170,10 +247,22 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
   
 # when results are produced locally
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_traditional_lc.Rda")
-load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/stan_results/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_results/stan_traditional_lc.Rda")
+
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_traditional_lc_log_prec.Rda")
+load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc/stan_results"
+
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
@@ -215,6 +304,35 @@ plots_compared <- produce.compared.plots(
   plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
+
+#   ----   Compare marginals from stan and inlabru   ----
+
+# inlabru
+
+inlabru.samps.predictor <- generate(
+  res.inlabru.trad,
+  data = data.frame(x = obs.trad$x, t = obs.trad$t, x.c = obs.trad$x.c, xt = obs.trad$xt),
+  formula = ~ Int + alpha + beta*kappa,
+  n.sample = 1000)
+
+inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
+
+# stan
+
+stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 1000, replace = F),]
+#stan.samps <- eta_draws_reduced[sample(nrow(eta_draws_reduced), size = 1000, replace = F),]
+
+stan.predictor.df <- data.frame(stan.samps.predictor)
+
+
+comparison.Y <- inlabru.Y.df %>%
+  left_join(stan.Y.df, by = c("x" = "x", "t" = "t", "xt" = "xt"), suffix = c(".inlabru", ".stan")) %>%
+  mutate(Y.observed = obs.lc$Y)
+
+source("Scripts/Functions/plotters.R")
+
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = storage_path, a45=T)
+
   
   
   

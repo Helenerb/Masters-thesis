@@ -3,8 +3,7 @@
 // The input data is a vector 'y' of length 'N'.
 functions {
   real log_gamma_lpdf(real theta, real a, real b){
-    //return a*log(b) - lgamma(a) + theta*(a - 1) - b*exp(theta);
-    return a*log(b) - lgamma(a) + theta*a - b*exp(theta);
+    return a*log(b) - lgamma(a) + theta*(a - 1) - b*exp(theta);
   }
 }
 
@@ -16,8 +15,7 @@ data {
   int x[X*T];   // age group indices in the data
   int t[X*T];   // period indices in the data
   
-  //real mr[X*T];   // observed mortality rate (force of mortality = D/E) - response variable
-  real exp_mr[X*T];
+  real exp_mortality_rate[X*T];   // observed mortality - response variable
   
   real nx;  //  number of age steps as a float
   real nt;  // number of period steps as a float
@@ -79,28 +77,33 @@ model {
   intercept ~ normal(0, 1/sqrt(0.001));
   
   // prior distributions
+  //target += normal_lpdf(alpha_raw[2:X-1]| alpha_raw[1:X-2], 1/sqrt(tau_alpha));
+  //target += normal_lpdf(beta_raw | 0, 1/sqrt(tau_beta));
+  
   //target += normal_lpdf(alpha_raw[2:X] | alpha_raw[1:X-1], 1/sqrt(tau_alpha));
   
-  alpha_raw[1] ~ normal(0, 100);  // flat prior
+  alpha_raw[1] ~ normal(0, 1/sqrt(tau_alpha));  // flat prior
   alpha_raw[2:X] ~ normal(alpha_raw[1:X-1], 1/sqrt(tau_alpha));
   
   //target += normal_lpdf(beta_raw | 0, 1/sqrt(tau_beta));
   beta_raw ~ normal(0, 1/sqrt(tau_beta));  // Should I explicitly say that this is a vector?
   
   // random walk of order two
-  //kappa_raw[1] ~ normal(0, 1/sqrt(tau_kappa));
-  //kappa_raw[2] ~ normal(kappa_raw[1], 1/sqrt(tau_kappa));
-  //kappa_raw[3:T] ~ normal(2*kappa_raw[2:T-1] - kappa_raw[1:T-2], 1/sqrt(tau_kappa));
+  //target += normal_lpdf(kappa_raw[1] | 0, 1/sqrt(tau_kappa));
+  kappa_raw[1] ~ normal(0, 1/sqrt(tau_kappa));
   
-  // to show: kappa as rw1:
-  kappa_raw[1] ~ normal(0, 100);
-  kappa_raw[2:T] ~ normal(kappa_raw[1:T-1], 1/sqrt(tau_kappa));
+  //target += normal_lpdf(kappa_raw[2] | kappa_raw[1], 1/sqrt(tau_kappa));
+  kappa_raw[2] ~ normal(kappa_raw[1], 1/sqrt(tau_kappa));
+  
+  //target += normal_lpdf(kappa_raw[3:T] | 2*kappa_raw[2:T-1] - kappa_raw[1:T-2], 1/sqrt(tau_kappa));
+  kappa_raw[3:T] ~ normal(2*kappa_raw[2:T-1] - kappa_raw[1:T-2], 1/sqrt(tau_kappa));
   
   //epsilon ~ normal(0, 1/sqrt(tau_epsilon));
+  //target += normal_lpdf(epsilon | 0, 1/sqrt(tau_epsilon));
   
-  // send exp_mr as response in the first place - to get identical model to inlabru
-  
-  exp_mr ~ normal(eta, 1/sqrt(tau_epsilon));
-  //log(mr) ~ normal(eta, 1/sqrt(tau_epsilon));
+  // We might have to explicitly handle the matrix format
+  //Y ~ poisson_log(E .* eta);  // elementwise multiplication
+  //target += normal_lupdf(exp_mortality_rate | eta, rep_vector(1/sqrt(tau_epsilon), X*T);
+  exp_mortality_rate ~ normal(eta, 1/sqrt(tau_epsilon));
 }
 
