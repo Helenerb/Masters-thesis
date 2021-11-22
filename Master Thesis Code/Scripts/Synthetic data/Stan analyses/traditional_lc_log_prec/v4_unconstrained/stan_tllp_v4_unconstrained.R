@@ -41,4 +41,4 @@ run_stan_tllp_v4_unconstrained <- function(stan_program, chains=4, warmup=1000, 
   store_stan_results_traditional(fit=stan_fit, output.path=output.path, config="traditional_lc_log_prec", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_tllp_v4_unconstrained(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_traditional_lc_no_constraints.stan", chains=2, warmup = 20000, iter = 200000, markov=T)
+run_stan_tllp_v4_unconstrained(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_traditional_lc_no_constraints.stan", chains=2, warmup = 20, iter = 100, markov=T)
