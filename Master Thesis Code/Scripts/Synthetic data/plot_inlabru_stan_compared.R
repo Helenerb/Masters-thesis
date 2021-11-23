@@ -40,14 +40,19 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   inlabru.data.fixed = data.frame(res.inlabru$marginals.fixed)
   
   #  ----   intercept   ----
-  p.intercept <- ggplot() + 
-    geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
-    geom_area(data=inlabru.data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
-    geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
-    scale_color_manual(name = " ", values = palette) + 
-    scale_fill_manual(name = " ", values = palette) +
-    theme_classic() + 
-    labs(x = "Value of intercept", y = " ", title = "Intercept")
+  if(length(stan.marginals$intercept_draws) > 0){
+    p.intercept <- ggplot() + 
+      geom_histogram(data = intercept.marginal, aes(x = int, y = after_stat(density), color = "Stan", fill = "Stan"), bins=200, alpha = 0.5) + 
+      geom_area(data=inlabru.data.fixed, aes(x = Int.x, y = Int.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.4, size = 0.5) + 
+      geom_vline(aes(xintercept = underlying.effects$age.intercept.true, color="True", fill="True")) +
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of intercept", y = " ", title = "Intercept")
+  } else {
+    p.intercept <- ggplot(data = data.frame(a = 1, b = 2)) + geom_point(aes(x = a, y = b)) + labs(title = "no intercept data for stan")
+  }
+  
   
   # ---   alpha   ----
   p.alpha <- ggplot() + 
@@ -233,19 +238,27 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   }
   
   # tau epsilon
-  tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws) %>%
-    filter(tau < tau.epsilon.cutoff)
-  tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>%
-    filter(x < tau.epsilon.cutoff)
-  
-  p.tau.epsilon <- ggplot() + 
-    geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-    geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
-    geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
-    scale_color_manual(name = " ", values = palette) + 
-    scale_fill_manual(name = " ", values = palette) +
-    theme_classic() + 
-    labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
+  if(length(stan.marginals$tau_epsilon_draws) > 0){
+    tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws) %>%
+      filter(tau < tau.epsilon.cutoff)
+    tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>%
+      filter(x < tau.epsilon.cutoff)
+    
+    p.tau.epsilon <- ggplot() + 
+      geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+      geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
+      scale_color_manual(name = " ", values = palette) + 
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() + 
+      labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
+  } else {
+    print("No tau epsilon!")
+    dummy.data  <- data.frame(a = c(1.0, 2.0), b = c(1.0, 2.0))
+    print(dummy.data)
+    p.tau.epsilon <- ggplot(data = dummy.data) + geom_point(aes(x = a, y = b)) + labs(title = "No available tau epsilon")
+  }
+
   
   
   plots <- list(p.intercept = p.intercept, 
