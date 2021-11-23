@@ -126,7 +126,7 @@ print(runtime.inlabru)
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_6/stan_results/stan_synthetic_male_lung_6.Rda")
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
-load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_synthetic_male_lung_4.Rda")
+load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/rw1/stan_results/stan_synthetic_male_lung_4.Rda")
 
 
 #   ----   load STAN marginals   ---- 
@@ -138,7 +138,7 @@ load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_synthetic_
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_6/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/rw1/stan_results"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
@@ -240,15 +240,15 @@ save.figure(trace.kappa.9.last, name = "trace_kappa_9_last", path = storage_path
 
 #   ----   Plot stan results   ----
 
-stan.marginals <- list(intercept_draws = intercept_draws,
-                  tau_epsilon_draws = tau_epsilon_draws,
+stan.marginals <- list(#intercept_draws = intercept_draws,
+                  #tau_epsilon_draws = tau_epsilon_draws,
                   tau_alpha_draws = tau_alpha_draws,
                   tau_beta_draws = tau_beta_draws,
-                  tau_kappa_draws = tau_kappa_draws,
-                  alpha_draws = alpha_draws,
-                  beta_draws = beta_draws,
-                  kappa_draws = kappa_draws,
-                  eta_draws = eta_draws_reduced)
+                  tau_kappa_draws = tau_kappa_draws)#,
+                  #alpha_draws = alpha_draws,
+                  #beta_draws = beta_draws,
+                  #kappa_draws = kappa_draws,
+                  #eta_draws = eta_draws_reduced)
 
 # intercept.marginal = data.frame(int = marginals$intercept_draws)
 # library("bayesplot")
@@ -353,13 +353,13 @@ inlabru.samps.predictor <- generate(
   res.inlabru.lc.1,
   data = data.frame(x = obs.lc$x, t = obs.lc$t, x.c = obs.lc$x.c, xt = obs.lc$xt),
   formula = ~ Int + alpha + beta*kappa + epsilon,
-  n.sample = 1000)
+  n.sample = 10000)
 
 inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
 
 # stan
 
-stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 100, replace = F),]
+stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace = F),]
 #stan.samps <- eta_draws_reduced[sample(nrow(eta_draws_reduced), size = 1000, replace = F),]
 
 stan.predictor.df <- data.frame(stan.samps.predictor)

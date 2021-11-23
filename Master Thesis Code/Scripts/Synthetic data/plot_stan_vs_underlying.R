@@ -831,6 +831,73 @@ plot.stan.vs.underlying.synthetic.cancer <- function(stan_df, obs, underlying.ef
   
 }
 
+plot.stan.vs.underlying.synthetic.cancer.no.beta <- function(stan_df, obs, underlying.effects, summaries){
+  
+  plot_intercept <- ggplot(data=stan_lc_df) +
+    geom_vline(aes(xintercept = mean[6], color = "estimated")) + 
+    geom_vline(aes(xintercept = `2.5%`[6], color = "estimated"), alpha = 0.5) +
+    geom_vline(aes(xintercept = `97.5%`[6], color = "estimated"), alpha = 0.5) + 
+    geom_vline(aes(xintercept = underlying.effects$intercept, color = "true")) +
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) + 
+    labs(title="Stan - intercept", x = "Value of intercept", y = " ")
+  
+  summary_alpha <- summaries$summary_alpha
+  
+  plot_alpha <- ggplot(data=summary_alpha) +
+    geom_point(aes(x=index, y=mean, color="estimated")) + 
+    geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+    geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+    geom_point(aes(x=index, y=true_alpha, color="true")) +
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) + 
+    labs(title="Stan - alpha", x = "x", y = " ")
+  
+  # summary_beta <- summaries$summary_beta
+  # 
+  # plot_beta <- ggplot(data=summary_beta) +
+  #   geom_point(aes(x=index, y=mean, color="estimated")) + 
+  #   geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+  #   geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha = 0.5) +
+  #   geom_point(aes(x=index, y=true_beta, color="true")) +
+  #   scale_color_manual(name = " ", values = palette) + 
+  #   scale_fill_manual(name = " ", values = palette) + 
+  #   labs(title="Stan - beta", x = "x", y = " ")
+  
+  plot_beta <- ggplot(data.frame(x = 1, y = 2)) + geom_point(aes(x = x, y = y)) + labs(title = "No beta available")
+  
+  summary_kappa <- summaries$summary_kappa
+  print(summary_kappa)
+  
+  plot_kappa <- ggplot(data=summary_kappa) +
+    geom_point(aes(x=index, y=mean, color="estimated")) + 
+    geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+    geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+    geom_point(aes(x=index, y=true_kappa, color="true")) +
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) + 
+    labs(title="Stan - kappa", x = "t", y = " ")
+  
+  summary_eta <- summaries$summary_eta
+  
+  plot_eta <- ggplot(data=summary_eta) +
+    geom_line(aes(x=index, y=mean, color="estimated")) + 
+    geom_line(aes(x=index, y=`2.5%`, color="estimated"), alpha=0.5) + 
+    geom_line(aes(x=index, y=`97.5%`, color="estimated"), alpha=0.5) +
+    geom_line(aes(x=index, y=true_eta, color="true"), alpha = 0.5) +
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) + 
+    labs(title="Stan - intercept", x = "x,t", y = " ")
+  
+  plots <- list(p.alpha = plot_alpha,
+                p.beta = plot_beta, 
+                p.kappa = plot_kappa,
+                p.intercept = plot_intercept,
+                p.eta = plot_eta)
+  return(plots)
+  
+}
+
 plot.stan.vs.underlying.cohort.rw2 <- function(stan_df, obs, underlying.effects, summaries){
   
   plot_intercept <- ggplot(data=stan_lc_df) +

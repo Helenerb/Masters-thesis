@@ -20,7 +20,6 @@ synthetic.male.lung.v4 <- function(){
   return(list(obs = obs, underlying.effects = underlying.effects))
 }
 
-
 synthetic.male.lung.v7 <- function(){
   obs <- read.csv("Data/synthetic_male_lung_7.csv")
   
@@ -140,8 +139,60 @@ inlabru.traditional.lc.unconstrained <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-#config_data <- synthetic.male.lung.v4()
-config_data <- synthetic.male.lung.v7()
+inlabru.traditional.lc.no.beta <- function(obs, max_iter=30){
+  #' TODO: Implement traditional lee-carter
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  #'@param max_iter (int): maximum number of iterations in inlabru
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  #pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
+  
+  comp = ~ -1 +
+    Int(1, prec.linear = 0.001, mean.linear = 0) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = loggamma.prior, constr = TRUE) +
+    #beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = loggamma.prior) +
+    #kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
+    kappa(t, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
+  
+  #formula = log(mr_gaussian) ~ Int + alpha + beta*kappa 
+  formula = eta ~ Int + alpha + kappa
+  
+  likelihood = like(formula = formula, family = "gaussian", data = obs)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  c.family <- list(hyper = list(
+    theta = list(
+      initial = log(1), fixed = F, prior = "loggamma", param = c(1,0.00005)
+    )
+  ))#,
+  #control.link = list(model = "log"))
+  #c.fixed <- list(mean = list(Int = 0), prec = list(Int = 1))
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=max_iter,
+                                   control.predictor = list(compute = TRUE), # Dont know if this still applies
+                                   control.family  = c.family
+                    ))
+  return(res.inlabru)
+}
+
+config_data <- synthetic.male.lung.v4()
+#config_data <- synthetic.male.lung.v7()
 
 underlying.effects.lc.poiss <- config_data$underlying.effects
 
@@ -168,6 +219,7 @@ underlying.effects.trad <- list(obs = obs.trad, nx = 18, nt = 18,
 
 runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc(obs.trad, max_iter = 100)})
 #runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.unconstrained(obs.trad, max_iter = 100)})
+#runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.no.beta(obs.trad, max_iter = 100)})
 
 #    ----   plot inlabru results   ----
 ggplot(data = data.frame(res.inlabru.trad$marginals.fixed)) + 
@@ -235,15 +287,24 @@ figures.folder = "Scripts/Synthetic data/Output/Figures"
 #storage_path = file.path(figures.folder, "traditional_lc")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_unconstrained")
-storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_no_beta")
+storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_soft_constraints")
 
 # only inlabru
-#plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
+
 plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
   res.inlabru.trad,
   underlying.effects.trad,
   path.to.storage = storage_path,
   save=TRUE, cutoff_alpha = 500)
+
+# no beta version:
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.no.beta(
+#   res.inlabru.trad,
+#   underlying.effects.trad,
+#   path.to.storage = storage_path,
+#   save=TRUE, cutoff_alpha = 500)
   
 # when results are produced locally
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_traditional_lc.Rda")
@@ -251,18 +312,24 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/stan_results/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_results/stan_traditional_lc.Rda")
 
-#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
+load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_traditional_lc_log_prec.Rda")
-load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_results/stan_traditional_lc_log_prec.Rda")
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc/stan_results"
 
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7/stan_results"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
@@ -290,6 +357,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects.trad,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
+                               #plot.func=plot.stan.vs.underlying.synthetic.cancer.no.beta,
                                save.func=save.stan.plots.lc.rw2,
                                path.to.storage=storage_path,
                                summaries.func=produce.summaries.stan.lc.rw2)
@@ -301,7 +369,8 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.trad,
   underlying.effects = underlying.effects.trad,
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 
@@ -313,7 +382,13 @@ inlabru.samps.predictor <- generate(
   res.inlabru.trad,
   data = data.frame(x = obs.trad$x, t = obs.trad$t, x.c = obs.trad$x.c, xt = obs.trad$xt),
   formula = ~ Int + alpha + beta*kappa,
-  n.sample = 1000)
+  n.sample = 10000)
+
+# inlabru.samps.predictor <- generate(
+#   res.inlabru.trad,
+#   data = data.frame(x = obs.trad$x, t = obs.trad$t, x.c = obs.trad$x.c, xt = obs.trad$xt),
+#   formula = ~ Int + alpha + kappa,
+#   n.sample = 10000)
 
 inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
 
@@ -322,12 +397,8 @@ inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
 stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 1000, replace = F),]
 #stan.samps <- eta_draws_reduced[sample(nrow(eta_draws_reduced), size = 1000, replace = F),]
 
-stan.predictor.df <- data.frame(stan.samps.predictor)
-
-
-comparison.Y <- inlabru.Y.df %>%
-  left_join(stan.Y.df, by = c("x" = "x", "t" = "t", "xt" = "xt"), suffix = c(".inlabru", ".stan")) %>%
-  mutate(Y.observed = obs.lc$Y)
+#stan.predictor.df <- data.frame(stan.samps.predictor)
+stan.predictor.df <- data.frame(eta_draws)
 
 source("Scripts/Functions/plotters.R")
 
