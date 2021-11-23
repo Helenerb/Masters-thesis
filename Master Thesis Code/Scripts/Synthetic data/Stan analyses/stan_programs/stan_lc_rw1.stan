@@ -37,9 +37,10 @@ parameters {
   
   real intercept;  // included intercept
   
-  vector[X] alpha_raw;  //  before sum-to-zero is implemented
-  vector[X] beta_raw;  //  before sum-to-unit is implemented
-  vector[T] kappa_raw;  //  before sum-to-zero is implemented
+  // soft sum-to-zero
+  vector[X] alpha;  //  before sum-to-zero is implemented
+  vector[X] beta;  //  before sum-to-unit is implemented
+  vector[T] kappa;  //  before sum-to-zero is implemented
   
   vector[X*T] epsilon;  // unconstrained
 }
@@ -53,9 +54,9 @@ transformed parameters {
   real tau_epsilon = exp(theta_epsilon);
   
   // impose constraints
-  vector[X] alpha = alpha_raw - mean(alpha_raw);
-  vector[X] beta = beta_raw - mean(beta_raw) + 1/nx;
-  vector[T] kappa = kappa_raw - mean(kappa_raw);
+  //vector[X] alpha = alpha_raw - mean(alpha_raw);
+  //vector[X] beta = beta_raw - mean(beta_raw) + 1/nx;
+  //vector[T] kappa = kappa_raw - mean(kappa_raw);
   
   // construct linear predictor
   vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
@@ -71,14 +72,19 @@ model {
   intercept ~ normal(0, 1/sqrt(0.001));
   
   // TODO: add prior on first element of random walk
-  alpha_raw[1] ~ normal(0, 100);
-  alpha_raw[2:X] ~ normal(alpha_raw[1:X-1], 1/sqrt(tau_alpha));
+  alpha[1] ~ normal(0, 100);
+  alpha[2:X] ~ normal(alpha[1:X-1], 1/sqrt(tau_alpha));
   
-  beta_raw ~ normal(0, 1/sqrt(tau_beta));
+  sum(alpha) ~ normal(0, 0.001*nx);
+  
+  beta ~ normal(0, 1/sqrt(tau_beta));
+  sum(beta) ~ normal(1, 0.001*nx);
   
   // random walk of order two
-  kappa_raw[1] ~ normal(0, 100);
-  kappa_raw[2:T] ~ normal(kappa_raw[1:T-1], 1/sqrt(tau_kappa));
+  kappa[1] ~ normal(0, 100);
+  kappa[2:T] ~ normal(kappa[1:T-1], 1/sqrt(tau_kappa));
+  
+  sum(kappa) ~ normal(0, 0.001*nt);
   
   epsilon ~ normal(0, 1/sqrt(tau_epsilon));
   
