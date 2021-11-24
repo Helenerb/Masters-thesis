@@ -2,6 +2,10 @@
 # synthetic male lung configuration, v4
 
 library("tidyverse")
+library("inlabru")
+library("ggplot2")
+library("INLA")
+library("patchwork")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
@@ -312,8 +316,8 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/stan_results/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_results/stan_traditional_lc.Rda")
 
-load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
-#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
+load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
@@ -324,8 +328,8 @@ load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_tradi
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc/stan_results"
 
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
@@ -402,7 +406,7 @@ stan.predictor.df <- data.frame(eta_draws)
 
 source("Scripts/Functions/plotters.R")
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = storage_path, a45=T)
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = storage_path, a45=F)
 
   
   
