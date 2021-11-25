@@ -195,8 +195,61 @@ inlabru.traditional.lc.no.beta <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-config_data <- synthetic.male.lung.v4()
-#config_data <- synthetic.male.lung.v7()
+inlabru.traditional.lc.fixed.hypers <- function(obs, max_iter=30){
+  #' TODO: Implement traditional lee-carter
+  #'Implements inlabru analysis for lc model using an ar1c to model the period effect
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  #'@param max_iter (int): maximum number of iterations in inlabru
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  #pc.prior <- list(prec = list(prior = "pc.prec", param = c(1,0.05)))
+  #loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  #loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
+  
+  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
+  fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
+  fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  
+  comp = ~ -1 +
+    Int(1, prec.linear = 0.001, mean.linear = 0) +
+    alpha(x, model = "rw1", values=unique(obs$x), hyper = fixed.theta.alpha, constr = TRUE) +
+    beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = fixed.theta.beta) +
+    #kappa(t, model = "rw2", values = unique(obs$t), constr = TRUE, hyper = loggamma.prior.high.variance)
+    kappa(t, model = "rw1", values = unique(obs$t), constr = TRUE, hyper = fixed.theta.kappa)
+  
+  #formula = log(mr_gaussian) ~ Int + alpha + beta*kappa 
+  formula = eta ~ Int + alpha + beta*kappa
+  
+  likelihood = like(formula = formula, family = "gaussian", data = obs)
+  
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  c.family <- list(hyper = fixed.theta.epsilon)#,
+  #control.link = list(model = "log"))
+  #c.fixed <- list(mean = list(Int = 0), prec = list(Int = 1))
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.c,
+                                   bru_max_iter=max_iter,
+                                   control.predictor = list(compute = TRUE), # Dont know if this still applies
+                                   control.family  = c.family
+                    ))
+  return(res.inlabru)
+}
+
+#config_data <- synthetic.male.lung.v4()
+config_data <- synthetic.male.lung.v7()
 
 underlying.effects.lc.poiss <- config_data$underlying.effects
 
@@ -224,6 +277,7 @@ underlying.effects.trad <- list(obs = obs.trad, nx = 18, nt = 18,
 runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc(obs.trad, max_iter = 100)})
 #runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.unconstrained(obs.trad, max_iter = 100)})
 #runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.no.beta(obs.trad, max_iter = 100)})
+#runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.fixed.hypers(obs.trad, max_iter = 100)})
 
 #    ----   plot inlabru results   ----
 ggplot(data = data.frame(res.inlabru.trad$marginals.fixed)) + 
@@ -293,8 +347,10 @@ figures.folder = "Scripts/Synthetic data/Output/Figures"
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_unconstrained")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_no_beta")
-storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_soft_constraints")
-
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_soft_constraints")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_fixed_hypers")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_testing")
+storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7_testing")
 # only inlabru
 
 plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
@@ -302,6 +358,12 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
   underlying.effects.trad,
   path.to.storage = storage_path,
   save=TRUE, cutoff_alpha = 500)
+
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+#   res.inlabru.trad,
+#   underlying.effects.trad,
+#   path.to.storage = storage_path,
+#   save=F, cutoff_alpha = 500)
 
 # no beta version:
 # plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.no.beta(
@@ -317,10 +379,12 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc/stan_results/stan_traditional_lc.Rda")
 
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
-load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_fixed_hypers/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_div_tests/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results/stan_traditional_lc_log_prec.Rda")
-#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
+load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_results/stan_traditional_lc_log_prec.Rda")
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc"
@@ -329,10 +393,11 @@ load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_resul
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc/stan_results"
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_fixed_hypers"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_div_tests"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results"
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7/stan_results"
 
 
@@ -373,12 +438,15 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.trad,
   underlying.effects = underlying.effects.trad,
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=T)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=T)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 
-#   ----   Compare marginals from stan and inlabru   ----
+
+
+#   ----   Comparexmarginals from stan and inlabru   ----
 
 # inlabru
 
@@ -406,7 +474,7 @@ stan.predictor.df <- data.frame(eta_draws)
 
 source("Scripts/Functions/plotters.R")
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = storage_path, a45=F)
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = storage_path, a45=T)
 
   
   

@@ -13,8 +13,8 @@ set_workspace <- function(config, markov=TRUE){
   return(output.path)
 }
 
-run_stan_tllp_v4 <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
-  output.path <- set_workspace(config="traditional_lc_log_prec/v4", markov)
+run_stan_tllp_testing_v4 <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
+  output.path <- set_workspace(config="traditional_lc_log_prec/v4_div_tests", markov)
   library("tidyverse")
   source("Scripts/Synthetic\ data/run_stan_functions.R")
   
@@ -38,4 +38,4 @@ run_stan_tllp_v4 <- function(stan_program, chains=4, warmup=1000, iter=10000, ma
 }
 
 #run_stan_tllp_v4(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_traditional_lc_log_prec.stan", chains=2, warmup = 20000, iter = 200000, markov=T)
-run_stan_tllp_v4(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_soft_constraints.stan", chains=4, warmup = 20000, iter = 200000, markov=T)
+run_stan_tllp_testing_v4(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan", chains=6, warmup = 7500, iter = 12000, markov=F)

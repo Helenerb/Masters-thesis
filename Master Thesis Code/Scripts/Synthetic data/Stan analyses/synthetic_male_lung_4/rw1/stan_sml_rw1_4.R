@@ -26,4 +26,4 @@ run_stan_sml_rw1_4 <- function(stan_program, chains=4, warmup=1000, iter=10000, 
   store_stan_results(fit=stan_fit, output.path=output.path, config="synthetic_male_lung_4", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_sml_rw1_4(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_rw1.stan", chains=1, warmup = 40000, iter = 400000, markov=T)
+run_stan_sml_rw1_4(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_rw1.stan", chains=4, warmup = 400, iter = 4000, markov=F)

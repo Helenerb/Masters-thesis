@@ -53,7 +53,8 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v6")
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
-storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4/rw1")
+#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4/rw1")
+storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4/rw1/soft_constraints_local")
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
 
 obs.lc <- underlying.effects.lc$obs
@@ -68,7 +69,6 @@ source("Scripts/Functions/inlabru_analyses.R")
 
 #runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.2(obs.lc)})
 runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw1.lc(obs.lc)})
-#runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw2.lc.other.priors(obs.lc)})
 
 #res.inlabru.no.int <- inlabru.rw2.lc.no.intercept(obs.lc, max_iter = 100)
 
@@ -240,15 +240,15 @@ save.figure(trace.kappa.9.last, name = "trace_kappa_9_last", path = storage_path
 
 #   ----   Plot stan results   ----
 
-stan.marginals <- list(#intercept_draws = intercept_draws,
-                  #tau_epsilon_draws = tau_epsilon_draws,
+stan.marginals <- list(intercept_draws = intercept_draws,
+                  tau_epsilon_draws = tau_epsilon_draws,
                   tau_alpha_draws = tau_alpha_draws,
                   tau_beta_draws = tau_beta_draws,
-                  tau_kappa_draws = tau_kappa_draws)#,
-                  #alpha_draws = alpha_draws,
-                  #beta_draws = beta_draws,
-                  #kappa_draws = kappa_draws,
-                  #eta_draws = eta_draws_reduced)
+                  tau_kappa_draws = tau_kappa_draws,
+                  alpha_draws = alpha_draws,
+                  beta_draws = beta_draws,
+                  kappa_draws = kappa_draws,
+                  eta_draws = eta_draws_reduced)
 
 # intercept.marginal = data.frame(int = marginals$intercept_draws)
 # library("bayesplot")

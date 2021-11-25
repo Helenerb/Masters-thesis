@@ -1,0 +1,40 @@
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+4
+400
+4000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+4
+400
+4000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+4
+3000
+6000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+4
+2000
+6000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+4
+600
+6000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+6
+600
+12000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+6
+600
+12000
+traditional_lc_log_prec
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fixed_hypers_testing.stan
+6
+7500
+12000
+traditional_lc_log_prec
