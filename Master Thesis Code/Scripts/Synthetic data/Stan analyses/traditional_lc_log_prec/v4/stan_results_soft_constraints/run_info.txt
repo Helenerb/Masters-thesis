@@ -1,0 +1,5 @@
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_soft_constraints.stan
+4
+20000
+2e+05
+traditional_lc_log_prec

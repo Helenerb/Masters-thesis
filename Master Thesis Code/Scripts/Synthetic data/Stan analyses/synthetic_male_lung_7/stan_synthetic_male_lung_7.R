@@ -12,7 +12,7 @@ set_workspace <- function(config, markov=TRUE){
   return(output.path)
 }
 
-run_stan_male_stomach_lc <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
+run_stan_male_lung_lc <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
   output.path <- set_workspace(config="synthetic_male_lung_7", markov)
   library("tidyverse")
   source("Scripts/Synthetic\ data/run_stan_functions.R")
@@ -26,4 +26,5 @@ run_stan_male_stomach_lc <- function(stan_program, chains=4, warmup=1000, iter=1
   store_stan_results(fit=stan_fit, output.path=output.path, config="synthetic_male_lung_7", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
 }
 
-run_stan_male_stomach_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 15000, iter = 150000, markov=TRUE)
+#run_stan_male_lung_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 15000, iter = 150000, markov=TRUE)
+run_stan_male_lung_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_rw1.stan", chains=4, warmup = 1000, iter = 10000, markov=F)

@@ -22,7 +22,8 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
                                            tau.alpha.cutoff = 20,
                                            tau.beta.cutoff = 50000,
                                            tau.kappa.cutoff = 50000,
-                                           tau.epsilon.cutoff = 1500
+                                           tau.epsilon.cutoff = 1500,
+                                           a45=F
                                            ){
   #' Produces plots with comparison of estimation results from inlabru and STAN
   #' 
@@ -125,18 +126,25 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   }
   
   #   ----   eta   ----
+  eta.stan.inlabru<- inlabru.summaries$data.eta %>% left_join(stan.summaries$summary_eta, by = c("xt" = "xt")) %>%
+    mutate(diff.eta = eta.sim - mean)
+  
+  p.eta.stan.inlabru <- ggplot(data = eta.stan.inlabru) + 
+    geom_point(aes(x = xt, y = diff.eta)) + 
+    labs(title = "Difference between Inlabru and Stan estimation of eta", x = "xt", y = "Difference")
+  
   p.eta <- ggplot() +
-    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru")) + 
-    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan")) + 
+    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru"), alpha = 0.5) + 
+    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan"), alpha = 0.5) + 
     scale_color_manual(name = " ", values = palette) + 
     theme_classic() + 
     labs(x="Estimated eta", y="True value for eta", title = "Eta")
   
   p.eta.2 <- ggplot() +
-    geom_point(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru", fill="Inlabru"), size=0.5) +
+    geom_point(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru", fill="Inlabru"), size=0.5, alpha = 0.5) +
     #geom_ribbon(data = inlabru.summaries$data.eta, aes(x = xt, ymin = `0.025quant`, ymax=`0.975quant`, fill = "Inlabru"), alpha = 0.5)  +
     geom_ribbon(data = inlabru.summaries$data.eta, aes(x = xt, ymin = X0.025quant, ymax=X0.975quant, fill = "Inlabru"), alpha = 0.5)  +
-    geom_point(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="Stan", fill="Stan"), size=0.5) +
+    geom_point(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="Stan", fill="Stan"), size=0.5, alpha = 0.5) +
     geom_ribbon(data = stan.summaries$summary_eta, aes(x = xt, ymin = `2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5)  +
     geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True", fill="True")) +
     scale_color_manual(name = "", values = palette ) +
@@ -175,91 +183,97 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   
   #  tau alpha 
   
-  tau.alpha.stan <- data.frame(tau = stan.marginals$tau_alpha_draws) %>%
-    filter(tau < tau.alpha.cutoff)
-  tau.alpha.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% 
-    filter(x < tau.alpha.cutoff)
-  
-  p.tau.alpha <- ggplot() + 
-    geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-    geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
-    geom_vline(data = tau.alpha.inlabru, aes(xintercept = underlying.effects$tau.alpha.true, color = "Observed", fill  = "Observed")) + 
-    scale_color_manual(name = " ", values = palette) + 
-    scale_fill_manual(name = " ", values = palette) +
-    theme_classic() + 
-    labs(x = "Value of precision of alpha", y = " ", title = "Precision of Alpha")
+  # tau.alpha.stan <- data.frame(tau = stan.marginals$tau_alpha_draws) %>%
+  #   filter(tau < tau.alpha.cutoff)
+  # tau.alpha.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% 
+  #   filter(x < tau.alpha.cutoff)
+  # 
+  # p.tau.alpha <- ggplot() + 
+  #   geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  #   geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+  #   geom_vline(data = tau.alpha.inlabru, aes(xintercept = underlying.effects$tau.alpha.true, color = "Observed", fill  = "Observed")) + 
+  #   scale_color_manual(name = " ", values = palette) + 
+  #   scale_fill_manual(name = " ", values = palette) +
+  #   theme_classic() + 
+  #   labs(x = "Value of precision of alpha", y = " ", title = "Precision of Alpha")
   
   #  tau beta
   
-  tau.beta.stan <- data.frame(tau = stan.marginals$tau_beta_draws) %>%
-    filter(tau < tau.beta.cutoff)
-  tau.beta.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>%
-    filter(x < tau.beta.cutoff)
-  
-  p.tau.beta <- ggplot() + 
-    geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-    geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
-    geom_vline(data = tau.beta.inlabru, aes(xintercept = underlying.effects$tau.beta.true, color = "Observed", fill = "Observed")) + 
-    scale_color_manual(name = " ", values = palette) + 
-    scale_fill_manual(name = " ", values = palette) +
-    theme_classic() + 
-    labs(x = "Value of precision of beta", y = " ", title = "Precision of Beta")
+  # tau.beta.stan <- data.frame(tau = stan.marginals$tau_beta_draws) %>%
+  #   filter(tau < tau.beta.cutoff)
+  # tau.beta.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>%
+  #   filter(x < tau.beta.cutoff)
+  # 
+  # p.tau.beta <- ggplot() + 
+  #   geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  #   geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+  #   geom_vline(data = tau.beta.inlabru, aes(xintercept = underlying.effects$tau.beta.true, color = "Observed", fill = "Observed")) + 
+  #   scale_color_manual(name = " ", values = palette) + 
+  #   scale_fill_manual(name = " ", values = palette) +
+  #   theme_classic() + 
+  #   labs(x = "Value of precision of beta", y = " ", title = "Precision of Beta")
   
   # tau kappa
-  tau.kappa.stan <- data.frame(tau = stan.marginals$tau_kappa_draws) %>%
-    filter(tau < tau.kappa.cutoff)
-  tau.kappa.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>%
-    filter(x < tau.kappa.cutoff)
+  # tau.kappa.stan <- data.frame(tau = stan.marginals$tau_kappa_draws) %>%
+  #   filter(tau < tau.kappa.cutoff)
+  # tau.kappa.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>%
+  #   filter(x < tau.kappa.cutoff)
+  # 
+  # p.tau.kappa <- ggplot() + 
+  #   geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  #   geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+  #   geom_vline(data = tau.kappa.inlabru, aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) + 
+  #   scale_color_manual(name = " ", values = palette) + 
+  #   scale_fill_manual(name = " ", values = palette) +
+  #   theme_classic() + 
+  #   labs(x = "Value of precision of kappa", y = " ", title = "Precision of Kappa")
   
-  p.tau.kappa <- ggplot() + 
-    geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-    geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
-    geom_vline(data = tau.kappa.inlabru, aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) + 
-    scale_color_manual(name = " ", values = palette) + 
-    scale_fill_manual(name = " ", values = palette) +
-    theme_classic() + 
-    labs(x = "Value of precision of kappa", y = " ", title = "Precision of Kappa")
+  # if (cohort){
+  #   # tau gamma
+  #   tau.gamma.stan <- data.frame(tau = stan.marginals$tau_gamma_draws) %>%
+  #     filter(tau < tau.gamma.cutoff)
+  #   tau.gamma.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for gamma`) %>%
+  #     filter(x < tau.gamma.cutoff)
+  #   
+  #   p.tau.gamma <- ggplot() + 
+  #     geom_area(data = tau.gamma.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  #     geom_histogram(data = tau.gamma.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+  #     geom_vline(data = tau.gamma.inlabru, aes(xintercept = underlying.effects$tau.gamma.true, color = "Observed", fill = "Observed")) + 
+  #     scale_color_manual(name = " ", values = palette) + 
+  #     scale_fill_manual(name = " ", values = palette) +
+  #     theme_classic() + 
+  #     labs(x = "Value of precision of gamma", y = " ", title = "Precision of Gamma")
+  # }
+  # 
+  # # tau epsilon
+  # if(length(stan.marginals$tau_epsilon_draws) > 0){
+  #   tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws) %>%
+  #     filter(tau < tau.epsilon.cutoff)
+  #   tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>%
+  #     filter(x < tau.epsilon.cutoff)
+  #   
+  #   p.tau.epsilon <- ggplot() + 
+  #     geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  #     geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+  #     geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
+  #     scale_color_manual(name = " ", values = palette) + 
+  #     scale_fill_manual(name = " ", values = palette) +
+  #     theme_classic() + 
+  #     labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
+  # } else {
+  #   print("No tau epsilon!")
+  #   dummy.data  <- data.frame(a = c(1.0, 2.0), b = c(1.0, 2.0))
+  #   print(dummy.data)
+  #   p.tau.epsilon <- ggplot(data = dummy.data) + geom_point(aes(x = a, y = b)) + labs(title = "No available tau epsilon")
+  # }
   
-  if (cohort){
-    # tau gamma
-    tau.gamma.stan <- data.frame(tau = stan.marginals$tau_gamma_draws) %>%
-      filter(tau < tau.gamma.cutoff)
-    tau.gamma.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for gamma`) %>%
-      filter(x < tau.gamma.cutoff)
-    
-    p.tau.gamma <- ggplot() + 
-      geom_area(data = tau.gamma.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-      geom_histogram(data = tau.gamma.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
-      geom_vline(data = tau.gamma.inlabru, aes(xintercept = underlying.effects$tau.gamma.true, color = "Observed", fill = "Observed")) + 
-      scale_color_manual(name = " ", values = palette) + 
-      scale_fill_manual(name = " ", values = palette) +
-      theme_classic() + 
-      labs(x = "Value of precision of gamma", y = " ", title = "Precision of Gamma")
-  }
+  p.tau.alpha <- ggplot() + labs(title="Fixed hypers")
+  p.tau.beta <- ggplot() + labs(title="Fixed hypers")
+  p.tau.kappa <- ggplot() + labs(title="Fixed hypers")
+  p.tau.epsilon <- ggplot() + labs(title="Fixed hypers")
+  p.tau.gamma <- ggplot() + labs(title="Fixed hypers")
   
-  # tau epsilon
-  if(length(stan.marginals$tau_epsilon_draws) > 0){
-    tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws) %>%
-      filter(tau < tau.epsilon.cutoff)
-    tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>%
-      filter(x < tau.epsilon.cutoff)
-    
-    p.tau.epsilon <- ggplot() + 
-      geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-      geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
-      geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
-      scale_color_manual(name = " ", values = palette) + 
-      scale_fill_manual(name = " ", values = palette) +
-      theme_classic() + 
-      labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
-  } else {
-    print("No tau epsilon!")
-    dummy.data  <- data.frame(a = c(1.0, 2.0), b = c(1.0, 2.0))
-    print(dummy.data)
-    p.tau.epsilon <- ggplot(data = dummy.data) + geom_point(aes(x = a, y = b)) + labs(title = "No available tau epsilon")
-  }
-
-  
+  #   ----   Returns   ----
   
   plots <- list(p.intercept = p.intercept, 
                 p.alpha = p.alpha, 
@@ -272,7 +286,8 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
                 p.tau.alpha = p.tau.alpha,
                 p.tau.beta = p.tau.beta,
                 p.tau.kappa = p.tau.kappa,
-                p.tau.epsilon = p.tau.epsilon)
+                p.tau.epsilon = p.tau.epsilon,
+                p.eta.stan.inlabru = p.eta.stan.inlabru)
   if(cohort){
     plots <- c(plots, p.gamma=p.gamma)
     plots <- c(plots, p.tau.gamma=p.tau.gamma)
@@ -706,17 +721,31 @@ plot.inlabru.stan.traditional.lc.fixed.hypers <- function(stan.summaries,
   
   #   ----   eta   ----
   p.eta <- ggplot() +
-    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru")) + 
-    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan")) + 
+    geom_point(data=inlabru.summaries$data.eta, aes(x = eta.sim, y = true.eta, color = "Inlabru"), alpha = 0.5) + 
+    geom_point(data=stan.summaries$summary_eta, aes(x = mean, y = true_eta, color = "Stan"), alpha = 0.5) + 
     scale_color_manual(name = " ", values = palette) + 
     theme_classic() + 
     labs(x="Estimated eta", y="True value for eta", title = "Eta")
   
+  print("printing the true etas for both, to be sure they are the same")
+  print("Inlabru: ")
+  print(inlabru.summaries$data.eta$true.eta)
+  print("Stan: ")
+  print(stan.summaries$summary_eta)
+  print("Finish printing etas")
+  
+  eta.stan.inlabru<- inlabru.summaries$data.eta %>% left_join(stan.summaries$summary_eta, by = c("xt" = "xt")) %>%
+    mutate(diff.eta = eta.sim - mean)
+  
+  p.eta.stan.inlabru <- ggplot(data = eta.stan.inlabru) + 
+    geom_point(aes(x = xt, y = diff.eta)) + 
+    labs(title = "Difference between Inlabru and Stan estimation of eta", x = "xt", y = "Difference")
+  
   p.eta.2 <- ggplot() +
-    geom_point(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru", fill="Inlabru"), size=0.5) +
+    geom_point(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru", fill="Inlabru"), size=0.5, alpha = 0.5) +
     #geom_ribbon(data = inlabru.summaries$data.eta, aes(x = xt, ymin = `0.025quant`, ymax=`0.975quant`, fill = "Inlabru"), alpha = 0.5)  +
     geom_ribbon(data = inlabru.summaries$data.eta, aes(x = xt, ymin = X0.025quant, ymax=X0.975quant, fill = "Inlabru"), alpha = 0.5)  +
-    geom_point(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="Stan", fill="Stan"), size=0.5) +
+    geom_point(data = stan.summaries$summary_eta, aes(x=xt, y = mean, color="Stan", fill="Stan"), size=0.5, alpha = 0.5) +
     geom_ribbon(data = stan.summaries$summary_eta, aes(x = xt, ymin = `2.5%`, ymax=`97.5%`, fill="Stan"), alpha=0.5)  +
     geom_line(data = inlabru.summaries$data.eta, aes(x=xt, y = true.eta, color="True", fill="True")) +
     scale_color_manual(name = "", values = palette ) +
@@ -840,6 +869,7 @@ plot.inlabru.stan.traditional.lc.fixed.hypers <- function(stan.summaries,
   
   p.tau.epsilon <- ggplot() + labs(title = "Fixed hypers")
   
+  #   ----   Return values   ----
   
   plots <- list(p.intercept = p.intercept, 
                 p.alpha = p.alpha, 
@@ -852,7 +882,8 @@ plot.inlabru.stan.traditional.lc.fixed.hypers <- function(stan.summaries,
                 p.tau.alpha = p.tau.alpha,
                 p.tau.beta = p.tau.beta,
                 p.tau.kappa = p.tau.kappa,
-                p.tau.epsilon = p.tau.epsilon)
+                p.tau.epsilon = p.tau.epsilon,
+                p.eta.stan.inlabru = p.eta.stan.inlabru)
   if(cohort){
     plots <- c(plots, p.gamma=p.gamma)
     plots <- c(plots, p.tau.gamma=p.tau.gamma)
@@ -1207,6 +1238,10 @@ save.compared.rw2 <- function(plots, path.to.storage, cohort=TRUE){
   
   save.figure(plots$p.eta.x, "eta_x_comparison", path = path.to.storage)
   save.figure(plots$p.eta.t, "eta_t_comparison", path = path.to.storage)
+  
+  if("p.eta.stan.inlabru" %in% names(plots)){
+    save.figure(plots$p.eta.stan.inlabru, "eta_difference", path = path.to.storage)
+  }
 }
 
 produce.compared.plots <- function(

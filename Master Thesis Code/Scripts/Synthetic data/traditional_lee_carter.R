@@ -248,8 +248,8 @@ inlabru.traditional.lc.fixed.hypers <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-#config_data <- synthetic.male.lung.v4()
-config_data <- synthetic.male.lung.v7()
+config_data <- synthetic.male.lung.v4()
+#config_data <- synthetic.male.lung.v7()
 
 underlying.effects.lc.poiss <- config_data$underlying.effects
 
@@ -274,10 +274,10 @@ underlying.effects.trad <- list(obs = obs.trad, nx = 18, nt = 18,
                                 tau.kappa.true = underlying.effects.lc.poiss$tau.kappa.true,
                                 tau.epsilon.true = underlying.effects.lc.poiss$tau.epsilon.true)
 
-runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc(obs.trad, max_iter = 100)})
+#runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc(obs.trad, max_iter = 100)})
 #runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.unconstrained(obs.trad, max_iter = 100)})
 #runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.no.beta(obs.trad, max_iter = 100)})
-#runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.fixed.hypers(obs.trad, max_iter = 100)})
+runtime.inlabru <- system.time({res.inlabru.trad <- inlabru.traditional.lc.fixed.hypers(obs.trad, max_iter = 100)})
 
 #    ----   plot inlabru results   ----
 ggplot(data = data.frame(res.inlabru.trad$marginals.fixed)) + 
@@ -348,22 +348,22 @@ figures.folder = "Scripts/Synthetic data/Output/Figures"
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_no_beta")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_soft_constraints")
-#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_fixed_hypers")
+storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_fixed_hypers")
 #storage_path = file.path(figures.folder, "traditional_lc_log_prec/v4_testing")
-storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7_testing")
+#storage_path = file.path(figures.folder, "traditional_lc_log_prec/v7_testing")
 # only inlabru
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
-  res.inlabru.trad,
-  underlying.effects.trad,
-  path.to.storage = storage_path,
-  save=TRUE, cutoff_alpha = 500)
-
-# plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
 #   res.inlabru.trad,
 #   underlying.effects.trad,
 #   path.to.storage = storage_path,
-#   save=F, cutoff_alpha = 500)
+#   save=TRUE, cutoff_alpha = 500)
+
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+  res.inlabru.trad,
+  underlying.effects.trad,
+  path.to.storage = storage_path,
+  save=F, cutoff_alpha = 500)
 
 # no beta version:
 # plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.no.beta(
@@ -380,11 +380,12 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
 
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results/stan_traditional_lc_log_prec.Rda")
-#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_fixed_hypers/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4/stan_results_soft_constraints/stan_traditional_lc_log_prec.Rda")
+load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_fixed_hypers/stan_results/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_div_tests/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results/stan_traditional_lc_log_prec.Rda")
-load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
+#load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_traditional_lc_log_prec.Rda")
 #load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_results/stan_traditional_lc_log_prec.Rda")
 
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc"
@@ -392,12 +393,12 @@ load("Scripts/Synthetic data/Stan analyses/traditional_lc_log_prec/v7/stan_tradi
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc/stan_results"
 
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4"
-#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_fixed_hypers"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4/stan_results_soft_constraints"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_fixed_hypers/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_div_tests"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v4_unconstrained/stan_results"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/traditional_lc_log_prec/v7/stan_results"
 
 
@@ -421,7 +422,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
                        alpha_draws = alpha_draws,
                        beta_draws = beta_draws,
                        kappa_draws = kappa_draws,
-                       eta_draws = eta_draws_reduced)
+                       eta_draws = eta_draws_100)
 
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects.trad,
@@ -438,9 +439,9 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.trad,
   underlying.effects = underlying.effects.trad,
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=T)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=T)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 
@@ -470,7 +471,7 @@ stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 1000, replace =
 #stan.samps <- eta_draws_reduced[sample(nrow(eta_draws_reduced), size = 1000, replace = F),]
 
 #stan.predictor.df <- data.frame(stan.samps.predictor)
-stan.predictor.df <- data.frame(eta_draws)
+stan.predictor.df <- data.frame(eta_draws_100)
 
 source("Scripts/Functions/plotters.R")
 

@@ -19,7 +19,7 @@ source("Scripts/Synthetic data/configurations_synthetic_data.R")
 #underlying.effects.lc <- configuration.v14()
 #underlying.effects.lc <- configuration.v15()  # half the grid of the original v5
 
-source("Scripts/Real\ data/synthetic_male_stomach_lc.R")
+#source("Scripts/Real\ data/synthetic_male_stomach_lc.R")
 #underlying.effects.lc <- synthetic.male.stomach.lc()
 
 # source("Scripts/Synthetic\ data/config_synthetic_male_lung_v6.R")
@@ -55,7 +55,7 @@ figures.folder = "/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master Thesi
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4")
 #storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4/rw1")
 storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v4/rw1/soft_constraints_local")
-#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7")
+#storage_path = file.path(figures.folder, "synthetic_male_lung_lc/v7/rw1")
 
 obs.lc <- underlying.effects.lc$obs
 
@@ -73,20 +73,6 @@ runtime.inlabru <- system.time({res.inlabru.lc.1 <- inlabru.rw1.lc(obs.lc)})
 #res.inlabru.no.int <- inlabru.rw2.lc.no.intercept(obs.lc, max_iter = 100)
 
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
-
-# plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.ar1c.2(
-#   res.inlabru.lc.1,
-#   underlying.effects.lc,
-#   path.to.storage = storage_path,
-#   save=TRUE,
-#   phi.plus.kappa.func = phi.plus.kappa.v17)
-
-# plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.ar1c(
-#   res.inlabru.lc.1, 
-#   underlying.effects.lc,
-#   path.to.storage = storage_path,
-#   save=TRUE,
-#   phi.plus.kappa.func = phi.plus.kappa.v17)
 
 
 # plots.summaries.inlabru <- plot.inlabru.vs.underlying.lc.only.kappa.2(
@@ -126,7 +112,8 @@ print(runtime.inlabru)
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_6/stan_results/stan_synthetic_male_lung_6.Rda")
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/stan_results/stan_synthetic_male_lung_4.Rda")
 #load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_results/stan_synthetic_male_lung_7.Rda")
-load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/rw1/stan_results/stan_synthetic_male_lung_4.Rda")
+#load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_7/stan_synthetic_male_lung_7.Rda")
+load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/rw1/stan_synthetic_male_lung_4.Rda")
 
 
 #   ----   load STAN marginals   ---- 
@@ -138,7 +125,8 @@ load("Scripts/Synthetic data/Stan analyses/synthetic_male_lung_4/rw1/stan_result
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_6/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/stan_results"
 #path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7/stan_results"
-path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/rw1/stan_results"
+#path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_7"
+path.to.stan.results = "Scripts/Synthetic\ data/Stan analyses/synthetic_male_lung_4/rw1"
 
 
 load(file=file.path(path.to.stan.results, "draws_intercept.RData"))
@@ -300,7 +288,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru.lc.1,
   underlying.effects = underlying.effects.lc,
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 300, tau.kappa.cutoff = 500, tau.alpha.cutoff = 100)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=storage_path)
 

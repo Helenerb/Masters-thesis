@@ -1,0 +1,5 @@
+Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_sc_fh_iid.stan
+4
+2000
+20000
+tllp_fixed_hypers_all_iid
