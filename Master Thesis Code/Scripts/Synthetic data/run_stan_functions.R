@@ -46,6 +46,8 @@ run_stan_program_lc <- function(data, chains, warmup, iter, stan_program="stan_a
     nt = length(unique(obs$t))
   )
   
+  print("We input the following to Stan: ")
+  print(input_stan.lc)
   
   fit <- stan(
     file=stan_program,

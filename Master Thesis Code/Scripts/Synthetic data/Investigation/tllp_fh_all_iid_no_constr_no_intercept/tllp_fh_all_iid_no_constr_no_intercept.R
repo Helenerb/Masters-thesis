@@ -15,14 +15,12 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "tllp_fh_all_iid_no_constr_7"
+investigation.name <- "tllp_fh_all_iid_no_constr_no_intercept"
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v7 <- function(){
-  obs <- read.csv("Data/synthetic_male_lung_7.csv")
-  obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x) %>%
-    select(-X)
+synthetic.male.lung.v4 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_4.csv")
   
   obs.trad <- obs %>% 
     select(c(x, t, xt, age.int, year, x.c, alpha, beta, kappa, intercept, epsilon,
@@ -32,10 +30,10 @@ synthetic.male.lung.v7 <- function(){
     mutate(mr_gaussian = exp(eta)) %>%
     mutate(Y_gaussian  = mr_gaussian * E)
   
-  underlying.effects <- list(obs = obs.trad, nx = 9, nt = 18,
+  underlying.effects <- list(obs = obs.trad, nx = 18, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
                              beta.true = {obs %>% filter(t == 0)}$beta,
-                             kappa.true = {obs %>% filter(x == 0)}$kappa,
+                             kappa.true = {obs %>% filter(x == 9)}$kappa,
                              intercept = unique(obs$intercept),
                              age.intercept.true = unique(obs$intercept),
                              tau.alpha.true = unique(obs$tau.alpha),
@@ -43,11 +41,11 @@ synthetic.male.lung.v7 <- function(){
                              tau.kappa.true = unique(obs$tau.kappa),
                              tau.epsilon.true = unique(obs$tau.epsilon))
   
-  return(list(obs = obs.trad, underlying.effects = underlying.effects))
+  return(list(obs = obs, underlying.effects = underlying.effects))
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v7()
+config.data <- synthetic.male.lung.v4()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
 
@@ -71,11 +69,11 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 }
 
 run_stan(
-  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_fh_iid_no_constr.stan",
+  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_fh_iid_no_constr_no_intercept.stan",
   obs = obs, chains=4, warmup = 2000, iter = 20000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=30){
+inlabru.traditional.lc.fixed.hypers.all.iid.no.constr.no.intercept <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -94,12 +92,12 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
   fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
   
   comp = ~ -1 +
-    Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = FALSE) +
+    #Int(1, prec.linear = 0.001, mean.linear = 0) +
+    alpha(x, model = "iid", values=unique(obs$x), hyper = fixed.theta.alpha, constr = FALSE) +
     beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = FALSE)
+    kappa(t, model = "iid", values = unique(obs$t), constr = FALSE, hyper = fixed.theta.kappa)
   
-  formula = eta ~ Int + alpha + beta*kappa
+  formula = eta ~ alpha + beta*kappa
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
@@ -119,7 +117,7 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.traditional.lc.fixed.hypers.all.iid.no.constr(obs, max_iter = 100)
+res.inlabru <- inlabru.traditional.lc.fixed.hypers.all.iid.no.constr.no.intercept(obs, max_iter = 100)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
@@ -173,7 +171,7 @@ plots_compared <- produce.compared.plots(
   underlying.effects = underlying.effects,
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.intercept(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 
@@ -182,7 +180,7 @@ plots_compared <- produce.compared.plots(
 inlabru.samps.predictor <- generate(
   res.inlabru,
   data = data.frame(x = obs$x, t = obs$t, x.c = obs$x.c, xt = obs$xt),
-  formula = ~ Int + alpha + beta*kappa,
+  formula = ~ alpha + beta*kappa,
   n.sample = 10000)
 
 inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
@@ -191,4 +189,4 @@ stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace 
 
 stan.predictor.df <- data.frame(eta_draws)
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=F)

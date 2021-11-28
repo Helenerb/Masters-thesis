@@ -15,14 +15,12 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "tllp_fh_all_iid_no_constr_7"
+investigation.name <- "tllp_fh_all_iid_no_constr_6"
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v7 <- function(){
-  obs <- read.csv("Data/synthetic_male_lung_7.csv")
-  obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x) %>%
-    select(-X)
+synthetic.male.lung.v6 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_6.csv")
   
   obs.trad <- obs %>% 
     select(c(x, t, xt, age.int, year, x.c, alpha, beta, kappa, intercept, epsilon,
@@ -32,10 +30,10 @@ synthetic.male.lung.v7 <- function(){
     mutate(mr_gaussian = exp(eta)) %>%
     mutate(Y_gaussian  = mr_gaussian * E)
   
-  underlying.effects <- list(obs = obs.trad, nx = 9, nt = 18,
+  underlying.effects <- list(obs = obs.trad, nx = 18, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
                              beta.true = {obs %>% filter(t == 0)}$beta,
-                             kappa.true = {obs %>% filter(x == 0)}$kappa,
+                             kappa.true = {obs %>% filter(x == 9)}$kappa,
                              intercept = unique(obs$intercept),
                              age.intercept.true = unique(obs$intercept),
                              tau.alpha.true = unique(obs$tau.alpha),
@@ -47,7 +45,7 @@ synthetic.male.lung.v7 <- function(){
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v7()
+config.data <- synthetic.male.lung.v6()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
 
@@ -88,23 +86,33 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
   A.beta = matrix(1, nrow = 1, ncol = nx)  
   e.beta = 1  
   
-  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
-  fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
-  fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
+  
+  # fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  # fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
+  # fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
+  # fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  
+  # comp = ~ -1 +
+  #   Int(1, prec.linear = 0.001, mean.linear = 0) +
+  #   alpha(x, model = "iid", values=unique(obs$x), hyper = fixed.theta.alpha, constr = FALSE) +
+  #   beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
+  #   kappa(t, model = "iid", values = unique(obs$t), constr = FALSE, hyper = fixed.theta.kappa)
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = FALSE) +
-    beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = FALSE)
+    alpha(x, model = "iid", values=unique(obs$x), hyper = loggamma.prior, constr = FALSE) +
+    beta(x.c, model = "iid", hyper = loggamma.prior, constr = FALSE) +
+    kappa(t, model = "iid", values = unique(obs$t), constr = FALSE, hyper = loggamma.prior.high.variance)
   
   formula = eta ~ Int + alpha + beta*kappa
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
   c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
-  c.family <- list(hyper = fixed.theta.epsilon)
+  #c.family <- list(hyper = fixed.theta.epsilon)
+  c.family <- list(hyper = loggamma.prior)
   
   res.inlabru = bru(components = comp,
                     likelihood, 
@@ -191,4 +199,4 @@ stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace 
 
 stan.predictor.df <- data.frame(eta_draws)
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=F)

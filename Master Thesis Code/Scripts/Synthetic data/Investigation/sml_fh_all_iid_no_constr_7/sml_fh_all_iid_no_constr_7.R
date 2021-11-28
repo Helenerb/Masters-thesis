@@ -21,11 +21,12 @@ investigation.name <- "sml_fh_all_iid_no_constr_7"
 
 synthetic.male.lung.v7 <- function(){
   obs <- read.csv("Data/synthetic_male_lung_7.csv")
+  obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x)
   
-  underlying.effects <- list(obs = obs, nx = 18, nt = 18,
+  underlying.effects <- list(obs = obs, nx = 9, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
                              beta.true = {obs %>% filter(t == 0)}$beta,
-                             kappa.true = {obs %>% filter(x == 9)}$kappa,
+                             kappa.true = {obs %>% filter(x == 0)}$kappa,
                              intercept = unique(obs$intercept),
                              age.intercept.true = unique(obs$intercept),
                              tau.alpha.true = unique(obs$tau.alpha),
@@ -117,7 +118,7 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer.fixed.effects(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -163,7 +164,7 @@ plots_compared <- produce.compared.plots(
   underlying.effects = underlying.effects,
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100)},#, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 
@@ -183,3 +184,4 @@ stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace 
 stan.predictor.df <- data.frame(eta_draws)
 
 plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
+

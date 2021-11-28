@@ -84,12 +84,24 @@ inlabru.lc.fh.iid<- function(obs, max_iter=30){
   fixed.theta.kappa <- list(prec = list(initial = log(1), fixed = T))
   fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
   
+  loggamma.prior.alpha <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 0))
+  loggamma.prior.beta <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 0))
+  loggamma.prior.kappa <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = 0))
+  loggamma.prior.epsilon <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = 0))
+  
+  # comp = ~ -1 +
+  #   Int(1, prec.linear = 0.001, mean.linear = 0) +
+  #   alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = TRUE) +
+  #   beta(x.c, model = "iid", hyper = fixed.theta.beta, extraconstr = list(A = A.beta, e = e.beta)) +
+  #   kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = TRUE) +
+  #   epsilon(xt, model = "iid", hyper = fixed.theta.epsilon, constr = FALSE)
+  
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = TRUE) +
-    beta(x.c, model = "iid", hyper = fixed.theta.beta, extraconstr = list(A = A.beta, e = e.beta)) +
-    kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = TRUE) +
-    epsilon(xt, model = "iid", hyper = fixed.theta.epsilon, constr = FALSE)
+    alpha(x, model = "iid", hyper = loggamma.prior.alpha, constr = TRUE) +
+    beta(x.c, model = "iid", hyper = loggamma.prior.beta, extraconstr = list(A = A.beta, e = e.beta)) +
+    kappa(t, model = "iis", hyper = loggamma.prior.kappa, constr = TRUE) +
+    epsilon(xt, model = "iid", hyper = loggamma.prior.epsilon, constr = FALSE)
   
   formula = Y ~ Int + alpha + beta*kappa + epsilon
   
