@@ -1,0 +1,79 @@
+\subsection{The Lee-Carter Model}
+\label{section:Lee-Carter}
+% The Lee-Carter model was first proposed by \textcite{LeeCarter1992} and is one of the most widely used methods for mortality forecasting in populations, displaying good results compared to alternative methods \parencite{booth_tickle_2008}. Lee and Carter models the logarithms of the death rates of a population as a non-linear combination of period (typically calendar year) and age effects. They then use this model to make forecasts of future population mortality. 
+In the field of projecting and forecasting age-specific mortality rates on a population level, the Lee-Carter model has served as a benchmark since its introduction by \textcite{LeeCarter1992}. Their original model, together with numerous extensions of it, has been a powerful tool in the fields of, among others, actuarial and demographic sciences \parencite{booth_tickle_2008}. The method was originally developed to forecast American mortality rates \parencite{LeeCarter1992}, but has since been used in predicting both cause-specific and overall mortality rates \parencite{GirosiKing2007}, fertility rates and immigration and emigration \parencite{Wisniowski2015} over several time periods and for many different populations. 
+
+\newpar In the Lee-Carter approach for mortality projection, mortality is considered as a function of period (typically calendar year) and age, and the relation between observed mortality for a given age group in a given period and the age- and period-specific effects is formulated as 
+\begin{equation}
+\log(Y_{x,t}/E_{x,t})  = \eta_{x,t}, \quad \eta_{x,t}= \alpha_x + \beta_x\cdot\kappa_t + \epsilon_{x,t}.
+\label{eq:orig-LC-model}
+\end{equation}
+Here $Y_{x,t}$ is the observed number of deaths for people at age $x$ in year $t$, $E_{x,t}$ is the number of people "at risk" (observed population) of age $x$ at time $t$ and $Y_{x,t}/E_{x,t} = e^{\eta_{x,t}}$ is the age- and period-specific mortality rate. The decomposition of $\eta_{x,t}$ into this combination of age effects $\alpha_x$ and $\beta_x$ and time effect $\kappa_t$ is the part that is unique for the Lee-Carter model. $\epsilon_{x,t}$ is a stochastic term.
+
+\newpar A commonly used adaption to this model, that has produced good results \parencite{CZADO2005260}, \parencite{Wisniowski2015}, \parencite{BROUHNS2002373}, is to include the assumption that the affected population $Y_{x,t}$ follows a Poisson distribution,
+\begin{equation}
+Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}), \quad \eta_{x,t}= \alpha_x + \beta_x\cdot\kappa_t + \epsilon_{x,t},
+\label{eq:LC-model}
+\end{equation}
+where $Y_{x,t}$, $E_{x,t}$ and $\eta_{x,t}$ have the same interpretation as previously described. This model represents the stochasticity of the affected cases $Y_{x,t}$ of a population $E_{x,t}$ in two ways. Firstly, through the random term $\epsilon_{x,t}$, which describes variability in the expected mortality rate that cannot be explained by age, period or cohort effects. Secondly, the Poisson distribution describes the randomness of the realized cases $Y_{x,t}$ given the expected mortality rate $E_{x,t}e^{\eta_{x,t}}$. Throughout the paper, we will consider this adaption of the Lee-Carter model. 
+
+\newpar A common extension of the Lee-Carter model is the introduction of a cohort effect in addition to the effects of age and period \parencite{Wisniowski2015}. A cohort can be interpreted as the birth-year of the subjects, so each cohort consists of the people that are in the same age group in the same period. So, the cohort is uniquely defined by the age and period. Including the cohort effect, following the approach of \textcite{Wisniowski2015}, the cohort-extended Lee-Carter model can be formulated as
+\begin{equation}
+    Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}}), \quad \eta_{x,t} = \alpha_x + \beta_x \cdot \kappa_t + \gamma_k + \epsilon_{x,t}.
+    \label{eq:LCC-model-orig}
+\end{equation}
+where $\gamma_k$ is the cohort effect for cohort $k$. 
+To ensure identifiability of the models, we need to apply some constraints to the effects $\beta_x$ and $\kappa_t$, as well as $\gamma_k$ in the cohort-extended version. Following e.g. \textcite{LeeCarter1992}, we impose sum-to-zero constraints on $\alpha_x$, $\kappa_t$ and $\gamma_t$ and sum-to-unit constraints on $\beta_x$:
+\begin{equation}
+    \sum_t\kappa_t = 0,\quad \sum_k\gamma_k = 0, \quad \sum_x\beta_x = 1.
+    \label{eq:LC-constraints}    
+\end{equation}
+Given these constraints, $\alpha_x$ can be interpreted as the age-specific mortality rate, averaged over all periods, $\kappa_t$ can be interpreted as the change in mortality over time and $\beta_x$ can be interpreted as an age-specific measure of whether the rate changes rapidly or slowly in response to changes in $\kappa_t$ \parencite{LeeCarter1992}. In the cohort-extended model, $\gamma_k$ can be interpreted as the cohort-specific deviation from the overall mortality rate. From this point, we refer to this version of the Lee-Carter model and the cohort-extended version of the Lee-Carter model as the Lee-Carter models. 
+
+\newpar A time-series approach is typically used to find forecasts of future mortality rates, and thus the period effect $\kappa_t$ is usually modelled as a random walk with drift (see for instance \textcite{LeeCarter1992}, \textcite{Wisniowski2015}, \textcite{CZADO2005260}). The typical approach for mortality forecasts with the Lee-Carter model is then to fit the effects $\alpha_x$, $\beta_x$ and $\kappa_t$ to the available data, and use time-series models, such as the ARIMA model, to forecast future values of $\kappa_t$. Throughout literature, several different models have been used for $\alpha_x$, $\beta_x$ and $\gamma_k$. From previous literature, we see that $\alpha_x$ often takes the form of a smooth curve, increasing with $x$, while $\beta_x$ takes a more erratic shape. Both \textcite{CZADO2005260} and \textcite{Wisniowski2015} have used a gaussian distribution to model $\beta_x$, and \textcite{Wisniowski2015} have used a gaussian distribution to model $\alpha_x$ as well. Time series models have been used to model the cohort effect $\gamma_k$. Specifically, \textcite{Wisniowski2015} use an autoregressive process AR(1) to model $\gamma_k$ for mortality.
+
+% \textcolor{myDarkGreen}{This is the old part: see if there is something here you should still include: }
+% Other literature [hvilken??? referer!!!] have shown that $\alpha_x$ takes a shape that can be described as a random walk, $\beta_x$ often has a less smooth shape better described with an iid normal distribution with zero mean and that a random walk with drift can be used to describe the shape of $\kappa_t$. So, we impose the following models for $\alpha_x$, $\beta_x$ and $\kappa_x$:
+% \begin{equation}
+%     \begin{aligned}
+%     \alpha_x &= \alpha_{x-1} + \epsilon_{x}, \quad \epsilon_x \sim \Normal(0,1/\tau_{\alpha}) \\
+%     \beta_x &\sim \Normal(0, 1/\tau_{\beta}) \\
+%     \kappa_t &= \phi + \kappa_{t-1} + \epsilon_t, \quad \epsilon_t\sim \Normal(0, 1/\tau_\kappa),
+%     \end{aligned}
+%     \label{eq:LCrandomEffects}
+% \end{equation}
+% where $\phi$ is the drift constant of the random walk of $\kappa_t$ and $\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$ are the precisions (inverse of variance) of the respective random terms.
+% \textcolor{myDarkGreen}{This is not yet relevant - we have not introduced our bayesian modelling of the problem and the LGM, and it is only then we need hyperparameters. }
+% ($\tau_\alpha$, $\tau_\beta$ and $\tau_\kappa$ are included as hyperparameters in our model.)
+% To ease computation, we rewrite our expression for $\kappa_t$ as
+% \begin{equation}
+%     \kappa_t = \kappa_{t}^* + \phi\cdot t, \quad \text{where } \kappa_t^*=\kappa_{t-1} + \epsilon_\kappa, \quad\text{and }\epsilon_\kappa\sim\Normal(0, 7/\tau_\kappa).
+%     \label{eq:DriftlessKappa}
+% \end{equation}
+% So $\kappa_t$ is expressed by a linear term $\phi \cdot t$, describing the drift and a random walk without drift $\kappa_t^*$. From this point on, we will refer to $\kappa_t^*$ as simply $\kappa_t$. Our rewritten expression for the predictor $\eta_{x,t}$ is then
+% \begin{equation}
+% \eta_{x,t} = \mu + \alpha_x + \beta_x\cdot\phi\cdot t + \beta_x\kappa_t^* + \epsilon_{x,t}.
+% \end{equation}
+% We keep the constraint on $\kappa_t$ from Equation \ref{eq:LC-constraints}:
+% \begin{equation*}
+%     \sum_t \kappa_t = 0.
+% \end{equation*}
+% The shift in the value for $\eta_{x,t}$, that is a result from the introduction of the drift term $\phi \cdot t$, is reflected in the value for the intercept $\mu$. 
+% \newline
+% \textcolor{myDarkGreen}{Move this further up - talk about the cohort extension in relation to the generat LC-model : before you start imposing constraints etc. }
+% An extension of the LC-model that has been shown to produce promising results for modeling of mortality rate in a population is the introduction of a cohort effect in addition to the age and period effects \parencite{booth_tickle_2008}, \parencite{Wisniowski2015}. A cohort is in this setting defined as a person's birth-year, so the cohort $k$ is given by $k = X - x + t$ for a period $t$ and age $x$, assuming that $t$ and $x$ is given in the same time unit. It has been shown that the cohort-effect has been able to reflect trends in mortality data that age and period effects alone were not able to recognize as well \parencite{Wisniowski2015}[Kanskje oppdater denne referansen!!!]. On that account, the second model we will consider is an LC-model where a cohort effect $\gamma_c$ is added to the expression for the predictor $\eta$:
+% \begin{equation}
+%     \eta_{x,t} = \mu + \alpha_x + \beta_x(\phi \cdot t + \kappa_t) + \gamma_c + \epsilon_{x,t}.
+%     \label{eq:LCC-model}
+% \end{equation}
+% We apply the constraint 
+% \begin{equation}
+%     \sum_k \gamma_k = 0
+%     \label{eq:cohort-constraint}
+% \end{equation}
+% to the cohort effect to ensure identifiability. The remaining effects have the same interpretation and constraints as in the LC-model. Inspired by literature handling this model \parencite{Wisniowski2015}, we have modelled the cohort effect as a random walk without drift
+% \begin{equation}
+%     \gamma_k = \gamma_k + \epsilon_\gamma, \quad \epsilon_\gamma \sim \Normal(0, 1/\tau_\gamma).
+%     \label{eq:cohort-rw}
+% \end{equation}
+% We will refer to this LC-model extended with a cohort effect as the LCC-model from this point.
