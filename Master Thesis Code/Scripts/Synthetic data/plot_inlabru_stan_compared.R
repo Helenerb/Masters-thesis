@@ -11,6 +11,7 @@ library(patchwork)
 source("Scripts/Functions/plotters.R")
 source("Scripts/Misc/palette.R")
 
+# comment, trigger commit
 
 
 plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
