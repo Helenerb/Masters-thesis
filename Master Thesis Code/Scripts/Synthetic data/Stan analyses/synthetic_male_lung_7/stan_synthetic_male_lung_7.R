@@ -1,0 +1,30 @@
+# Running configuraton v10.3 with stan on Markov
+
+set_workspace <- function(config, markov=TRUE){
+  if(markov){
+    .libPaths("~/Documents/R_libraries")
+    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
+    output.path <- file.path("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses", config)
+  } else {
+    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code")
+    output.path <- file.path('~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Stan analyses', config)
+  }
+  return(output.path)
+}
+
+run_stan_male_lung_lc <- function(stan_program, chains=4, warmup=1000, iter=10000, markov=TRUE){
+  output.path <- set_workspace(config="synthetic_male_lung_7", markov)
+  library("tidyverse")
+  source("Scripts/Synthetic\ data/run_stan_functions.R")
+  
+  source("Scripts/Synthetic\ data/config_synthetic_male_lung_v7.R")
+  
+  data = synthetic.male.lung.a45.v7()
+  
+  stan_fit <- run_stan_program_lc(data$underlying.effects, chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
+  
+  store_stan_results(fit=stan_fit, output.path=output.path, config="synthetic_male_lung_7", chains=chains, warmup=warmup, iter=iter, stan_program=stan_program, cohort=FALSE)
+}
+
+#run_stan_male_lung_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_analysis_lc_rw2.stan", chains=4, warmup = 15000, iter = 150000, markov=TRUE)
+run_stan_male_lung_lc(stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_rw1.stan", chains=4, warmup = 1000, iter = 10000, markov=F)
