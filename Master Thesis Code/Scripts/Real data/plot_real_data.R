@@ -206,7 +206,8 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
     save.figure(p.beta, name = "beta_inlabru", path = path.to.storage)
   }
   
-  data.kappa <- left_join(res.inlabru$summary.random$kappa, {cancer.data %>% select(year, t, predict)}, by=c("ID" = "t"))
+  data.kappa <- left_join(res.inlabru$summary.random$kappa, {cancer.data %>% select(year, t, predict)}, by=c("ID" = "t")) %>%
+    mutate(year = parse_integer(year))
   p.kappa <- ggplot(data = data.kappa, aes(x = year)) + 
     geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`), alpha = 0.4, fill = palette[1]) + 
     geom_point(aes(y = mean, color = predict, fill = predict, shape=predict), size = 0.5) + 
@@ -270,7 +271,7 @@ plot.inlabru.real.predicted <- function(res.inlabru, cancer.data, last.obs.t, sa
     mutate(true.mr = cancer.data$`mortality rate`) %>%
     mutate(xt = cancer.data$xt, x = cancer.data$x, t = cancer.data$t) %>%
     mutate(year = cancer.data$year, age=cancer.data$age, age.int = cancer.data$age.int) %>%
-    #mutate(year = parse_integer(year)) %>%
+    mutate(year = parse_integer(year)) %>%
     mutate(predict = cancer.data$predict)
   
   p.mr <- ggplot(data = data.mr) +
@@ -629,7 +630,3 @@ plot.comparison.real <- function(res.inlabru, res.stan, stan.marginals, cancer.d
   return(plots)
 }
 
-plot.counts.inlabru.real.predicted <- function(
-  inlabru.Y.df, lung.cancer.female.until2011, save = TRUE,
-  path.to.storage = "Scripts/Real data/Output/Figures/lung_rw2_predict/female"
-)
