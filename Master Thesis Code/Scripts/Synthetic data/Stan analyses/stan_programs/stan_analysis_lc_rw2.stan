@@ -73,13 +73,12 @@ model {
   //target += normal_lpdf(alpha_raw[2:X-1]| alpha_raw[1:X-2], 1/sqrt(tau_alpha));
   //target += normal_lpdf(beta_raw | 0, 1/sqrt(tau_beta));
   
-  // specify alpha_raw[1] as normal 01
   target += normal_lpdf(alpha_raw[2:X] | alpha_raw[1:X-1], 1/sqrt(tau_alpha));
   target += normal_lpdf(beta_raw | 0, 1/sqrt(tau_beta));
   
   // random walk of order two
-  target += normal_lpdf(kappa_raw[1] | 0, 1/sqrt(tau_kappa));  // normal 0, 1
-  target += normal_lpdf(kappa_raw[2] | kappa_raw[1], 1/sqrt(tau_kappa));  // normal
+  target += normal_lpdf(kappa_raw[1] | 0, 1/sqrt(tau_kappa));
+  target += normal_lpdf(kappa_raw[2] | kappa_raw[1], 1/sqrt(tau_kappa));
   target += normal_lpdf(kappa_raw[3:T] | 2*kappa_raw[2:T-1] - kappa_raw[1:T-2], 1/sqrt(tau_kappa));
   
   //epsilon ~ normal(0, 1/sqrt(tau_epsilon));

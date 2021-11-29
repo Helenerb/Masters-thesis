@@ -8,8 +8,3 @@ Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
 1000
 10000
 synthetic_male_stomach_lc
-Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
-6
-10000
-1e+05
-synthetic_male_stomach_lc
