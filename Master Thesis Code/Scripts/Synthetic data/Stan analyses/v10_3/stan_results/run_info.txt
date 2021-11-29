@@ -1,5 +1,0 @@
-Stan analyses/stan_programs/stan_analysis_lc_rw2.stan
-4
-10000
-1e+05
-v10_3

@@ -1,5 +1,0 @@
-Scripts/Synthetic data/Stan analyses/stan_programs/stan_traditional_lc_no_constraints.stan
-2
-20000
-2e+05
-traditional_lc_log_prec

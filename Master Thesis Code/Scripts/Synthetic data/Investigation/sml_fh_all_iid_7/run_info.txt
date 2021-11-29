@@ -1,5 +1,0 @@
-Scripts/Synthetic data/Stan analyses/stan_programs/stan_lc_fh_iid.stan
-4
-2000
-20000
-sml_fh_all_iid_7

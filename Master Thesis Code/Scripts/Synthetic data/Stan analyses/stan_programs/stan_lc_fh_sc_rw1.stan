@@ -1,9 +1,8 @@
- // Stan implementation of lee-carter model (without cohort),
- 
- // lc: Poisson Lee-Carter model
- // fh: fixed hyperparameters
- // iid: all random effects modelled as iid
- // no_constr: no constraints applied to any of the random effects
+// Stan implementation of Poisson Lee-Carter model, with model choices:
+
+// fh: fixed hyperparameters
+// sc: soft constraints
+// rw1: alpha and kappa modelled as first order random walks 
 
 // define our own log-gamma 
 // functions {
@@ -33,10 +32,10 @@ data {
 
 parameters {
   // log-precisions for hyperparameters
-  //real theta_alpha;  //  log-precision of alpha
-  //real theta_beta;  // log-precision of beta
-  //real theta_kappa;  // log-precision of kappa
-  //real theta_epsilon;  // log-precision of epsilon
+  // real theta_alpha;  //  log-precision of alpha
+  // real theta_beta;  // log-precision of beta
+  // real theta_kappa;  // log-precision of kappa
+  // real theta_epsilon;  // log-precision of epsilon
   
   real intercept;  // included intercept
   
@@ -63,28 +62,25 @@ transformed parameters {
   
   // construct linear predictor
   vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
-  
-  // just helper values to see that we have the same predictor
-  vector[X*T] lambda = log(E) + eta;
 }
 
 model {
-  // log-gamma priors on log-precisions
-  //theta_alpha ~ log_gamma(1, 0.00005);
-  //theta_beta ~ log_gamma(1, 0.00005);
-  //theta_kappa ~ log_gamma(1, 0.005);
-  //theta_epsilon ~ log_gamma(1, 0.00005);
   
   intercept ~ normal(0, 1/sqrt(0.001));
   
-  alpha ~ normal(0, 1/sqrt(tau_alpha));  // alpha as iid
-  //sum(alpha) ~ normal(0, 0.001*nx);  // soft sum-to-zero
+  alpha[1] ~ normal(0, 100);
+  alpha[2:X] ~ normal(alpha[1:X-1], 1/sqrt(tau_alpha));
+  
+  sum(alpha) ~ normal(0, 0.001*nx);
   
   beta ~ normal(0, 1/sqrt(tau_beta));
-  //sum(beta) ~ normal(1, 0.001*nx);  // soft sum-to-one
+  sum(beta) ~ normal(1, 0.001*nx);
   
-  kappa ~ normal(0, 1/sqrt(tau_kappa));  // kappa as iid
-  //sum(kappa) ~ normal(0, 0.001*nt);  // soft sum-to-zero
+  // random walk of order two
+  kappa[1] ~ normal(0, 100);
+  kappa[2:T] ~ normal(kappa[1:T-1], 1/sqrt(tau_kappa));
+  
+  sum(kappa) ~ normal(0, 0.001*nt);
   
   epsilon ~ normal(0, 1/sqrt(tau_epsilon));
   

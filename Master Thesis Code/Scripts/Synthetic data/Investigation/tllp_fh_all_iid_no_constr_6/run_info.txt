@@ -1,5 +1,0 @@
-Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_fh_iid_no_constr.stan
-4
-2000
-20000
-tllp_fh_all_iid_no_constr_6

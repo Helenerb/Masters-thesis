@@ -1,5 +1,0 @@
-Scripts/Synthetic data/Stan analyses/stan_programs/stan_lc_rw1.stan
-4
-1000
-10000
-synthetic_male_lung_7

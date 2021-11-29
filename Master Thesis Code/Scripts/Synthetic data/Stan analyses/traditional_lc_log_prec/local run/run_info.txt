@@ -1,5 +1,0 @@
-Scripts/Synthetic data/Stan analyses/stan_programs/stan_traditional_lc_log_prec.stan
-1
-100
-400
-traditional_lc_log_prec

@@ -1,2 +1,0 @@
-"warmup" "sample"
-"chain:1" 0.413875 1.814

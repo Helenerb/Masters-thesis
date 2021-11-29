@@ -13,6 +13,7 @@ library("INLA")
 library("patchwork")
 library("rstan")
 
+# TODO: Change to where you want to run from
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
 investigation.name <- "tllp_fh_all_iid_test_inlabru_constr"
@@ -20,6 +21,7 @@ investigation.name <- "tllp_fh_all_iid_test_inlabru_constr"
 #   ----    Retrieve the data   ----
 
 synthetic.male.lung.v7 <- function(){
+  # TODO: Change to where you have stored the csv file
   obs <- read.csv("Data/synthetic_male_lung_7.csv")
   obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x) %>%
     select(-X)
@@ -50,30 +52,6 @@ synthetic.male.lung.v7 <- function(){
 config.data <- synthetic.male.lung.v7()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
-
-#   ----   Run STAN analysis   ----
-# Running traditional lc version of stan, 
-# implemented with log-precisions, random effects as iid, and no constraints
-
-stan.output  <- file.path("Scripts/Synthetic data/Investigation", investigation.name)
-source("Scripts/Synthetic\ data/run_stan_functions.R")
-
-run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name, markov=TRUE){
-  
-  stan_fit <- run_stan_program_traditional_lc(
-    list(obs = obs), chains=chains,warmup=warmup,
-    iter=iter, stan_program=stan_program)
-  
-  store_stan_results_traditional(
-    fit=stan_fit, output.path=output.path, config=config.name,
-    chains=chains, warmup=warmup, iter=iter, stan_program=stan_program,
-    cohort=FALSE)
-}
-
-run_stan(
-  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_fh_iid_no_constr.stan",
-  obs = obs, chains=4, warmup = 2000, iter = 20000, output.path = stan.output,
-  config.name = investigation.name, markov=F)
 
 inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
@@ -119,20 +97,76 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.traditional.lc.fixed.hypers.all.iid.no.constr(obs, max_iter = 100)
+inlabru.traditional.lc.fixed.hypers.all.iid <- function(obs, max_iter=30){
+  #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  #'@param max_iter (int): maximum number of iterations in inlabru
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
+  fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
+  fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  
+  comp = ~ -1 +
+    Int(1, prec.linear = 0.001, mean.linear = 0) +
+    alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = TRUE) +
+    beta(x.c, model = "iid", hyper = fixed.theta.beta, extraconstr = list(A = A.beta, e = e.beta)) +
+    kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = TRUE)
+  
+  formula = eta ~ Int + alpha + beta*kappa
+  
+  likelihood = like(formula = formula, family = "gaussian", data = obs)
+  
+  c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  c.family <- list(hyper = fixed.theta.epsilon)
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.compute,
+                                   bru_max_iter=max_iter,
+                                   control.predictor = list(compute = TRUE),
+                                   control.family  = c.family
+                    ))
+  return(res.inlabru)
+}
+
+res.inlabru.no.constr <- inlabru.traditional.lc.fixed.hypers.all.iid.no.constr(obs, max_iter = 100)
+
+res.inlabru.constrained <- inlabru.traditional.lc.fixed.hypers.all.iid(obs, max_iter = 100)
+
+
+#   -----    For plotting  - requires cloned GitHub repo and correct output paths -----
+
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
 source("Scripts/Synthetic data/plot_inlabru_stan_compared.R")
 source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
-output.path <- stan.output
+output.path <- file.path("Scripts/Synthetic data/Investigation", investigation.name)
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
-  res.inlabru,
+plots.summaries.inlabru.no.constr <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+  res.inlabru.no.constr,
   underlying.effects,
-  path.to.storage = output.path,
-  save=F)
+  path.to.storage = file.path(output.path, "no\ constr"),
+  save=T)
+
+plots.summaries.inlabru.constrained <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+  res.inlabru.constrained,
+  underlying.effects,
+  path.to.storage = file.path(output.path, "constr"),
+  save=T)
 
 load(file.path(stan.output, paste("stan_", investigation.name, ".Rda", sep = "")))
 
