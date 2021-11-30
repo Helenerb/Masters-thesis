@@ -15,12 +15,12 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "sml_testing"
+investigation.name <- "sml_fh_rw1_9"
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v7 <- function(){
-  obs <- read.csv("Data/synthetic_male_lung_7.csv")
+synthetic.male.lung.v9 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_9.csv")
   obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x)
   
   underlying.effects <- list(obs = obs, nx = 9, nt = 18,
@@ -38,7 +38,7 @@ synthetic.male.lung.v7 <- function(){
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v7()
+config.data <- synthetic.male.lung.v9()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
 
@@ -62,33 +62,34 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 }
 
 run_stan(
-  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_fh_iid_no_constr.stan",
+  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_fh_sc_rw1.stan",
   obs = obs, chains=4, warmup = 4000, iter = 40000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.lc.fh.iid.no.constr <- function(obs, max_iter=30){
+inlabru.lc.fh.rw1<- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model using an ar1c to model the period effect
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
   #'@param max_iter (int): maximum number of iterations in inlabru
   
-  #nx = length(unique(obs$x))
-  #nt = length(unique(obs$t))
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
   
   # constraints for the age effect beta
-  #A.beta = matrix(1, nrow = 1, ncol = nx)  
-  #e.beta = 1  
+  A.beta = matrix(1, nrow = 1, ncol = nx)
+  e.beta = 1
   
   fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
   fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
   fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
+  #fixed.theta.kappa <- list(prec = list(initial = log(1), fixed = T))
   fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = FALSE) +
-    beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = FALSE) +
+    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = TRUE) +
+    beta(x.c, model = "iid", hyper = fixed.theta.beta, extraconstr = list(A = A.beta, e = e.beta)) +
+    kappa(t, model = "rw1", hyper = fixed.theta.kappa, constr = TRUE) +
     epsilon(xt, model = "iid", hyper = fixed.theta.epsilon, constr = FALSE)
   
   formula = Y ~ Int + alpha + beta*kappa + epsilon
@@ -109,7 +110,7 @@ inlabru.lc.fh.iid.no.constr <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.lc.fh.iid.no.constr(obs, max_iter = 100)
+res.inlabru <- inlabru.lc.fh.rw1(obs, max_iter = 150)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
@@ -164,7 +165,7 @@ plots_compared <- produce.compared.plots(
   underlying.effects = underlying.effects,
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100)},#, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 
@@ -183,5 +184,4 @@ stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace 
 
 stan.predictor.df <- data.frame(eta_draws)
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
-
+plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=F)

@@ -103,7 +103,7 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
-  c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
   c.family <- list(hyper = fixed.theta.epsilon)
   
   res.inlabru = bru(components = comp,

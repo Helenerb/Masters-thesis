@@ -15,12 +15,12 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "sml_testing"
+investigation.name <- "sml_fh_all_iid_no_constr_9"
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v7 <- function(){
-  obs <- read.csv("Data/synthetic_male_lung_7.csv")
+synthetic.male.lung.v9 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_9.csv")
   obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x)
   
   underlying.effects <- list(obs = obs, nx = 9, nt = 18,
@@ -38,7 +38,7 @@ synthetic.male.lung.v7 <- function(){
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v7()
+config.data <- synthetic.male.lung.v9()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
 
@@ -63,7 +63,7 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 
 run_stan(
   stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_lc_fh_iid_no_constr.stan",
-  obs = obs, chains=4, warmup = 4000, iter = 40000, output.path = stan.output,
+  obs = obs, chains=4, warmup = 2000, iter = 20000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
 inlabru.lc.fh.iid.no.constr <- function(obs, max_iter=30){
@@ -171,17 +171,8 @@ plots_compared <- produce.compared.plots(
 
 #   ----   Sample predictor   ----
 
-inlabru.samps.predictor <- generate(
-  res.inlabru,
-  data = data.frame(x = obs$x, t = obs$t, x.c = obs$x.c, xt = obs$xt),
-  formula = ~ Int + alpha + beta*kappa + epsilon,
-  n.sample = 10000)
-
-inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
-
-stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace = F),]
-
 stan.predictor.df <- data.frame(eta_draws)
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
+#plot.predictor.inlabru.stan.compared.old(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
+plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
