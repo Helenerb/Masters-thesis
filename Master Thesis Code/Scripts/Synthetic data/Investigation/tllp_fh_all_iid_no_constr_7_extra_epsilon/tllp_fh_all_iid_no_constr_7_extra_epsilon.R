@@ -15,12 +15,14 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "tllp_fh_all_iid_no_constr"
+investigation.name <- "tllp_fh_all_iid_no_constr_7_extra_epsilon"
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v4 <- function(){
-  obs <- read.csv("Data/synthetic_male_lung_4.csv")
+synthetic.male.lung.v7 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_7.csv")
+  obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x) %>%
+    select(-X)
   
   obs.trad <- obs %>% 
     select(c(x, t, xt, age.int, year, x.c, alpha, beta, kappa, intercept, epsilon,
@@ -30,10 +32,10 @@ synthetic.male.lung.v4 <- function(){
     mutate(mr_gaussian = exp(eta)) %>%
     mutate(Y_gaussian  = mr_gaussian * E)
   
-  underlying.effects <- list(obs = obs.trad, nx = 18, nt = 18,
+  underlying.effects <- list(obs = obs.trad, nx = 9, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
                              beta.true = {obs %>% filter(t == 0)}$beta,
-                             kappa.true = {obs %>% filter(x == 9)}$kappa,
+                             kappa.true = {obs %>% filter(x == 0)}$kappa,
                              intercept = unique(obs$intercept),
                              age.intercept.true = unique(obs$intercept),
                              tau.alpha.true = unique(obs$tau.alpha),
@@ -41,11 +43,11 @@ synthetic.male.lung.v4 <- function(){
                              tau.kappa.true = unique(obs$tau.kappa),
                              tau.epsilon.true = unique(obs$tau.epsilon))
   
-  return(list(obs = obs, underlying.effects = underlying.effects))
+  return(list(obs = obs.trad, underlying.effects = underlying.effects))
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v4()
+config.data <- synthetic.male.lung.v7()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
 
@@ -73,7 +75,7 @@ run_stan(
   obs = obs, chains=4, warmup = 4000, iter = 40000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=30){
+inlabru.traditional.lc.fixed.hypers.all.iid.no.constr.extra.epsilon <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -93,11 +95,12 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "iid", values=unique(obs$x), hyper = fixed.theta.alpha, constr = FALSE) +
+    alpha(x, model = "iid", hyper = fixed.theta.alpha, constr = FALSE) +
     beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "iid", values = unique(obs$t), constr = FALSE, hyper = fixed.theta.kappa)
+    kappa(t, model = "iid", hyper = fixed.theta.kappa, constr = FALSE) + 
+    epsilon(xt, model="iid", hyper = fixed.theta.epsilon, constr = FALSE)
   
-  formula = eta ~ Int + alpha + beta*kappa
+  formula = eta ~ Int + alpha + beta*kappa + epsilon
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
@@ -111,13 +114,12 @@ inlabru.traditional.lc.fixed.hypers.all.iid.no.constr <- function(obs, max_iter=
                                    num.threads = "1:1",
                                    control.compute = c.compute,
                                    bru_max_iter=max_iter,
-                                   control.predictor = list(compute = TRUE),
                                    control.family  = c.family
                     ))
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.traditional.lc.fixed.hypers.all.iid.no.constr(obs, max_iter = 100)
+res.inlabru <- inlabru.traditional.lc.fixed.hypers.all.iid.no.constr.extra.epsilon(obs, max_iter = 100)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
@@ -179,4 +181,27 @@ plots_compared <- produce.compared.plots(
 
 stan.predictor.df <- data.frame(eta_draws)
 
-plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=F)
+plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
+
+#   ----   Plot comparison of epsilon   ----
+
+data.epsilon <- stan_lc_df %>% rownames_to_column("parameter") %>%
+  filter(grepl("epsilon", parameter)) %>%
+  filter(!grepl("tau_epsilon", parameter)) %>%
+  mutate(index = parse_number(parameter)) %>%
+  mutate(true_epsilon = obs$epsilon[index]) %>%
+  left_join(data.frame(res.inlabru$summary.random$epsilon), by = c("index" = "ID"), suffix = c(".stn", ".ib"))
+
+
+p.epsilon <- ggplot(data.epsilon) + 
+  geom_point(aes(x = index, y = mean.ib, color = "Inlabru", fill = "Inlabru")) + 
+  geom_ribbon(aes(x = index, ymin = X0.025quant, ymax = X0.975quant, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  geom_point(aes(x = index, y = mean.stn, color = "Stan", fill = "Stan")) + 
+  geom_ribbon(aes(x = index, ymin = `2.5%`, ymax = `97.5%`, color = "Stan", fill = "Stan"), alpha = 0.4) + 
+  geom_point(aes(x = index, y = true_epsilon, color = "True", fill = "True"), shape = 4) + 
+  theme_classic() + 
+  scale_color_manual(name="", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Epsilon, stan and inlabru")
+
+p.epsilon  
