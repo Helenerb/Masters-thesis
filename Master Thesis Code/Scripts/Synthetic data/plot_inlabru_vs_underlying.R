@@ -1012,6 +1012,13 @@ plot.inlabru.vs.underlying.traditional.lc <- function(
     scale_fill_manual(name = " ", values = palette) +
     labs(x = " ", y = " ", title = "Precision of kappa")
   
+  p.epsilon.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.the.Gaussian.observations.x < cutoff_epsilon)) + 
+    geom_area(aes(x = Precision.for.the.Gaussian.observations.x, y = Precision.for.the.Gaussian.observations.y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+    #geom_vline(aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) + 
+    scale_color_manual(name = " ", values = palette) + 
+    scale_fill_manual(name = " ", values = palette) +
+    labs(x = " ", y = " ", title = "Precision of epsilon, Gaussian observations")
+  
   if(cohort){
     p.gamma.prec <-ggplot(data = data.hyperpar %>% filter(Precision.for.gamma.x < cutoff_gamma)) + 
       geom_area(aes(x = Precision.for.gamma.x, y = Precision.for.gamma.y), color = palette[1], fill = palette[1], alpha = 0.5) + 
@@ -1033,7 +1040,7 @@ plot.inlabru.vs.underlying.traditional.lc <- function(
   if(cohort){
     p.hyperpars <- (p.alpha.prec | p.beta.prec | p.kappa.prec)/(p.gamma.prec) + plot_layout(guides = "collect")
   } else {
-    p.hyperpars <- (p.alpha.prec )/(p.beta.prec | p.kappa.prec ) + plot_layout(guides = "collect")
+    p.hyperpars <- (p.alpha.prec | p.epsilon.prec)/(p.beta.prec | p.kappa.prec ) + plot_layout(guides = "collect")
   }
   
   if(save){

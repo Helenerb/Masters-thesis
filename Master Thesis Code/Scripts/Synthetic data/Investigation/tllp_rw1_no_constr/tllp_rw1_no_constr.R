@@ -15,7 +15,7 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "tllp_fh_rw1_7"
+investigation.name <- "tllp_rw1_no_constr"
 
 #   ----    Retrieve the data   ----
 
@@ -72,11 +72,11 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 }
 
 run_stan(
-  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_sc_fixed_hypers.stan",
+  stan_program="Scripts/Synthetic\ data/Stan\ analyses/stan_programs/stan_tllp_rw1_no_constr.stan",
   obs = obs, chains=4, warmup = 4000, iter = 40000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.traditional.lc.fixed.hypers.rw1 <- function(obs, max_iter=30){
+inlabru.traditional.lc.rw1.no.constr <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -89,23 +89,26 @@ inlabru.traditional.lc.fixed.hypers.rw1 <- function(obs, max_iter=30){
   A.beta = matrix(1, nrow = 1, ncol = nx)  
   e.beta = 1  
   
-  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
-  fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
-  fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  # fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  # fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
+  # fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
+  # fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = TRUE) +
-    beta(x.c, model = "iid", extraconstr = list(A = A.beta, e = e.beta), hyper = fixed.theta.beta) +
-    kappa(t, model = "rw1", constr = TRUE, hyper = fixed.theta.kappa)
+    alpha(x, model = "rw1", hyper = loggamma.prior, constr = FALSE) +
+    beta(x.c, model = "iid", hyper = loggamma.prior, constr = FALSE) +
+    kappa(t, model = "rw1", constr = FALSE, hyper = loggamma.prior.high.variance)
   
   formula = eta ~ Int + alpha + beta*kappa
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
   c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
-  c.family <- list(hyper = fixed.theta.epsilon)
+  c.family <- list(hyper = loggamma.prior)
   
   res.inlabru = bru(components = comp,
                     likelihood, 
@@ -119,7 +122,7 @@ inlabru.traditional.lc.fixed.hypers.rw1 <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.traditional.lc.fixed.hypers.rw1(obs, max_iter = 100)
+res.inlabru <- inlabru.traditional.lc.rw1.no.constr(obs, max_iter = 100)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
@@ -128,11 +131,17 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+# plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+#   res.inlabru,
+#   underlying.effects,
+#   path.to.storage = output.path,
+#   save=F)
+
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
-  save=F)
+  save=T, cutoff_alpha = 100000, cutoff_beta = 100000, cutoff_kappa = 1000)
 
 load(file.path(stan.output, paste("stan_", investigation.name, ".Rda", sep = "")))
 
@@ -171,9 +180,9 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 30000, tau.kappa.cutoff = 1000, tau.alpha.cutoff = 1000, tau.epsilon.cutoff = 10000, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 
@@ -183,13 +192,29 @@ stan.predictor.df <- data.frame(eta_draws)
 
 plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
+#   ----   Manually plot predictor from inlabru   ----
 
-# ----   Plot offset.predictor   ----
+data.predictor.inlabru <- data.frame(xt = obs$xt, mean = res.inlabru$summary.linear.predictor$mean[1:162],
+                                     X0.025quant = res.inlabru$summary.linear.predictor$`0.025quant`[1:162],
+                                     X0.975quant = res.inlabru$summary.linear.predictor$`0.975quant`[1:162])
 
-offset.df <- data.frame(offset = res.inlabru$offset.linear.predictor[1:162], xt = obs$xt)
+p.predictor.inlabru.conf.int <- ggplot(data.predictor.inlabru) + 
+  geom_point(aes(x = xt, y = mean), color = palette[1]) + 
+  geom_errorbar(aes(x = xt, ymin = X0.025quant, ymax = X0.975quant), color = palette[1], alpha = 0.7) + 
+  theme_classic() + 
+  labs(title="Predictor, estimated by inlabru")
 
-p.offset <- ggplot(offset.df) + geom_point(aes(x= xt, y= offset), color = palette[1]) + 
-  labs("Offset of inlabru")
-p.offset
+p.predictor.inlabru.conf.int
 
-save.figure(p.offset, name = "offset_inlabru", path = output.path, png = F)
+save.figure(p.predictor.inlabru.conf.int, name = "predictor_inlabru_conf_int", png = F, path = output.path)
+
+p.predictor.inlabru.no.conf.int <- ggplot(data.predictor.inlabru) + 
+  geom_point(aes(x = xt, y = mean), color = palette[1]) + 
+  #geom_errorbar(aes(x = xt, ymin = X0.025quant, ymax = X0.975quant), color = palette[1], alpha = 0.7) + 
+  theme_classic() + 
+  labs(title="Predictor, estimated by inlabru")
+
+p.predictor.inlabru.no.conf.int
+
+save.figure(p.predictor.inlabru.no.conf.int, name = "predictor_inlabru_no_conf_int", png = F, path = output.path)
+

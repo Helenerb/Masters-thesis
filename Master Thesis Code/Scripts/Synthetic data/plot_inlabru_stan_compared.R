@@ -502,8 +502,8 @@ plot.inlabru.stan.traditional.lc <- function(stan.summaries,
     filter(x < tau.alpha.cutoff)
   
   p.tau.alpha <- ggplot() + 
-    geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+    geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_vline(data = tau.alpha.inlabru, aes(xintercept = underlying.effects$tau.alpha.true, color = "Observed", fill  = "Observed")) + 
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
@@ -518,8 +518,8 @@ plot.inlabru.stan.traditional.lc <- function(stan.summaries,
     filter(x < tau.beta.cutoff)
   
   p.tau.beta <- ggplot() + 
-    geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
+    geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_vline(data = tau.beta.inlabru, aes(xintercept = underlying.effects$tau.beta.true, color = "Observed", fill = "Observed")) + 
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
@@ -533,8 +533,8 @@ plot.inlabru.stan.traditional.lc <- function(stan.summaries,
     filter(x < tau.kappa.cutoff)
   
   p.tau.kappa <- ggplot() + 
-    geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+    geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_vline(data = tau.kappa.inlabru, aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) + 
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
@@ -565,8 +565,8 @@ plot.inlabru.stan.traditional.lc <- function(stan.summaries,
     filter(x < tau.epsilon.cutoff)
   
   p.tau.epsilon <- ggplot() + 
-    geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
+    geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
     geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
     scale_color_manual(name = " ", values = palette) + 
     scale_fill_manual(name = " ", values = palette) +
