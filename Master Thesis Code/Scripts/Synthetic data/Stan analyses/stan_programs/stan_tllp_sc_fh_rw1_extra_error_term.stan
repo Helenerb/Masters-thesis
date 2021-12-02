@@ -36,6 +36,8 @@ parameters {
   vector[X] beta;  //  before sum-to-unit is implemented
   vector[T] kappa;  //  before sum-to-zero is implemented
   
+  vector[X*T] error_term;  // error term, to replicate error term in inlabru
+  
   //vector[X*T] epsilon;  // unconstrained
 }
 
@@ -50,10 +52,12 @@ transformed parameters {
   real tau_beta = 100;
   real tau_kappa = 70;
   real tau_epsilon = 400;
+  //real tau_error_term = 1000000;
+  real tau_error_term = exp(13.81551);
   
   // split kappa into driftless rw and linear term
   //vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
-  vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t];
+  vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + error_term;
 }
 
 model {
@@ -70,6 +74,9 @@ model {
   kappa[1] ~ normal(0, 100);
   kappa[2:T] ~ normal(kappa[1:T-1], 1/sqrt(tau_kappa));
   sum(kappa) ~ normal(0, 0.001*nt);  // soft sum-to-one
+  
+  // error term
+  error_term ~ normal(0, 1/sqrt(tau_error_term));
   
   exp_mr ~ normal(eta, 1/sqrt(tau_epsilon));
 }

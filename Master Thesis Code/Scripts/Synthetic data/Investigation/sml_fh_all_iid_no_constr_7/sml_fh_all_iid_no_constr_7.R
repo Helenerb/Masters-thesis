@@ -95,7 +95,7 @@ inlabru.lc.fh.iid.no.constr <- function(obs, max_iter=30){
   
   likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
   
-  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE)  # control.compute
+  c.c <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
   
   res.inlabru = bru(components = comp,
                     likelihood, 
@@ -171,17 +171,120 @@ plots_compared <- produce.compared.plots(
 
 #   ----   Sample predictor   ----
 
-inlabru.samps.predictor <- generate(
+stan.predictor.df <- data.frame(eta_draws)
+
+plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
+
+#   ----   Compare epsilons   ----
+
+epsilon.stan.df <- stan_lc_df %>% 
+  rownames_to_column("parameter") %>%
+  filter(grepl("epsilon", parameter)) %>%
+  filter(!grepl("tau_epsilon", parameter)) %>%
+  mutate(index = parse_number(parameter)) %>%
+  left_join(data.frame(res.inlabru$summary.random$epsilon), by = c("index" = "ID"), suffix = c(".stn", ".ib")) %>%
+  left_join(data.frame(xt = obs$xt, epsilon = obs$epsilon), by = c("index" = "xt"), suffix("", ".true"))
+
+p.epsilon <- ggplot(epsilon.stan.df) + 
+  geom_point(aes(x = index, y = mean.ib, fill = "Inlabru", color = "Inlabru")) + 
+  geom_errorbar(aes(x = index, ymin = X0.025quant, ymax = X0.975quant, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  geom_point(aes(x = index, y = mean.stn, fill = "Stan", color = "Stan")) + 
+  geom_errorbar(aes(x = index, ymin = `2.5%`, ymax = `97.5%`, fill = "Stan", color = "Stan"), alpha = 0.5) + 
+  geom_point(aes(x = index, y = epsilon, fill = "True", color = "True"), shape = 4) + 
+  theme_classic() + 
+  scale_fill_manual(name = "", values = palette) + 
+  scale_color_manual(name = "", values = palette) + 
+  labs(title = "Epsilon, as estimated by Inlabru and Stan", x = "xt", y = "")
+p.epsilon
+
+save.figure(p.epsilon, "epsilon_comparison", path = output.path, png = F)
+
+#   ----  Compare eta, no error   ----
+
+samps.eta.no.error.inlabru <- generate(
+  res.inlabru,
+  data = data.frame(x = obs$x, t = obs$t, x.c = obs$x.c, xt = obs$xt),
+  formula = ~ Int + alpha + beta*kappa,
+  n.sample = 10000)
+
+eta.no.error.inlabru <- data.frame(
+  xt = obs$xt, 
+  mean = apply(samps.eta.no.error.inlabru, 1, mean),
+  X0.025quant = apply(samps.eta.no.error.inlabru, 1, quantile, 0.025),
+  X0.975quant = apply(samps.eta.no.error.inlabru, 1, quantile, 0.975)) 
+
+samps.eta.no.error.stan <- matrix(intercept_draws, nrow = 144000, ncol = 162) + 
+  alpha_draws[,rep(1:9, each = 18)] + 
+  beta_draws[,rep(1:9, each = 18)]*matrix(rep(kappa_draws, 9), nrow = 144000, ncol = 9*18)
+samps.eta.no.error.stan <- t(samps.eta.no.error.stan)
+
+eta.no.error.stan <- data.frame(
+  xt = obs$xt, 
+  mean = apply(samps.eta.no.error.stan, 1, mean),
+  X0.025quant = apply(samps.eta.no.error.stan, 1, quantile, 0.025),
+  X0.975quant = apply(samps.eta.no.error.stan, 1, quantile, 0.975))
+
+eta.no.error.df <- left_join(eta.no.error.inlabru, eta.no.error.stan, by = c("xt" = "xt"), suffix = c(".ib", ".stn")) %>%
+  left_join(data.frame(obs$xt, obs$x, obs$t, obs$eta, obs$epsilon, obs$alpha, obs$beta, obs$kappa, obs$intercept),  by = c("xt" = "obs.xt"), suffix = c("", ".true")) %>%
+  mutate(eta.no.error = obs.eta - obs.epsilon) %>%
+  mutate(eta.no.error.2 = obs.intercept + obs.alpha + obs.beta*obs.kappa)
+
+p.eta.no.error <- ggplot(eta.no.error.df) + 
+  geom_point(aes(x = xt, y = mean.ib, fill = "Inlabru", color = "Inlabru")) + 
+  geom_errorbar(aes(x = xt, ymin = X0.025quant.ib, ymax = X0.975quant.ib, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  geom_point(aes(x = xt, y = mean.stn, fill = "Stan", color = "Stan")) + 
+  geom_errorbar(aes(x = xt, ymin = X0.025quant.stn, ymax = X0.975quant.stn, color = "Stan", fill = "Stan"), alpha = 0.5) + 
+  geom_point(aes(x = xt, y = eta.no.error, color = "True", fill = "True"), shape = 4) + 
+  theme_classic() + 
+  scale_color_manual(name="", values = palette) + 
+  scale_fill_manual(name="", values = palette) + 
+  labs(title = "Int + alpha + beta*kappa (eta no error), estimated by Inlabru and Stan")
+
+p.eta.no.error
+
+save.figure(p.eta.no.error, name = "eta_no_error_compared", path = output.path, png = F)
+
+#   ----   Compare eta, with error   ----
+
+samps.eta.error.inlabru <- generate(
   res.inlabru,
   data = data.frame(x = obs$x, t = obs$t, x.c = obs$x.c, xt = obs$xt),
   formula = ~ Int + alpha + beta*kappa + epsilon,
   n.sample = 10000)
 
-inlabru.predictor.df <- data.frame(t(inlabru.samps.predictor))
+eta.error.inlabru <- data.frame(
+  xt = obs$xt, 
+  mean = apply(samps.eta.error.inlabru, 1, mean),
+  X0.025quant = apply(samps.eta.error.inlabru, 1, quantile, 0.025),
+  X0.975quant = apply(samps.eta.error.inlabru, 1, quantile, 0.975)) 
 
-stan.samps.predictor <- eta_draws[sample(nrow(eta_draws), size = 10000, replace = F),]
+samps.eta.error.stan <- t(eta_draws)
 
-stan.predictor.df <- data.frame(eta_draws)
+eta.error.stan <- data.frame(
+  xt = obs$xt, 
+  mean = apply(samps.eta.error.stan, 1, mean),
+  X0.025quant = apply(samps.eta.error.stan, 1, quantile, 0.025),
+  X0.975quant = apply(samps.eta.error.stan, 1, quantile, 0.975))
 
-plot.predictor.inlabru.stan.compared(inlabru.predictor.df, stan.predictor.df, path.to.storage = output.path, a45=T)
+eta.error.df <- left_join(eta.error.inlabru, eta.error.stan, by = c("xt" = "xt"), suffix = c(".ib", ".stn")) %>%
+  left_join(data.frame(obs$xt, obs$x, obs$t, obs$eta, obs$epsilon, obs$alpha, obs$beta, obs$kappa, obs$intercept),  by = c("xt" = "obs.xt"), suffix = c("", ".true")) %>%
+  mutate(eta.no.error = obs.eta - obs.epsilon) %>%
+  mutate(eta.no.error.2 = obs.intercept + obs.alpha + obs.beta*obs.kappa)
+
+p.eta.error <- ggplot(eta.error.df) + 
+  geom_point(aes(x = xt, y = mean.ib, fill = "Inlabru", color = "Inlabru")) + 
+  geom_errorbar(aes(x = xt, ymin = X0.025quant.ib, ymax = X0.975quant.ib, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
+  geom_point(aes(x = xt, y = mean.stn, fill = "Stan", color = "Stan")) + 
+  geom_errorbar(aes(x = xt, ymin = X0.025quant.stn, ymax = X0.975quant.stn, color = "Stan", fill = "Stan"), alpha = 0.5) + 
+  #geom_point(aes(x = xt, y = eta.no.error, color = "True, no error", fill = "True, no error"), shape = 1) + 
+  geom_point(aes(x = xt, y = obs.eta, color = "True, error", fill = "True, error"), shape = 4) + 
+  theme_classic() + 
+  scale_color_manual(name="", values = palette) + 
+  scale_fill_manual(name="", values = palette) + 
+  labs(title = "Int + alpha + beta*kappa (eta no error), estimated by Inlabru and Stan")
+
+p.eta.error
+
+save.figure(p.eta.error, name = "eta_error_compared", path = output.path, png = F)
+
 

@@ -275,6 +275,49 @@ inlabru.traditional.lc.fixed.hypers.some.rw1.no.constr <- function(obs, max_iter
   return(res.inlabru)
 }
 
+inlabru.traditional.lc.fixed.hypers.all.rw1.no.constr <- function(obs, max_iter=30){
+  #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
+  #'
+  #'@param obs: Contains the observed data and the real underlying random effects
+  #'@param max_iter (int): maximum number of iterations in inlabru
+  
+  nx = length(unique(obs$x))
+  nt = length(unique(obs$t))
+  
+  # constraints for the age effect beta
+  A.beta = matrix(1, nrow = 1, ncol = nx)  
+  e.beta = 1  
+  
+  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
+  fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
+  fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  
+  comp = ~ -1 +
+    Int(1, prec.linear = 0.001, mean.linear = 0) +
+    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = FALSE) +
+    beta(x.c, model = "rw1", hyper = fixed.theta.beta, constr = FALSE) +
+    kappa(t, model = "rw1", hyper = fixed.theta.kappa, constr = FALSE)
+  
+  formula = eta ~ Int + alpha + beta*kappa
+  
+  likelihood = like(formula = formula, family = "gaussian", data = obs)
+  
+  c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
+  c.family <- list(hyper = fixed.theta.epsilon)
+  
+  res.inlabru = bru(components = comp,
+                    likelihood, 
+                    options = list(verbose = F,
+                                   bru_verbose = 1, 
+                                   num.threads = "1:1",
+                                   control.compute = c.compute,
+                                   bru_max_iter=max_iter,
+                                   control.family  = c.family
+                    ))
+  return(res.inlabru)
+}
+
 inlabru.traditional.lc.fixed.hypers.all.iid.no.constr.extra.epsilon <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
@@ -502,6 +545,8 @@ res.inlabru.constrained <- inlabru.traditional.lc.fixed.hypers.all.iid(obs, max_
 
 res.inlabru.some.rw1.no.constr <- inlabru.traditional.lc.fixed.hypers.some.rw1.no.constr(obs, max_iter = 100)
 
+res.inlabru.all.rw1.no.constr <- inlabru.traditional.lc.fixed.hypers.all.rw1.no.constr(obs, max_iter = 100)
+
 res.inlabru.all.iid.beta.constr <- inlabru.traditional.lc.fixed.hypers.all.iid.only.beta.constr(obs, max_iter = 100)
 
 res.inlabru.all.iid.alpha.kappa.constr <- inlabru.traditional.lc.fixed.hypers.all.iid.alpha.kappa.constr(obs, max_iter = 100)
@@ -545,6 +590,12 @@ plots.summaries.inlabru.some.rw1.no.constr <- plot.inlabru.vs.underlying.traditi
   res.inlabru.some.rw1.no.constr,
   underlying.effects,
   path.to.storage = file.path(output.path, "no\ constr\ rw1"),
+  save=T, png = F)
+
+plots.summaries.inlabru.all.rw1.no.constr <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+  res.inlabru.all.rw1.no.constr,
+  underlying.effects,
+  path.to.storage = file.path(output.path, "no\ constr\ all\ rw1"),
   save=T, png = F)
 
 plots.summaries.inlabru.all.iid.beta.constr <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(

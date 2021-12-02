@@ -745,7 +745,8 @@ plot.inlabru.stan.traditional.lc.fixed.hypers <- function(stan.summaries,
   print("Finish printing etas")
   
   eta.stan.inlabru<- inlabru.summaries$data.eta %>% left_join(stan.summaries$summary_eta, by = c("xt" = "xt")) %>%
-    mutate(diff.eta = eta.sim - mean)
+    mutate(diff.eta = eta.sim - mean, stan.min.inlabru = mean - eta.sim)
+  
   
   p.eta.stan.v.inlabru <- ggplot(data = eta.stan.inlabru) + 
     geom_point(aes(x = eta.sim, y = mean), color = palette[1]) + 
@@ -753,9 +754,12 @@ plot.inlabru.stan.traditional.lc.fixed.hypers <- function(stan.summaries,
     labs(title = "Estimated predictor by Stan (y) and Inlabru (x)", x = "Inlabru", y = "Stan")
   
   p.eta.stan.inlabru <- ggplot(data = eta.stan.inlabru) + 
-    geom_point(aes(x = xt, y = diff.eta)) + 
+    #geom_point(aes(x = xt, y = diff.eta)) + 
+    geom_point(aes(x = xt, y = stan.min.inlabru)) + 
     theme_classic() + 
-    labs(title = "Difference between Inlabru and Stan estimation of eta", x = "xt", y = "Difference")
+    labs(title = "Difference between Inlabru and Stan estimation of eta, eta_stan - eta_inlabru", x = "xt", y = "Difference")
+  
+
   
   p.eta.2 <- ggplot() +
     geom_point(data = inlabru.summaries$data.eta, aes(x=xt, y = eta.sim, color="Inlabru", fill="Inlabru"), size=0.5, alpha = 0.5) +
