@@ -28,7 +28,7 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "poiss_lin_fh_rw1"
+investigation.name <- "poiss_lin_gp_rw1"
 investigation.path <- file.path(investigation.name, "v7")
 
 #   ----    Retrieve the data   ----
@@ -74,21 +74,21 @@ source("Scripts/Synthetic\ data/run_stan_functions.R")
 
 run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name, markov=TRUE){
   
-  stan_fit <- run_stan_program_lc(
+  stan_fit <- run_stan_program_gaussian(
     list(obs = obs), chains=chains,warmup=warmup,
     iter=iter, stan_program=stan_program)
   
-  store_stan_results_pois_linear(
+  store_stan_results_gaus_linear(
     fit=stan_fit, output.path=output.path, config=config.name,
     chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
 }
 
 run_stan(
-  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_lin_fh_rw1_sc.stan",
+  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_lin_gp_rw1_sc.stan",
   obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.pois.lin.fh.rw1 <- function(obs, max_iter=30){
+inlabru.pois.lin.gp.rw1 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -101,17 +101,20 @@ inlabru.pois.lin.fh.rw1 <- function(obs, max_iter=30){
   #A.beta = matrix(1, nrow = 1, ncol = nx)  
   #e.beta = 1  
   
-  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  #fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
-  fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
-  fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
+  # fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  # fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
+  # fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
+  # fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
+  
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = TRUE) +
+    alpha(x, model = "rw1", hyper = loggamma.prior, constr = TRUE) +
     #beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "rw1", hyper = fixed.theta.kappa, constr = TRUE) + 
-    epsilon(xt, model = "iid", hyper = fixed.theta.epsilon, constr = FALSE)
+    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE) + 
+    epsilon(xt, model = "iid", hyper = loggamma.prior, constr = FALSE)
   
   formula = Y ~ Int + alpha + kappa + epsilon
   
@@ -141,7 +144,7 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects.no.beta(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.no.beta(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -186,8 +189,8 @@ plots_compared <- produce.compared.plots(
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 
@@ -221,4 +224,3 @@ p.pred.54 <- ggplot(pred.54.inlabru) +
 p.pred.54
 
 save.figure(p.pred.54, name = "predictor_54", path = output.path, png=T)
-
