@@ -14,12 +14,12 @@
 # inlabru
 #install.packages("inlabru")
 
-# patchwork - for plotting
-#install.packages("patchwork")
+#patchwork - for plotting
+install.packages("patchwork")
 
 #    ----   Second version   ----
 
 # re-install inlabru:
-remove.packages("inlabru")
-install.packages("remotes")
-remotes::install_github("inlabru-org/inlabru", ref="stable")
+# remove.packages("inlabru")
+# install.packages("remotes")
+# remotes::install_github("inlabru-org/inlabru", ref="stable")
