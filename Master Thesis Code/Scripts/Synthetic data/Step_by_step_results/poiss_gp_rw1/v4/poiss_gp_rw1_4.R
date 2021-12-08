@@ -6,7 +6,7 @@
 #' 
 
 #   ----   Load libraries and set workspace   ----
-set_workspace <- function(config, markov=TRUE){
+set_workspace <- function(markov=TRUE){
   if(markov){
     .libPaths("~/Documents/R_libraries")
     setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
@@ -16,7 +16,7 @@ set_workspace <- function(config, markov=TRUE){
 }
 
 #   ----   TODO: Change the following lines to change to and from Markov  ----
-set_workspace(Markov=TRUE)
+set_workspace(markov=TRUE)
 # set_workspace(markov=FALSE)
 
 library("tidyverse")
