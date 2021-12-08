@@ -377,3 +377,317 @@ plot.predictor.inlabru.stan.compared <- function(
     save.figure(p.predictor, "predictor_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
   }
 }
+
+basic.density.plot <- function(inlabru.df, stan.df, stan.col, idx){
+  p.density <- ggplot() + 
+    geom_area(data = inlabru.df, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.df, aes(x = stan.col, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = paste("Predictor[",idx,"], Inlabru and stan", sep = ""), x = " ", y = " ")
+  
+  return(p.density)
+}
+
+plot.beta.inlabru.stan.compared <- function(
+  res.inlabru, stan.predictor.df,
+  path.to.storage, columns, pdf=T, png=F, a45=F) {
+  
+  if(!a45){
+    pred.1.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.1)
+    
+    p.beta.1 <- ggplot() + 
+      geom_area(data = pred.1.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[1], Inlabru and stan", x = " ", y = " ")
+    
+    pred.3.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.3)
+    
+    p.beta.3 <- ggplot() + 
+      geom_area(data = pred.3.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X3, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[3], Inlabru and stan", x = " ", y = " ")
+    
+    pred.5.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.5)
+    
+    p.beta.5 <- ggplot() + 
+      geom_area(data = pred.5.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X5, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[5], Inlabru and stan", x = " ", y = " ")
+    
+    pred.7.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.7)
+    
+    p.beta.7 <- ggplot() + 
+      geom_area(data = pred.7.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X7, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[7], Inlabru and stan", x = " ", y = " ")
+    
+    pred.9.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.9)
+    
+    p.beta.9 <- ggplot() + 
+      geom_area(data = pred.9.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X9, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[9], Inlabru and stan", x = " ", y = " ")
+    
+    pred.11.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.11)
+    
+    p.beta.11 <- ggplot() + 
+      geom_area(data = pred.11.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X11, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[11], Inlabru and stan", x = " ", y = " ")
+    
+    pred.13.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.13)
+    
+    p.beta.13 <- ggplot() + 
+      geom_area(data = pred.13.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X13, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[13], Inlabru and stan", x = " ", y = " ")
+    
+    pred.15.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.15)
+    
+    p.beta.15 <- ggplot() + 
+      geom_area(data = pred.15.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X15, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[15], Inlabru and stan", x = " ", y = " ")
+    
+    pred.17.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.17)
+    
+    p.beta.17 <- ggplot() + 
+      geom_area(data = pred.17.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X17, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[17], Inlabru and stan", x = " ", y = " ")
+    
+    p.beta <- (p.beta.1 | p.beta.3 | p.beta.5) / (p.beta.7 | p.beta.9 | p.beta.11) / (p.beta.13 | p.beta.15 | p.beta.17) + 
+      plot_layout(guides = "collect")
+    
+    save.figure(p.beta, "beta_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+  }
+  if(a45){
+    
+    pred.1.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.1)
+    
+    p.beta.1 <- ggplot() + 
+      geom_area(data = pred.1.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[1], Inlabru and stan", x = " ", y = " ")
+    
+    pred.2.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.2)
+    
+    p.beta.2 <- ggplot() + 
+      geom_area(data = pred.2.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X2, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[2], Inlabru and stan", x = " ", y = " ")
+    
+    pred.3.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.3)
+    
+    p.beta.3 <- ggplot() + 
+      geom_area(data = pred.3.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X3, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[3], Inlabru and stan", x = " ", y = " ")
+    
+    pred.4.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.4)
+    
+    p.beta.4 <- ggplot() + 
+      geom_area(data = pred.4.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X4, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[4], Inlabru and stan", x = " ", y = " ")
+    
+    pred.5.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.5)
+    
+    p.beta.5 <- ggplot() + 
+      geom_area(data = pred.5.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X5, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[5], Inlabru and stan", x = " ", y = " ")
+    
+    pred.6.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.6)
+    
+    p.beta.6 <- ggplot() + 
+      geom_area(data = pred.6.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X6, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[6], Inlabru and stan", x = " ", y = " ")
+    
+    pred.7.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.7)
+    
+    p.beta.7 <- ggplot() + 
+      geom_area(data = pred.7.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X7, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[7], Inlabru and stan", x = " ", y = " ")
+    
+    pred.8.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.8)
+    
+    p.beta.8 <- ggplot() + 
+      geom_area(data = pred.8.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X8, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[8], Inlabru and stan", x = " ", y = " ")
+
+    
+    pred.9.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.9)
+    
+    p.beta.9 <- ggplot() + 
+      geom_area(data = pred.9.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.predictor.df, aes(x = X9, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Beta[9], Inlabru and stan", x = " ", y = " ")
+    
+    
+    p.beta <- (p.beta.1 | p.beta.2 | p.beta.3) / (p.beta.4 | p.beta.5 | p.beta.6) / (p.beta.7 | p.beta.8 | p.beta.9) + 
+      plot_layout(guides = "collect")
+    
+    save.figure(p.beta, "beta_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+  }
+}
+
+plot.kappa.inlabru.stan.compared <- function(
+  res.inlabru, stan.predictor.df,
+  path.to.storage, columns, pdf=T, png=F) {
+  
+  pred.1.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.1)
+  
+  p.kappa.1 <- ggplot() + 
+    geom_area(data = pred.1.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[1], Inlabru and stan", x = " ", y = " ")
+  
+  pred.3.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.3)
+  
+  p.kappa.3 <- ggplot() + 
+    geom_area(data = pred.3.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X3, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[3], Inlabru and stan", x = " ", y = " ")
+  
+  pred.5.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.5)
+  
+  p.kappa.5 <- ggplot() + 
+    geom_area(data = pred.5.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X5, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[5], Inlabru and stan", x = " ", y = " ")
+  
+  pred.7.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.7)
+  
+  p.kappa.7 <- ggplot() + 
+    geom_area(data = pred.7.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X7, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[7], Inlabru and stan", x = " ", y = " ")
+  
+  
+  pred.9.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.9)
+  
+  p.kappa.9 <- ggplot() + 
+    geom_area(data = pred.9.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X9, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[9], Inlabru and stan", x = " ", y = " ")
+  
+  pred.11.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.11)
+  
+  p.kappa.11 <- ggplot() + 
+    geom_area(data = pred.11.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X11, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[11], Inlabru and stan", x = " ", y = " ")
+  
+  pred.13.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.13)
+  
+  p.kappa.13 <- ggplot() + 
+    geom_area(data = pred.13.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X13, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[13], Inlabru and stan", x = " ", y = " ")
+  
+  pred.15.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.15)
+  
+  p.kappa.15 <- ggplot() + 
+    geom_area(data = pred.15.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X15, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[15], Inlabru and stan", x = " ", y = " ")
+  
+  pred.17.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.17)
+  
+  p.kappa.17 <- ggplot() + 
+    geom_area(data = pred.17.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+    geom_histogram(data = stan.predictor.df, aes(x = X17, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+    theme_classic() + 
+    scale_color_manual(name = "", values = palette) + 
+    scale_fill_manual(name = "", values = palette) + 
+    labs(title = "Kappa[17], Inlabru and stan", x = " ", y = " ")
+  
+  p.kappa <- (p.kappa.1 | p.kappa.3 | p.kappa.5) / (p.kappa.7 | p.kappa.9 | p.kappa.11) / (p.kappa.13 | p.kappa.15 | p.kappa.17) + 
+    plot_layout(guides = "collect")
+  
+  save.figure(p.kappa, "kappa_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+}

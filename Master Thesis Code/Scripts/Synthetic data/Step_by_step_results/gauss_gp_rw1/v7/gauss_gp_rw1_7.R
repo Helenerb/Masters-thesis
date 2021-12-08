@@ -15,7 +15,8 @@ library("rstan")
 
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "tllp_rw1_no_constr"
+investigation.name <- "gauss_gp_rw1"
+investigation.path <- file.path(investigation.name, "v7")
 
 #   ----    Retrieve the data   ----
 
@@ -32,7 +33,7 @@ synthetic.male.lung.v7 <- function(){
     mutate(mr_gaussian = exp(eta)) %>%
     mutate(Y_gaussian  = mr_gaussian * E)
   
-  underlying.effects <- list(obs = obs.trad, nx = 9, nt = 18,
+  underlying.effects <- list(obs = obs.trad, nx = 18, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
                              beta.true = {obs %>% filter(t == 0)}$beta,
                              kappa.true = {obs %>% filter(x == 0)}$kappa,
@@ -43,9 +44,8 @@ synthetic.male.lung.v7 <- function(){
                              tau.kappa.true = unique(obs$tau.kappa),
                              tau.epsilon.true = unique(obs$tau.epsilon))
   
-  return(list(obs = obs.trad, underlying.effects = underlying.effects))
+  return(list(obs = obs, underlying.effects = underlying.effects))
 }
-
 
 # We use this data for both inlabru and stan
 config.data <- synthetic.male.lung.v7()
@@ -54,29 +54,28 @@ underlying.effects <- config.data$underlying.effects
 
 #   ----   Run STAN analysis   ----
 # Running traditional lc version of stan, 
-# implemented with log-precisions. 
+# implemented with log-precisions, random effects as iid, and no constraints
 
-stan.output  <- file.path("Scripts/Synthetic data/Investigation", investigation.name)
+stan.output  <- file.path("Scripts/Synthetic data/Step_by_step_results", investigation.path)
 source("Scripts/Synthetic\ data/run_stan_functions.R")
 
 run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name, markov=TRUE){
   
-  stan_fit <- run_stan_program_traditional_lc(
+  stan_fit <- run_stan_program_gaussian(
     list(obs = obs), chains=chains,warmup=warmup,
     iter=iter, stan_program=stan_program)
   
   store_stan_results_traditional(
     fit=stan_fit, output.path=output.path, config=config.name,
-    chains=chains, warmup=warmup, iter=iter, stan_program=stan_program,
-    cohort=FALSE)
+    chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
 }
 
 run_stan(
-  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/stan_tllp_rw1_no_costr_fixed_random_gamma_epsilon.stan",
-  obs = obs, chains=4, warmup = 4000, iter = 40000, output.path = stan.output,
+  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_gp_rw1_sc.stan",
+  obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.traditional.lc.rw1.no.constr.gamma.epsilon <- function(obs, max_iter=30){
+inlabru.gaus.gp.rw1 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -86,22 +85,22 @@ inlabru.traditional.lc.rw1.no.constr.gamma.epsilon <- function(obs, max_iter=30)
   nt = length(unique(obs$t))
   
   # constraints for the age effect beta
-  A.beta = matrix(1, nrow = 1, ncol = nx)  
-  e.beta = 1  
+  A.beta = matrix(1, nrow = 1, ncol = nx)
+  e.beta = 1
   
-  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  fixed.theta.beta <- list(prec = list(initial = log(100), fixed = T))
-  fixed.theta.kappa <- list(prec = list(initial = log(70), fixed = T))
-  # fixed.theta.epsilon <- list(prec = list(initial = log(400), fixed = T))
+  # fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  # fixed.theta.beta <- list(prec = list(initial = log(64), fixed = T))
+  # fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
+  # fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
   
   loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
-  #loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = FALSE) +
-    beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "rw1", constr = FALSE, hyper = fixed.theta.kappa)
+    alpha(x, model = "rw1", hyper = loggamma.prior, constr = TRUE) +
+    beta(x.c, model = "iid", hyper = loggamma.prior, extraconstr = list(A = A.beta, e = e.beta)) +
+    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE)
   
   formula = eta ~ Int + alpha + beta*kappa
   
@@ -113,16 +112,17 @@ inlabru.traditional.lc.rw1.no.constr.gamma.epsilon <- function(obs, max_iter=30)
   res.inlabru = bru(components = comp,
                     likelihood, 
                     options = list(verbose = F,
-                                   bru_verbose = 1, 
+                                   bru_verbose = 4, 
                                    num.threads = "1:1",
                                    control.compute = c.compute,
                                    bru_max_iter=max_iter,
+                                   #control.predictor = list(compute = TRUE),
                                    control.family  = c.family
                     ))
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.traditional.lc.rw1.no.constr.gamma.epsilon(obs, max_iter = 100)
+res.inlabru <- inlabru.gaus.gp.rw1(obs, max_iter = 100)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
@@ -131,17 +131,11 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
   save=F)
-
-# plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
-#   res.inlabru,
-#   underlying.effects,
-#   path.to.storage = output.path,
-#   save=T, cutoff_alpha = 100000, cutoff_beta = 100000, cutoff_kappa = 1000)
 
 load(file.path(stan.output, paste("stan_", investigation.name, ".Rda", sep = "")))
 
@@ -180,9 +174,10 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 30000, tau.kappa.cutoff = 1000, tau.alpha.cutoff = 1000, tau.epsilon.cutoff = 10000, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 400, tau.kappa.cutoff = 150, tau.alpha.cutoff = 100, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 
@@ -192,41 +187,11 @@ stan.predictor.df <- data.frame(eta_draws)
 
 plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
-#   ----   Manually plot predictor from inlabru   ----
+#   ----   Plot marginals of random effects   ----
 
-data.predictor.inlabru <- data.frame(xt = obs$xt, mean = res.inlabru$summary.linear.predictor$mean[1:162],
-                                     X0.025quant = res.inlabru$summary.linear.predictor$`0.025quant`[1:162],
-                                     X0.975quant = res.inlabru$summary.linear.predictor$`0.975quant`[1:162])
+stan.beta.df <- data.frame(beta_draws)
+plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = output.path, a45=T)
 
-p.predictor.inlabru.conf.int <- ggplot(data.predictor.inlabru) + 
-  geom_point(aes(x = xt, y = mean), color = palette[1]) + 
-  geom_errorbar(aes(x = xt, ymin = X0.025quant, ymax = X0.975quant), color = palette[1], alpha = 0.7) + 
-  theme_classic() + 
-  labs(title="Predictor, estimated by inlabru")
-
-p.predictor.inlabru.conf.int
-
-save.figure(p.predictor.inlabru.conf.int, name = "predictor_inlabru_conf_int", png = F, path = output.path)
-
-p.predictor.inlabru.no.conf.int <- ggplot(data.predictor.inlabru) + 
-  geom_point(aes(x = xt, y = mean), color = palette[1]) + 
-  #geom_errorbar(aes(x = xt, ymin = X0.025quant, ymax = X0.975quant), color = palette[1], alpha = 0.7) + 
-  theme_classic() + 
-  labs(title="Predictor, estimated by inlabru")
-
-p.predictor.inlabru.no.conf.int
-
-save.figure(p.predictor.inlabru.no.conf.int, name = "predictor_inlabru_no_conf_int", png = F, path = output.path)
-
-#   ----   Plot marginals of tau_epsilon   ----
-
-tau.epsilon.data <- data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`)
-
-p.tau.epsilon <- ggplot(tau.epsilon.data) + 
-  geom_area(aes(x = x, y = y), color = palette[1], fill = palette[1], alpha = 0.5) + 
-  labs("Precision of likelihood, as estimated by inlabru")
-
-p.tau.epsilon
-
-save.figure(p.tau.epsilon, name = "tau_epsilon_inlabru", path = output.path, png = F) 
+stan.kappa.df <- data.frame(kappa_draws)
+plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
 
