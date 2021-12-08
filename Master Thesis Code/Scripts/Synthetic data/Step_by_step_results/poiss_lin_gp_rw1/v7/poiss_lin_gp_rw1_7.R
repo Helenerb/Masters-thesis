@@ -74,11 +74,11 @@ source("Scripts/Synthetic\ data/run_stan_functions.R")
 
 run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name, markov=TRUE){
   
-  stan_fit <- run_stan_program_gaussian(
+  stan_fit <- run_stan_program_lc(
     list(obs = obs), chains=chains,warmup=warmup,
     iter=iter, stan_program=stan_program)
   
-  store_stan_results_gaus_linear(
+  store_stan_results_pois_linear(
     fit=stan_fit, output.path=output.path, config=config.name,
     chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
 }
@@ -135,7 +135,7 @@ inlabru.pois.lin.gp.rw1 <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.pois.lin.fh.rw1(obs, max_iter = 100)
+res.inlabru <- inlabru.pois.lin.gp.rw1(obs, max_iter = 100)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
