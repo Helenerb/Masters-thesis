@@ -753,6 +753,7 @@ plot.epsilon.inlabru.stan.compared <- function(
   if(a45){
     
     pred.1.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.1)
+    print(head(pred.1.inlabru))
     
     p.epsilon.1 <- ggplot() + 
       geom_area(data = pred.1.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
@@ -763,6 +764,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       labs(title = "Epsilon[1], Inlabru and stan", x = " ", y = " ")
     
     pred.2.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.32)
+    print(head(pred.2.inlabru))
     
     p.epsilon.2 <- ggplot() + 
       geom_area(data = pred.2.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
@@ -773,6 +775,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       labs(title = "Epsilon[32], Inlabru and stan", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.64)
+    print(head(pred.3.inlabru))
     
     p.epsilon.3 <- ggplot() + 
       geom_area(data = pred.3.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
@@ -782,7 +785,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       scale_fill_manual(name = "", values = palette) + 
       labs(title = "Epsilon[64], Inlabru and stan", x = " ", y = " ")
     
-    pred.4.inlabru <- data.frame(res.inlabru$marginals.random$index.96)
+    pred.4.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.96)
     
     p.epsilon.4 <- ggplot() + 
       geom_area(data = pred.4.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
@@ -793,6 +796,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       labs(title = "Epsilon[96], Inlabru and stan", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.128)
+    print(head(pred.5.inlabru))
     
     p.epsilon.5 <- ggplot() + 
       geom_area(data = pred.5.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
@@ -803,6 +807,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       labs(title = "Epsilon[128], Inlabru and stan", x = " ", y = " ")
     
     pred.6.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.162)
+    print(head(pred.6.inlabru))
     
     p.epsilon.6 <- ggplot() + 
       geom_area(data = pred.6.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
