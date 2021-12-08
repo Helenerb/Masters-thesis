@@ -16,8 +16,8 @@ set_workspace <- function(markov=TRUE){
 }
 
 #   ----   TODO: Change the following lines to change to and from Markov  ----
-set_workspace(markov=TRUE)
-# set_workspace(markov=FALSE)
+#set_workspace(markov=TRUE)
+set_workspace(markov=FALSE)
 
 library("tidyverse")
 library("inlabru")
@@ -88,6 +88,9 @@ run_stan(
   stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_gp_rw1_sc.stan",
   obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
   config.name = investigation.name, markov=F)
+
+print("This is the obs that we send in to inlabru: ")
+print(obs)
 
 inlabru.pois.gp.rw1 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
