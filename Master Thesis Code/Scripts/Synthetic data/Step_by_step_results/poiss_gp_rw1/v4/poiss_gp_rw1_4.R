@@ -16,8 +16,8 @@ set_workspace <- function(markov=TRUE){
 }
 
 #   ----   TODO: Change the following lines to change to and from Markov  ----
-#set_workspace(markov=TRUE)
-set_workspace(markov=FALSE)
+set_workspace(markov=TRUE)
+#set_workspace(markov=FALSE)
 
 library("tidyverse")
 library("inlabru")
