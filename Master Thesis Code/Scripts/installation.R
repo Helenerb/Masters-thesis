@@ -25,4 +25,5 @@
 # remotes::install_github("inlabru-org/inlabru", ref="stable")
 
 # updgrade inla
+library("INLA")
 inla.upgrade()
