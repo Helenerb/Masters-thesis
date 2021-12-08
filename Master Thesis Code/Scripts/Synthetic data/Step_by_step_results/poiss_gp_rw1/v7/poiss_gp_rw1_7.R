@@ -13,24 +13,22 @@ library("INLA")
 library("patchwork")
 library("rstan")
 
-#TODO: Set this to your local working directory
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
 investigation.name <- "poiss_fh_rw1"
-
-# Path to where files and results are stored
-# If you run locally - change this to where you have stored the code
-investigation.path <- file.path(investigation.name, "v4")
+investigation.path <- file.path(investigation.name, "v7")
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v4 <- function(){
-  #TODO: If you run this locally - change to where you have stored the data
-  obs <- read.csv("Data/synthetic_male_lung_4.csv")
+synthetic.male.lung.v7 <- function(){
+  obs <- read.csv("Data/synthetic_male_lung_7.csv")
+  obs <- obs %>% mutate(x.old = x, x = x - 9, x.c = x) %>%
+    select(-X)
   
   obs.trad <- obs %>% 
     select(c(x, t, xt, age.int, year, x.c, alpha, beta, kappa, intercept, epsilon,
              eta, tau.alpha, tau.beta, tau.kappa, tau.epsilon, E)) %>%
+    #mutate(eta = eta) %>%
     mutate(eta.no.error = intercept + alpha + beta*kappa) %>%
     mutate(mr_gaussian = exp(eta)) %>%
     mutate(Y_gaussian  = mr_gaussian * E)
@@ -50,7 +48,7 @@ synthetic.male.lung.v4 <- function(){
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v4()
+config.data <- synthetic.male.lung.v7()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
 
@@ -58,7 +56,6 @@ underlying.effects <- config.data$underlying.effects
 # Running traditional lc version of stan, 
 # implemented with log-precisions, random effects as iid, and no constraints
 
-# TODO: If you run this locally - change it to where you have your folder containing these files
 stan.output  <- file.path("Scripts/Synthetic data/Step_by_step_results", investigation.path)
 source("Scripts/Synthetic\ data/run_stan_functions.R")
 
@@ -73,9 +70,8 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
     chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
 }
 
-#TODO: if you run locally, change path to where you have stored stan program
 run_stan(
-  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_fh_rw1_sc_4.stan",
+  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_fh_rw1_sc_7.stan",
   obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
@@ -93,7 +89,7 @@ inlabru.pois.fh.rw1 <- function(obs, max_iter=30){
   e.beta = 1
   
   fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  fixed.theta.beta <- list(prec = list(initial = log(202), fixed = T))
+  fixed.theta.beta <- list(prec = list(initial = log(64), fixed = T))
   fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
   fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
   
@@ -125,16 +121,14 @@ inlabru.pois.fh.rw1 <- function(obs, max_iter=30){
 
 res.inlabru <- inlabru.pois.fh.rw1(obs, max_iter = 100)
 
-#  save inlabru object
+output.path <- stan.output
+
 save(res.inlabru, file = file.path(output.path, "res_inlabru.RData"))
 
-#TODO: If you run these files locally - change sources to the local location
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
 source("Scripts/Synthetic data/plot_inlabru_stan_compared.R")
 source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
-
-output.path <- stan.output
 
 plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
   res.inlabru,
@@ -190,15 +184,13 @@ plots_compared <- produce.compared.plots(
 
 stan.predictor.df <- data.frame(eta_draws)
 
-plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=F)
+plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
 #   ----   Plot marginals of random effects   ----
 
 stan.beta.df <- data.frame(beta_draws)
-plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = output.path, a45=F)
+plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = output.path, a45=T)
 
 stan.kappa.df <- data.frame(kappa_draws)
 plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
-
-
 

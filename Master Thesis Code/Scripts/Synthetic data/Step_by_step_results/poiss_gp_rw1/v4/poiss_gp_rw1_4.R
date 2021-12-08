@@ -16,7 +16,7 @@ library("rstan")
 #TODO: Set this to your local working directory
 setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
-investigation.name <- "poiss_fh_rw1"
+investigation.name <- "poiss_gp_rw1"
 
 # Path to where files and results are stored
 # If you run locally - change this to where you have stored the code
@@ -75,11 +75,11 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 
 #TODO: if you run locally, change path to where you have stored stan program
 run_stan(
-  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_fh_rw1_sc_4.stan",
+  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_gp_rw1_sc.stan",
   obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.pois.fh.rw1 <- function(obs, max_iter=30){
+inlabru.pois.gp.rw1 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -92,17 +92,20 @@ inlabru.pois.fh.rw1 <- function(obs, max_iter=30){
   A.beta = matrix(1, nrow = 1, ncol = nx)
   e.beta = 1
   
-  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  fixed.theta.beta <- list(prec = list(initial = log(202), fixed = T))
-  fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
-  fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
+  # fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  # fixed.theta.beta <- list(prec = list(initial = log(202), fixed = T))
+  # fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
+  # fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
+  
+  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
+  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = TRUE) +
-    beta(x.c, model = "iid", hyper = fixed.theta.beta, extraconstr = list(A = A.beta, e = e.beta)) +
-    kappa(t, model = "rw1", hyper = fixed.theta.kappa, constr = TRUE) + 
-    epsilon(xt, model = "iid", hyper = fixed.theta.epsilon, constr = FALSE)
+    alpha(x, model = "rw1", hyper = loggamma.prior, constr = TRUE) +
+    beta(x.c, model = "iid", hyper = loggamma.prior, extraconstr = list(A = A.beta, e = e.beta)) +
+    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE) + 
+    epsilon(xt, model = "iid", hyper = loggamma.prior, constr = FALSE)
   
   formula = Y ~ Int + alpha + beta*kappa + epsilon
   
@@ -123,7 +126,9 @@ inlabru.pois.fh.rw1 <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.pois.fh.rw1(obs, max_iter = 100)
+res.inlabru <- inlabru.pois.gp.rw1(obs, max_iter = 100)
+
+output.path <- stan.output
 
 #  save inlabru object
 save(res.inlabru, file = file.path(output.path, "res_inlabru.RData"))
@@ -134,9 +139,7 @@ source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
 source("Scripts/Synthetic data/plot_inlabru_stan_compared.R")
 source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
-output.path <- stan.output
-
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -155,6 +158,7 @@ load(file.path(stan.output, "draws_kappa.RData"))
 load(file.path(stan.output, "draws_eta_100.RData"))
 load(file.path(stan.output, "draws_eta.RData"))
 load(file.path(stan.output, "draws_eta_reduced.RData"))
+load(file.path(stan.output, "draws_epsilon.RData"))
 
 stan.marginals <- list(intercept_draws = intercept_draws,
                        tau_epsilon_draws = tau_epsilon_draws,
@@ -179,8 +183,9 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
@@ -200,5 +205,20 @@ plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = out
 stan.kappa.df <- data.frame(kappa_draws)
 plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
 
+stan.epsilon.df <- data.frame(epsilon_draws)
+plot.epsilon.inlabru.stan.compared(res.inlabru, stan.epsilon.df, path.to.storage = output.path, a45 = F)
 
+#   ----   Specifically check the predictors at xt = 54:   ----
 
+pred.54.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.054)
+
+p.pred.54 <- ggplot(pred.54.inlabru) + 
+  geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 100) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Predictor at xt=54", x = "", y = "")
+p.pred.54
+
+save.figure(p.pred.54, name = "predictor_54", path = output.path, png= F)

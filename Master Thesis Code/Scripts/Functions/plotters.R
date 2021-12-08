@@ -378,18 +378,6 @@ plot.predictor.inlabru.stan.compared <- function(
   }
 }
 
-basic.density.plot <- function(inlabru.df, stan.df, stan.col, idx){
-  p.density <- ggplot() + 
-    geom_area(data = inlabru.df, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
-    geom_histogram(data = stan.df, aes(x = stan.col, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
-    theme_classic() + 
-    scale_color_manual(name = "", values = palette) + 
-    scale_fill_manual(name = "", values = palette) + 
-    labs(title = paste("Predictor[",idx,"], Inlabru and stan", sep = ""), x = " ", y = " ")
-  
-  return(p.density)
-}
-
 plot.beta.inlabru.stan.compared <- function(
   res.inlabru, stan.predictor.df,
   path.to.storage, columns, pdf=T, png=F, a45=F) {
@@ -690,4 +678,143 @@ plot.kappa.inlabru.stan.compared <- function(
     plot_layout(guides = "collect")
   
   save.figure(p.kappa, "kappa_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+}
+
+plot.epsilon.inlabru.stan.compared <- function(
+  res.inlabru, stan.epsilon.df,
+  path.to.storage, pdf=T, png=F, a45=F) {
+  
+  if(!a45){
+    pred.1.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.1)
+    
+    p.epsilon.1 <- ggplot() + 
+      geom_area(data = pred.1.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[1], Inlabru and stan", x = " ", y = " ")
+    
+    pred.2.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.64)
+    
+    p.epsilon.2 <- ggplot() + 
+      geom_area(data = pred.2.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X64, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[64], Inlabru and stan", x = " ", y = " ")
+    
+    pred.3.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.128)
+    
+    p.epsilon.3 <- ggplot() + 
+      geom_area(data = pred.3.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X128, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[128], Inlabru and stan", x = " ", y = " ")
+    
+    pred.4.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.192)
+    
+    p.epsilon.4 <- ggplot() + 
+      geom_area(data = pred.4.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X192, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[192], Inlabru and stan", x = " ", y = " ")
+    
+    pred.5.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.256)
+    
+    p.epsilon.5 <- ggplot() + 
+      geom_area(data = pred.5.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X256, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[256], Inlabru and stan", x = " ", y = " ")
+    
+    pred.6.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.324)
+    
+    p.epsilon.6 <- ggplot() + 
+      geom_area(data = pred.6.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X324, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[324], Inlabru and stan", x = " ", y = " ")
+    
+    p.epsilon <- (p.epsilon.1 | p.epsilon.2 | p.epsilon.3)/(p.epsilon.4 | p.epsilon.5 | p.epsilon.6) + 
+      plot_layout(guides = "collect")
+    
+    save.figure(p.epsilon, "epsilon_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+  }
+  if(a45){
+    
+    pred.1.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.1)
+    
+    p.epsilon.1 <- ggplot() + 
+      geom_area(data = pred.1.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X1, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[1], Inlabru and stan", x = " ", y = " ")
+    
+    pred.2.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.32)
+    
+    p.epsilon.2 <- ggplot() + 
+      geom_area(data = pred.2.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X32, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[32], Inlabru and stan", x = " ", y = " ")
+    
+    pred.3.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.64)
+    
+    p.epsilon.3 <- ggplot() + 
+      geom_area(data = pred.3.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X64, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[64], Inlabru and stan", x = " ", y = " ")
+    
+    pred.4.inlabru <- data.frame(res.inlabru$marginals.random$index.96)
+    
+    p.epsilon.4 <- ggplot() + 
+      geom_area(data = pred.4.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X96, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[96], Inlabru and stan", x = " ", y = " ")
+    
+    pred.5.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.128)
+    
+    p.epsilon.5 <- ggplot() + 
+      geom_area(data = pred.5.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X128, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[128], Inlabru and stan", x = " ", y = " ")
+    
+    pred.6.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.162)
+    
+    p.epsilon.6 <- ggplot() + 
+      geom_area(data = pred.6.inlabru, aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+      geom_histogram(data = stan.epsilon.df, aes(x = X162, y = after_stat(density), color = "Stan", fill = "Stan"), bins = 50, alpha = 0.5) + 
+      theme_classic() + 
+      scale_color_manual(name = "", values = palette) + 
+      scale_fill_manual(name = "", values = palette) + 
+      labs(title = "Epsilon[162], Inlabru and stan", x = " ", y = " ")
+    
+    p.epsilon <- (p.epsilon.1 | p.epsilon.2 | p.epsilon.3)/(p.epsilon.4 | p.epsilon.5 | p.epsilon.6) + 
+      plot_layout(guides = "collect")
+    
+    save.figure(p.epsilon, "epsilon_marginals_comparison", path = path.to.storage, png = png, pdf = pdf)
+  }
 }

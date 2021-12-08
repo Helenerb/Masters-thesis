@@ -1,13 +1,4 @@
-// This STAN model implements the traditional lee-carter model, with the following
-// model choices:
-
-// gaus: Gaussian Lee-Carter model
-// lin: Linear model (no beta term))
-// gp: gamma priors
-// rw1: alpha and kappa as rw1
-// sc: soft constraints
-
-
+// This STAN model implements the traditional lee-carter model
 
 // The input data is a vector 'y' of length 'N'.
 functions {
@@ -25,10 +16,11 @@ data {
   int x[X*T];   // age group indices in the data
   int t[X*T];   // period indices in the data
   
-  real log_mr[X*T];
-  
   real nx;  //  number of age steps as a float
   real nt;  // number of period steps as a float
+  
+  int Y[X*T];   // observed deaths -> response variable
+  vector[X*T] E;   // observed population at risk
 }
 
 parameters {
@@ -38,30 +30,29 @@ parameters {
   vector[X] beta;  //  before sum-to-unit is implemented
   vector[T] kappa;  //  before sum-to-zero is implemented
   
-  // log-precisions: 
+  vector[X*T] epsilon;  // unconstrained
+  
+  // log-precisions
   real theta_alpha;
   real theta_beta;
   real theta_kappa;
   real theta_epsilon;
-  
-  //vector[X*T] epsilon;  // unconstrained
 }
 
 transformed parameters {
   real tau_alpha = exp(theta_alpha);
   real tau_beta = exp(theta_beta);
   real tau_kappa = exp(theta_kappa);
-  real tau_epsilon = exp(theta_epsilon);
+  real tau_epsilon = exp(theta_epsilon);  // precision of normal distribution of epsilon - error term
   
-  //vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
-  vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t];
+  vector[X*T] eta = rep_vector(intercept, X*T) + alpha[x] + beta[x].*kappa[t] + epsilon;
 }
 
 model {
-  // hyperparameters:
+  // hyperpriors
   theta_alpha ~ log_gamma(1, 0.00005);
   theta_beta ~ log_gamma(1, 0.00005);
-  theta_kappa ~ log_gamma(1, 0.005);  // prior for higher variance
+  theta_kappa ~ log_gamma(1, 0.005);  // prior with higher variance
   theta_epsilon ~ log_gamma(1, 0.00005);
   
   intercept ~ normal(0, 1/sqrt(0.001));
@@ -72,7 +63,7 @@ model {
   sum(alpha) ~ normal(0, 0.001*nx);  // soft sum-to-zero
   
   beta ~ normal(0, 1/sqrt(tau_beta));
-  sum(beta) ~ normal(1, 0.001*nx);  // soft sum-to-unit
+  sum(beta) ~ normal(1, 0.001*nx);
   
   // random walk of order two
   //kappa[1] ~ normal(0, 100);
@@ -85,10 +76,8 @@ model {
   
   sum(kappa) ~ normal(0, 0.001*nt);
   
-  //epsilon ~ normal(0, 1/sqrt(tau_epsilon));
+  epsilon ~ normal(0, 1/sqrt(tau_epsilon));
   
-  // send exp_mr as response in the first place - to get identical model to inlabru
-  
-  log_mr ~ normal(eta, 1/sqrt(tau_epsilon));
+  Y ~ poisson_log(log(E) + eta);
 }
 

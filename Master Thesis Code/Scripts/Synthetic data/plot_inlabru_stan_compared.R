@@ -192,50 +192,50 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   
   #  tau alpha 
   
-  # tau.alpha.stan <- data.frame(tau = stan.marginals$tau_alpha_draws) %>%
-  #   filter(tau < tau.alpha.cutoff)
-  # tau.alpha.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% 
-  #   filter(x < tau.alpha.cutoff)
-  # 
-  # p.tau.alpha <- ggplot() + 
-  #   geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  #   geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
-  #   geom_vline(data = tau.alpha.inlabru, aes(xintercept = underlying.effects$tau.alpha.true, color = "Observed", fill  = "Observed")) + 
-  #   scale_color_manual(name = " ", values = palette) + 
-  #   scale_fill_manual(name = " ", values = palette) +
-  #   theme_classic() + 
-  #   labs(x = "Value of precision of alpha", y = " ", title = "Precision of Alpha")
+  tau.alpha.stan <- data.frame(tau = stan.marginals$tau_alpha_draws) %>%
+    filter(tau < tau.alpha.cutoff)
+  tau.alpha.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>%
+    filter(x < tau.alpha.cutoff)
+
+  p.tau.alpha <- ggplot() +
+    geom_area(data = tau.alpha.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) +
+    geom_histogram(data = tau.alpha.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) +
+    geom_vline(data = tau.alpha.inlabru, aes(xintercept = underlying.effects$tau.alpha.true, color = "Observed", fill  = "Observed")) +
+    scale_color_manual(name = " ", values = palette) +
+    scale_fill_manual(name = " ", values = palette) +
+    theme_classic() +
+    labs(x = "Value of precision of alpha", y = " ", title = "Precision of Alpha")
   
   #  tau beta
   
-  # tau.beta.stan <- data.frame(tau = stan.marginals$tau_beta_draws) %>%
-  #   filter(tau < tau.beta.cutoff)
-  # tau.beta.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>%
-  #   filter(x < tau.beta.cutoff)
-  # 
-  # p.tau.beta <- ggplot() + 
-  #   geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  #   geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) + 
-  #   geom_vline(data = tau.beta.inlabru, aes(xintercept = underlying.effects$tau.beta.true, color = "Observed", fill = "Observed")) + 
-  #   scale_color_manual(name = " ", values = palette) + 
-  #   scale_fill_manual(name = " ", values = palette) +
-  #   theme_classic() + 
-  #   labs(x = "Value of precision of beta", y = " ", title = "Precision of Beta")
+  tau.beta.stan <- data.frame(tau = stan.marginals$tau_beta_draws) %>%
+    filter(tau < tau.beta.cutoff)
+  tau.beta.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>%
+    filter(x < tau.beta.cutoff)
+
+  p.tau.beta <- ggplot() +
+    geom_area(data = tau.beta.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) +
+    geom_histogram(data = tau.beta.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins=100) +
+    geom_vline(data = tau.beta.inlabru, aes(xintercept = underlying.effects$tau.beta.true, color = "Observed", fill = "Observed")) +
+    scale_color_manual(name = " ", values = palette) +
+    scale_fill_manual(name = " ", values = palette) +
+    theme_classic() +
+    labs(x = "Value of precision of beta", y = " ", title = "Precision of Beta")
   
   # tau kappa
-  # tau.kappa.stan <- data.frame(tau = stan.marginals$tau_kappa_draws) %>%
-  #   filter(tau < tau.kappa.cutoff)
-  # tau.kappa.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>%
-  #   filter(x < tau.kappa.cutoff)
-  # 
-  # p.tau.kappa <- ggplot() + 
-  #   geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  #   geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
-  #   geom_vline(data = tau.kappa.inlabru, aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) + 
-  #   scale_color_manual(name = " ", values = palette) + 
-  #   scale_fill_manual(name = " ", values = palette) +
-  #   theme_classic() + 
-  #   labs(x = "Value of precision of kappa", y = " ", title = "Precision of Kappa")
+  tau.kappa.stan <- data.frame(tau = stan.marginals$tau_kappa_draws) %>%
+    filter(tau < tau.kappa.cutoff)
+  tau.kappa.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>%
+    filter(x < tau.kappa.cutoff)
+
+  p.tau.kappa <- ggplot() +
+    geom_area(data = tau.kappa.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) +
+    geom_histogram(data = tau.kappa.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) +
+    geom_vline(data = tau.kappa.inlabru, aes(xintercept = underlying.effects$tau.kappa.true, color = "Observed", fill = "Observed")) +
+    scale_color_manual(name = " ", values = palette) +
+    scale_fill_manual(name = " ", values = palette) +
+    theme_classic() +
+    labs(x = "Value of precision of kappa", y = " ", title = "Precision of Kappa")
   
   # if (cohort){
   #   # tau gamma
@@ -255,32 +255,32 @@ plot.inlabru.stan.compared.rw2 <- function(stan.summaries,
   # }
   # 
   # # tau epsilon
-  # if(length(stan.marginals$tau_epsilon_draws) > 0){
-  #   tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws) %>%
-  #     filter(tau < tau.epsilon.cutoff)
-  #   tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>%
-  #     filter(x < tau.epsilon.cutoff)
-  #   
-  #   p.tau.epsilon <- ggplot() + 
-  #     geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  #     geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) + 
-  #     geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) + 
-  #     scale_color_manual(name = " ", values = palette) + 
-  #     scale_fill_manual(name = " ", values = palette) +
-  #     theme_classic() + 
-  #     labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
-  # } else {
-  #   print("No tau epsilon!")
-  #   dummy.data  <- data.frame(a = c(1.0, 2.0), b = c(1.0, 2.0))
-  #   print(dummy.data)
-  #   p.tau.epsilon <- ggplot(data = dummy.data) + geom_point(aes(x = a, y = b)) + labs(title = "No available tau epsilon")
-  # }
+  if(length(stan.marginals$tau_epsilon_draws) > 0){
+    tau.epsilon.stan <- data.frame(tau = stan.marginals$tau_epsilon_draws) %>%
+      filter(tau < tau.epsilon.cutoff)
+    tau.epsilon.inlabru <- data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>%
+      filter(x < tau.epsilon.cutoff)
+
+    p.tau.epsilon <- ggplot() +
+      geom_area(data = tau.epsilon.inlabru, aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) +
+      geom_histogram(data = tau.epsilon.stan, aes(x = tau, y = after_stat(density), color = "Stan", fill = "Stan"), alpha = 0.5, bins = 100) +
+      geom_vline(data = tau.epsilon.inlabru, aes(xintercept = underlying.effects$tau.epsilon.true, color = "Observed", fill = "Observed")) +
+      scale_color_manual(name = " ", values = palette) +
+      scale_fill_manual(name = " ", values = palette) +
+      theme_classic() +
+      labs(x = "Value of precision of epsilon", y = " ", title = "Precision of Epsilon")
+  } else {
+    print("No tau epsilon!")
+    dummy.data  <- data.frame(a = c(1.0, 2.0), b = c(1.0, 2.0))
+    print(dummy.data)
+    p.tau.epsilon <- ggplot(data = dummy.data) + geom_point(aes(x = a, y = b)) + labs(title = "No available tau epsilon")
+  }
   
-  p.tau.alpha <- ggplot() + labs(title="Fixed hypers")
-  p.tau.beta <- ggplot() + labs(title="Fixed hypers")
-  p.tau.kappa <- ggplot() + labs(title="Fixed hypers")
-  p.tau.epsilon <- ggplot() + labs(title="Fixed hypers")
-  p.tau.gamma <- ggplot() + labs(title="Fixed hypers")
+  # p.tau.alpha <- ggplot() + labs(title="Fixed hypers")
+  # p.tau.beta <- ggplot() + labs(title="Fixed hypers")
+  # p.tau.kappa <- ggplot() + labs(title="Fixed hypers")
+  # p.tau.epsilon <- ggplot() + labs(title="Fixed hypers")
+  # p.tau.gamma <- ggplot() + labs(title="Fixed hypers")
   
   #   ----   Returns   ----
   

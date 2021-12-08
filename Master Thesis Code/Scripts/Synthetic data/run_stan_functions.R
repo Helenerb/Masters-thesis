@@ -700,6 +700,8 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
   if(cohort){
     gamma_draws <- list_of_draws$gamma
   }
+  epsilon_draws <- list_of_draws$epsilon
+  epsilon_draws_100 <- epsilon_draws[seq(1, nrow(epsilon_draws), 100), ]
   
   # extract draws from predictor
   eta_draws <- list_of_draws$eta
@@ -740,8 +742,10 @@ store_stan_results <- function(fit, output.path, config, stan_program = "", chai
     save(tau_epsilon_draws, file = file.path(output.path, 'draws_tau_epsilon.RData'))
     save(intercept_draws, file = file.path(output.path, 'draws_intercept.RData'))
     save(eta_draws_100, file = file.path(output.path, "draws_eta_100.RData"))
+    save(epsilon_draws_100, file = file.path(output.path, 'draws_epsilon_100.RData'))
     save(eta_draws_reduced, file = file.path(output.path, "draws_eta_reduced.RData"))
     save(eta_draws, file = file.path(output.path, 'draws_eta.RData'))
+    save(epsilon_draws, file = file.path(output.path, 'draws_epsilon.RData'))
   },
   error = function(cond){
     message("Could not save lists of marginals \n")
