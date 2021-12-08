@@ -82,7 +82,7 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 
 run_stan(
   stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_gp_rw2_sc.stan",
-  obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
+  obs = obs, chains=4, warmup = 500000, iter = 600000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
 inlabru.gaus.gp.rw2 <- function(obs, max_iter=30){
