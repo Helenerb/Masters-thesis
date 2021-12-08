@@ -26,9 +26,6 @@ library("INLA")
 library("patchwork")
 library("rstan")
 
-#TODO: Set this to your local working directory
-setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
-
 investigation.name <- "poiss_gp_rw1"
 
 # Path to where files and results are stored
@@ -145,6 +142,7 @@ output.path <- stan.output
 
 #  save inlabru object
 save(res.inlabru, file = file.path(output.path, "res_inlabru.RData"))
+
 
 #TODO: If you run these files locally - change sources to the local location
 source("Scripts/Functions/plotters.R")
