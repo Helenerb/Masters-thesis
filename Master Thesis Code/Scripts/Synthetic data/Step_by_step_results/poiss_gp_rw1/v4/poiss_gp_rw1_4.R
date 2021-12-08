@@ -6,6 +6,19 @@
 #' 
 
 #   ----   Load libraries and set workspace   ----
+set_workspace <- function(config, markov=TRUE){
+  if(markov){
+    .libPaths("~/Documents/R_libraries")
+    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
+  } else {
+    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code")
+  }
+}
+
+#   ----   TODO: Change the following lines to change to and from Markov  ----
+set_workspace(Markov=TRUE)
+# set_workspace(markov=FALSE)
+
 library("tidyverse")
 library("inlabru")
 library("ggplot2")
@@ -76,7 +89,7 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 #TODO: if you run locally, change path to where you have stored stan program
 run_stan(
   stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_gp_rw1_sc.stan",
-  obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
+  obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
 inlabru.pois.gp.rw1 <- function(obs, max_iter=30){
