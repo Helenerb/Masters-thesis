@@ -15,7 +15,7 @@
 #install.packages("inlabru")
 
 #patchwork - for plotting
-install.packages("patchwork")
+#install.packages("patchwork")
 
 #    ----   Second version   ----
 
@@ -23,3 +23,6 @@ install.packages("patchwork")
 # remove.packages("inlabru")
 # install.packages("remotes")
 # remotes::install_github("inlabru-org/inlabru", ref="stable")
+
+# updgrade inla
+inla.upgrade()
