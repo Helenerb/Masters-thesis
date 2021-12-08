@@ -5,6 +5,21 @@
 #' They hyperparameters are fixed. 
 #' 
 
+
+#   ----   Load libraries and set workspace   ----
+set_workspace <- function(markov=TRUE){
+  if(markov){
+    .libPaths("~/Documents/R_libraries")
+    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
+  } else {
+    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code")
+  }
+}
+
+#   ----   TODO: Change the following lines to change to and from Markov  ----
+set_workspace(markov=TRUE)
+#set_workspace(markov=FALSE)
+
 #   ----   Load libraries and set workspace   ----
 library("tidyverse")
 library("inlabru")
@@ -12,8 +27,6 @@ library("ggplot2")
 library("INLA")
 library("patchwork")
 library("rstan")
-
-setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
 investigation.name <- "gauss_gp_rw2"
 investigation.path <- file.path(investigation.name, "v4")
@@ -69,7 +82,7 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 
 run_stan(
   stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_gp_rw2_sc.stan",
-  obs = obs, chains=4, warmup = 400000, iter = 600000, output.path = stan.output,
+  obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
 inlabru.gaus.gp.rw2 <- function(obs, max_iter=30){
