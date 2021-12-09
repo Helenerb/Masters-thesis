@@ -7,8 +7,6 @@
 
 #   ----   Load libraries and set workspace   ----
 set_workspace <- function(markov=TRUE){
-  print("Markov is: ")
-  print(markov)
   if(markov){
     .libPaths("~/Documents/R_libraries")
     setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
@@ -28,8 +26,6 @@ library("ggplot2")
 library("INLA")
 library("patchwork")
 library("rstan")
-
-setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
 
 investigation.name <- "poiss_lin_gp_rw1"
 investigation.path <- file.path(investigation.name, "v7")
