@@ -7,6 +7,8 @@
 
 #   ----   Load libraries and set workspace   ----
 set_workspace <- function(markov=TRUE){
+  print("Markov is: ")
+  print(markov)
   if(markov){
     .libPaths("~/Documents/R_libraries")
     setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
