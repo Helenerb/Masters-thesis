@@ -67,7 +67,7 @@ underlying.effects <- config.data$underlying.effects
 stan.output  <- file.path("Scripts/Synthetic data/Step_by_step_results", investigation.path)
 source("Scripts/Synthetic\ data/run_stan_functions.R")
 
-run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name, markov=TRUE){
+run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name){
   
   stan_fit <- run_stan_program_lc(
     list(obs = obs), chains=chains,warmup=warmup,
@@ -80,8 +80,8 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 
 run_stan(
   stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_lin_gp_rw1_sc.stan",
-  obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
-  config.name = investigation.name, markov=F)
+  obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
+  config.name = investigation.name)
 
 inlabru.pois.lin.gp.rw1 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid

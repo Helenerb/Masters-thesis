@@ -15,7 +15,6 @@ set_workspace <- function(markov=TRUE){
   }
 }
 
-# trigger commit
 set_workspace(markov=TRUE)
 #set_workspace(markov=FALSE)
 
@@ -84,7 +83,7 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 
 run_stan(
   stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_pois_lin_gp_rw1_sc.stan",
-  obs = obs, chains=4, warmup = 30, iter = 300, output.path = stan.output,
+  obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
 inlabru.pois.lin.gp.rw1 <- function(obs, max_iter=30){
