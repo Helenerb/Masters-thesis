@@ -26,8 +26,6 @@ library("INLA")
 library("patchwork")
 library("rstan")
 
-setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
-
 investigation.name <- "poiss_lin_fh_rw1"
 investigation.path <- file.path(investigation.name, "v7")
 

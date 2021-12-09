@@ -989,7 +989,7 @@ store_stan_results_pois_linear <- function(fit, output.path, config, stan_progra
                                                "intercept")), 'trace_hyperpars',
                         figures.path, pdf=F)
           } else {
-            save.figure(traceplot(fit,pars = c("tau_alpha", "tau_beta", "tau_kappa",
+            save.figure(traceplot(fit,pars = c("tau_alpha", "tau_kappa",
                                                "tau_epsilon", "intercept")), 'trace_hyperpars',
                         figures.path, pdf=F)
           }
