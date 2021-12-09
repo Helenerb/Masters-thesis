@@ -17,8 +17,8 @@ set_workspace <- function(markov=TRUE){
 }
 
 #   ----   TODO: Change the following lines to change to and from Markov  ----
-set_workspace(markov=TRUE)
-#set_workspace(markov=FALSE)
+#set_workspace(markov=TRUE)
+set_workspace(markov=FALSE)
 
 #   ----   Load libraries and set workspace   ----
 library("tidyverse")
@@ -184,7 +184,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 2000, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},

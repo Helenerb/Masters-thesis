@@ -15,6 +15,7 @@ set_workspace <- function(markov=TRUE){
   }
 }
 
+# trigger commit
 set_workspace(markov=TRUE)
 #set_workspace(markov=FALSE)
 
