@@ -136,7 +136,7 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects.no.beta(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.poisson.lc.fixed.hypers.no.beta(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -170,9 +170,9 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer.no.beta,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
-                               summaries.func=produce.summaries.stan.traditional)
+                               summaries.func=produce.summaries.stan.poiss.lc)
 
 plots_compared <- produce.compared.plots(
   stan.summaries = stan.res$summaries,

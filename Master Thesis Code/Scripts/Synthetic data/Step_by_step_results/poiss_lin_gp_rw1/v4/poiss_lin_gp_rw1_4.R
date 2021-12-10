@@ -15,8 +15,8 @@ set_workspace <- function(markov=TRUE){
   }
 }
 
-set_workspace(markov=TRUE)
-#set_workspace(markov=FALSE)
+#set_workspace(markov=TRUE)
+set_workspace(markov=FALSE)
 
 #   ----   Load libraries and set workspace   ----
 library("tidyverse")
@@ -139,7 +139,7 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.no.beta(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.poisson.lc.no.beta(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -173,9 +173,9 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer.no.beta,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
-                               summaries.func=produce.summaries.stan.traditional)
+                               summaries.func=produce.summaries.stan.poiss.lc)
 
 plots_compared <- produce.compared.plots(
   stan.summaries = stan.res$summaries,
@@ -183,11 +183,11 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  plot.func = function(...) {plot.inlabru.stan.poisson.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.poisson.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 3000, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
+  save.func = function(...) {save.compared.rw2(..., cohort=FALSE, png = F)},
   path.to.storage=output.path)
 
 #   ----   Sample predictor   ----

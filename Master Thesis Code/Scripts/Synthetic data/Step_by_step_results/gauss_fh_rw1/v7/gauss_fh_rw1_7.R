@@ -161,7 +161,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
                                summaries.func=produce.summaries.stan.traditional)
 
@@ -171,10 +171,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
   path.to.storage=output.path)
 

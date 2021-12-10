@@ -130,7 +130,7 @@ source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
 source("Scripts/Synthetic data/plot_inlabru_stan_compared.R")
 source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer.fixed.effects(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -163,9 +163,9 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
-                               summaries.func=produce.summaries.stan.traditional)
+                               summaries.func=produce.summaries.stan.poiss.lc)
 
 plots_compared <- produce.compared.plots(
   stan.summaries = stan.res$summaries,
@@ -173,11 +173,12 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
+  plot.func = function(...) {plot.inlabru.stan.compared.poisson.lc.fixed.hypers(..., tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 100)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
+  save.func = function(...) {save.compared.rw2(..., cohort=FALSE, png=F)},
   path.to.storage=output.path)
 
 #   ----   Sample predictor   ----
@@ -193,4 +194,6 @@ plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = out
 
 stan.kappa.df <- data.frame(kappa_draws)
 plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
+
+
 

@@ -252,7 +252,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[1], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[1]", x = " ", y = " ")
     
     pred.2.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.064)
     
@@ -262,7 +262,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[64], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[64]", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.128)
     
@@ -272,7 +272,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[128], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[128]", x = " ", y = " ")
     
     pred.4.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.192)
     
@@ -282,7 +282,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[192], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[192]", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.256)
     
@@ -292,7 +292,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[256], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[256]", x = " ", y = " ")
     
     pred.6.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.324)
     
@@ -302,7 +302,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[324], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[324]", x = " ", y = " ")
     
     p.predictor <- (p.predictor.1 | p.predictor.2 | p.predictor.3)/(p.predictor.4 | p.predictor.5 | p.predictor.6) + 
       plot_layout(guides = "collect")
@@ -319,7 +319,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[1], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[1]", x = " ", y = " ")
     
     pred.2.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.032)
     
@@ -329,7 +329,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[32], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[32]", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.064)
     
@@ -339,7 +339,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[64], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[64]", x = " ", y = " ")
     
     pred.4.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.096)
     
@@ -349,7 +349,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[96], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[96]", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.128)
     
@@ -359,7 +359,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[128], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[128]", x = " ", y = " ")
     
     pred.6.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.162)
     
@@ -369,7 +369,7 @@ plot.predictor.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Predictor[162], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Predictor[162]", x = " ", y = " ")
     
     p.predictor <- (p.predictor.1 | p.predictor.2 | p.predictor.3)/(p.predictor.4 | p.predictor.5 | p.predictor.6) + 
       plot_layout(guides = "collect")
@@ -391,7 +391,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[1], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[1]", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.3)
     
@@ -401,7 +401,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[3], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[3]", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.5)
     
@@ -411,7 +411,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[5], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[5]", x = " ", y = " ")
     
     pred.7.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.7)
     
@@ -421,7 +421,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[7], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[7]", x = " ", y = " ")
     
     pred.9.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.9)
     
@@ -431,7 +431,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[9], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[9]", x = " ", y = " ")
     
     pred.11.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.11)
     
@@ -441,7 +441,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[11], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[11]", x = " ", y = " ")
     
     pred.13.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.13)
     
@@ -451,7 +451,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[13], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[13]", x = " ", y = " ")
     
     pred.15.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.15)
     
@@ -461,7 +461,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[15], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[15]", x = " ", y = " ")
     
     pred.17.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.17)
     
@@ -471,7 +471,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[17], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[17]", x = " ", y = " ")
     
     p.beta <- (p.beta.1 | p.beta.3 | p.beta.5) / (p.beta.7 | p.beta.9 | p.beta.11) / (p.beta.13 | p.beta.15 | p.beta.17) + 
       plot_layout(guides = "collect")
@@ -488,7 +488,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[1], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[1]", x = " ", y = " ")
     
     pred.2.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.2)
     
@@ -498,7 +498,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[2], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[2]", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.3)
     
@@ -508,7 +508,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[3], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[3]", x = " ", y = " ")
     
     pred.4.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.4)
     
@@ -518,7 +518,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[4], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[4]", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.5)
     
@@ -528,7 +528,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[5], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[5]", x = " ", y = " ")
     
     pred.6.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.6)
     
@@ -538,7 +538,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[6], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[6]", x = " ", y = " ")
     
     pred.7.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.7)
     
@@ -548,7 +548,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[7], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[7]", x = " ", y = " ")
     
     pred.8.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.8)
     
@@ -558,7 +558,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[8], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[8]", x = " ", y = " ")
 
     
     pred.9.inlabru <- data.frame(res.inlabru$marginals.random$beta$index.9)
@@ -569,7 +569,7 @@ plot.beta.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Beta[9], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Beta[9]", x = " ", y = " ")
     
     
     p.beta <- (p.beta.1 | p.beta.2 | p.beta.3) / (p.beta.4 | p.beta.5 | p.beta.6) / (p.beta.7 | p.beta.8 | p.beta.9) + 
@@ -591,7 +591,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[1], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[1]", x = " ", y = " ")
   
   pred.3.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.3)
   
@@ -601,7 +601,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[3], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[3]", x = " ", y = " ")
   
   pred.5.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.5)
   
@@ -611,7 +611,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[5], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[5]", x = " ", y = " ")
   
   pred.7.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.7)
   
@@ -621,7 +621,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[7], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[7]", x = " ", y = " ")
   
   
   pred.9.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.9)
@@ -632,7 +632,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[9], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[9]", x = " ", y = " ")
   
   pred.11.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.11)
   
@@ -642,7 +642,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[11], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[11]", x = " ", y = " ")
   
   pred.13.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.13)
   
@@ -652,7 +652,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[13], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[13]", x = " ", y = " ")
   
   pred.15.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.15)
   
@@ -662,7 +662,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[15], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[15]", x = " ", y = " ")
   
   pred.17.inlabru <- data.frame(res.inlabru$marginals.random$kappa$index.17)
   
@@ -672,7 +672,7 @@ plot.kappa.inlabru.stan.compared <- function(
     theme_classic() + 
     scale_color_manual(name = "", values = palette) + 
     scale_fill_manual(name = "", values = palette) + 
-    labs(title = "Kappa[17], Inlabru and stan", x = " ", y = " ")
+    labs(title = "Kappa[17]", x = " ", y = " ")
   
   p.kappa <- (p.kappa.1 | p.kappa.3 | p.kappa.5) / (p.kappa.7 | p.kappa.9 | p.kappa.11) / (p.kappa.13 | p.kappa.15 | p.kappa.17) + 
     plot_layout(guides = "collect")
@@ -693,7 +693,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[1], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[1]", x = " ", y = " ")
     
     pred.2.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.64)
     
@@ -703,7 +703,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[64], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[64]", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.128)
     
@@ -713,7 +713,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[128], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[128]", x = " ", y = " ")
     
     pred.4.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.192)
     
@@ -723,7 +723,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[192], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[192]", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.256)
     
@@ -733,7 +733,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[256], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[256]", x = " ", y = " ")
     
     pred.6.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.324)
     
@@ -743,7 +743,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[324], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[324]", x = " ", y = " ")
     
     p.epsilon <- (p.epsilon.1 | p.epsilon.2 | p.epsilon.3)/(p.epsilon.4 | p.epsilon.5 | p.epsilon.6) + 
       plot_layout(guides = "collect")
@@ -760,7 +760,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[1], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[1]", x = " ", y = " ")
     
     pred.2.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.32)
     
@@ -770,7 +770,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[32], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[32]", x = " ", y = " ")
     
     pred.3.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.64)
     
@@ -780,7 +780,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[64], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[64]", x = " ", y = " ")
     
     pred.4.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.96)
     
@@ -790,7 +790,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[96], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[96]", x = " ", y = " ")
     
     pred.5.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.128)
     
@@ -800,7 +800,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[128], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[128]", x = " ", y = " ")
     
     pred.6.inlabru <- data.frame(res.inlabru$marginals.random$epsilon$index.162)
     
@@ -810,7 +810,7 @@ plot.epsilon.inlabru.stan.compared <- function(
       theme_classic() + 
       scale_color_manual(name = "", values = palette) + 
       scale_fill_manual(name = "", values = palette) + 
-      labs(title = "Epsilon[162], Inlabru and stan", x = " ", y = " ")
+      labs(title = "Epsilon[162]", x = " ", y = " ")
     
     p.epsilon <- (p.epsilon.1 | p.epsilon.2 | p.epsilon.3)/(p.epsilon.4 | p.epsilon.5 | p.epsilon.6) + 
       plot_layout(guides = "collect")

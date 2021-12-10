@@ -17,8 +17,8 @@ set_workspace <- function(markov=TRUE){
 }
 
 #   ----   TODO: Change the following lines to change to and from Markov  ----
-set_workspace(markov=TRUE)
-#set_workspace(markov=FALSE)
+#set_workspace(markov=TRUE)
+set_workspace(markov=FALSE)
 
 #   ----   Load libraries and set workspace   ----
 library("tidyverse")
@@ -183,9 +183,9 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
-                               summaries.func=produce.summaries.stan.traditional)
+                               summaries.func=produce.summaries.stan.lc.rw2)
 
 plots_compared <- produce.compared.plots(
   stan.summaries = stan.res$summaries,
@@ -193,7 +193,7 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.compared.rw2(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 100, tau.alpha.cutoff = 200, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
@@ -204,7 +204,6 @@ plots_compared <- produce.compared.plots(
 #   ----   Sample predictor   ----
 
 stan.predictor.df <- data.frame(eta_draws)
-
 plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
 #   ----   Plot marginals of random effects   ----

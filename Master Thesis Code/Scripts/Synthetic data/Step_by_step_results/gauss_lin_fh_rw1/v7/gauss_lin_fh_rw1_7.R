@@ -161,7 +161,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer.no.beta,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
                                summaries.func=produce.summaries.stan.traditional)
 
@@ -174,7 +174,7 @@ plots_compared <- produce.compared.plots(
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
-  save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
+  save.func = function(...) {save.compared.rw2(..., cohort=FALSE, png = F)},
   path.to.storage=output.path)
 
 #   ----   Sample predictor   ----
@@ -183,3 +183,7 @@ stan.predictor.df <- data.frame(eta_draws)
 
 plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
+#   ----   Plot marginals of random effects   ----
+
+stan.kappa.df <- data.frame(kappa_draws)
+plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)

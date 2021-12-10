@@ -161,7 +161,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
                                summaries.func=produce.summaries.stan.traditional)
 
@@ -181,7 +181,6 @@ plots_compared <- produce.compared.plots(
 #   ----   Sample predictor   ----
 
 stan.predictor.df <- data.frame(eta_draws)
-
 plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
 #   ----   Plot marginals of random effects   ----

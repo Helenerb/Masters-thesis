@@ -164,7 +164,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
                                summaries.func=produce.summaries.stan.traditional)
 
@@ -184,7 +184,6 @@ plots_compared <- produce.compared.plots(
 #   ----   Sample predictor   ----
 
 stan.predictor.df <- data.frame(eta_draws)
-
 plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
 #   ----   Plot marginals of random effects   ----
@@ -194,4 +193,19 @@ plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = out
 
 stan.kappa.df <- data.frame(kappa_draws)
 plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
+
+#   ----   Specifically check the predictors at xt = 37:   ----
+
+pred.37.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.037)
+
+p.pred.37 <- ggplot(pred.37.inlabru) + 
+  geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X37, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 100) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Predictor at xt=54", x = "", y = "")
+p.pred.37
+
+save.figure(p.pred.37, name = "predictor_37", path = output.path, png= F)
 

@@ -77,8 +77,13 @@ model {
   //sum(beta) ~ normal(1, 0.001*nx);
   
   // random walk of order two
-  kappa[1] ~ normal(0, 1/sqrt(tau_kappa));
-  kappa[2] ~ normal(kappa[1], 1/sqrt(tau_kappa));
+  
+  // note - this used to be
+  // kappa[1] ~ normal(0, 1/sqrt(tau_kappa));
+  // kappa[2] ~ normal(kappa[1], 1/sqrt(tau_kappa));
+  
+  kappa[1] ~ normal(0, 100);
+  kappa[2] ~ normal(kappa[1], 100);
   kappa[3:T] ~ normal(2*kappa[2:T-1] - kappa[1:T-2], 1/sqrt(tau_kappa));
   
   // simpler implementation - kappa as rw1

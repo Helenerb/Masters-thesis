@@ -15,9 +15,8 @@ set_workspace <- function(markov=TRUE){
   }
 }
 
-# trigger commit
-set_workspace(markov=TRUE)
-#set_workspace(markov=FALSE)
+#set_workspace(markov=TRUE)
+set_workspace(markov=FALSE)
 
 #   ----   Load libraries and set workspace   ----
 library("tidyverse")
@@ -26,7 +25,6 @@ library("ggplot2")
 library("INLA")
 library("patchwork")
 library("rstan")
-
 
 investigation.name <- "gauss_gp_rw1"
 investigation.path <- file.path(investigation.name, "v4")
@@ -174,7 +172,7 @@ stan.marginals <- list(intercept_draws = intercept_draws,
 stan.res <- produce.stan.plots(stan_df=stan_lc_df,
                                underlying.effects=underlying.effects,
                                plot.func=plot.stan.vs.underlying.synthetic.cancer,
-                               save.func=save.stan.plots.lc.rw2,
+                               save.func=function(...) {save.stan.plots.lc.rw2(..., save=F)},
                                path.to.storage=output.path,
                                summaries.func=produce.summaries.stan.traditional)
 
@@ -204,3 +202,18 @@ plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = out
 
 stan.kappa.df <- data.frame(kappa_draws)
 plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
+
+#   ----   Specifically check the predictors at xt = 54:   ----
+
+pred.54.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.054)
+
+p.pred.54 <- ggplot(pred.54.inlabru) + 
+  geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 100) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Predictor at xt=54", x = "", y = "")
+p.pred.54
+
+save.figure(p.pred.54, name = "predictor_54", path = output.path, png= F)
