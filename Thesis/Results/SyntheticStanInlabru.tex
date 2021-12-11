@@ -1,10 +1,30 @@
 \newpage
-\section{Comparison of Results from STAN and Inlabru}
+\section{Comparison of Results from \stan and \inlabru}
 \label{sec:StanInlabru}
 
-To investigate if inference with \inlabru gives the same 
+We perform a step-wise analysis of the accuracy of the \inlabru results. We begin by investigating how inference results from \inlabru for a simple version of the model compare to the equivalent inference results from \stan. Since our goal is to investigate whether \inlabru correctly perform inference with models that contain a multiplicative term, $\beta_x \cdot \kappa_t$ in our case, we omit the cohort effect for simplicity. In addition to the previously described Lee-Carter model from Equation \textcolor{myDarkGreen}{REF}, where the observed deaths $Y_{x,t}$ are modeled as Poisson distributed, we introduce a simpler version of the model. In this simpler model, we assume the logarithm of the mortality rates to follow a Gaussian distribution
+\begin{equation*}
+    \log(m_{x,t}) \sim \Normal(\xi_{x,t}, 1/\tau_{\epsilon}), \quad \xi_{x,t} = \my + \alpha_x + \beta_x \cdot \kappa_t,
+\end{equation*}
+or equivalently
+\begin{equation}
+    \log(m_{x,t}) = \mu + \alpha_x + \beta_x\cdot \kappa_t + \epsilon_{x,t}, \quad \epsilon_{x,t} \sim \Normal(0, 1/\tau_{\epsilon}),
+    \label{eq:GaussianModelStructure}
+\end{equation}
+where $\mu$, $\alpha_x$, $\beta_x$, $\kappa_t$ and $\epsilon_{x,t}$ have the same interpretation as for the Poisson-model described in \textcolor{myDarkGreen}{REF!}. This model is closer to the model originally proposed by \textcite{LeeCarter1992}, and serves as a simpler example that still containts the multiplicative structure that we want to investigate. We introduce this simpler model to avoid potential errors occurring from low counts of data, which we suspect might influence the results of the Poisson-model. The effects are modeled in the same way for the two models, by 
+\begin{equation}
+    \begin{aligned}
+        \mu &\sim \Normal(0, 1/0.001) \\
+        \alpha_x &\sim \rwone(1/\tau_\alpha) \\
+        \beta_x &\sim \iid(0, 1/\tau_\beta) \\
+        \kappa_t &\sim \rwone(1, \tau_\kappa) \\
+        \epsilon_{x,t} &\sim \iid(0, 1/\tau_\epsilon)
+    \end{aligned}
+\end{equation}
 
-We begin by checking that \inlabru and \stan produce the same results for 
+\subsection{Implementation of Random Walk Models in \stan and \inlabru}
 
-\subsection{Produce Synthetic Data}
-In order to check that the inference results from \inlabru are correct, also for the underlying random effects $\alpha_x$, $\beta_x$, $\kappa_t$ are correct 
+\subsection{Implementation of Constraints in \stan and \inlabru}
+
+\subsection{Comparison With Fixed Precisions}
+In the first part of our analysis, we simplify the model further by fixing the values of the precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$. To ensure that we fix give the precisions realistic values, we fix the precisions at the same values that were used to produce the synthetic data. 
