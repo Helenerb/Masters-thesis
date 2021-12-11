@@ -326,7 +326,16 @@ p.pred.38 <- ggplot(pred.38.inlabru) +
   scale_fill_manual(name = "", values = palette) + 
   labs(title = "Pred[38]", x = "", y = "")
 
-p.predictor.start <- (p.pred.1 | p.pred.3 | p.pred.5 | p.pred.8)/(p.pred.11 | p.pred.14 | p.pred.18 | p.pred.22) / (p.pred.26 | p.pred.30 | p.pred.34 | p.pred.38) + 
+pred.54.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.054)
+p.pred.54 <- ggplot(pred.54.inlabru) + 
+  geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 50) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Pred[54]", x = "", y = "")
+
+p.predictor.start <- (p.pred.1 | p.pred.5 | p.pred.8 | p.pred.11)/(p.pred.14 | p.pred.18 | p.pred.22 | p.pred.26)/(p.pred.30 | p.pred.34 | p.pred.38 | p.pred.54) + 
   plot_layout(guides = "collect")
 p.predictor.start
 
