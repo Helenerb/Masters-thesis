@@ -5,6 +5,101 @@
 \renewcommand{\thefigure}{A\arabic{figure}}
 
 \section{Additional Results - Section \ref{sec:inlabru_stan_fixed_precs}}
+% linear, fixed precisions, v7
+\begin{figure}
+    \centering
+    \textbf{G1lin: Linear Gaussian Model - \vSeven data}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_fh_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of linear predictor $\xi_{x,t}^{\text{lin}}$}
+        \label{fig:gauss_lin_fh_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_fh_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimated random effects}
+        \label{fig:gauss_lin_fh_rw1_random_effects_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model G1lin}
+    \label{fig:gauss_lin_fh_rw1_v7}
+\end{figure}
+\begin{figure}
+    \centering
+    \textbf{P1lin: Linear Poisson Model - \vSeven data}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_fh_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of linear predictor $\eta_{x,t}^{\text{lin}}$.}
+        \label{fig:poiss_lin_fh_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_fh_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. }
+        \label{fig:poiss_lin_fh_rw1_random_effects_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model P1lin. }
+    \label{fig:poiss_lin_fh_rw1_v7}
+\end{figure}
+
+% Fixed precisions, non-linear, gaussian:
+\begin{figure}
+    \centering
+    \textbf{G1: Gaussian Model - \vSeven data}
+    
+    \begin{subfigure}[b]{.43\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of linear predictor $\xi_{x,t}$}
+        \label{fig:gauss_fh_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.43\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimated random effects}
+        \label{fig:gauss_fh_rw1_random_effects_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1_v7/beta_marginals_comparison.pdf}
+        \caption{Estimation results of non-linear predictor $\xi_{x,t}$}
+        \label{fig:gauss_fh_rw1_beta_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1_v7/kappa_marginals_comparison.pdf}
+        \caption{Estimated random effects}
+        \label{fig:gauss_fh_rw1_kappa_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_model}}
+    \label{fig:gauss_fh_rw1_v7}
+\end{figure}
+
+% Fixed precisions, non-linear, Poisson:
+\begin{figure}
+    \centering
+    \textbf{M2: Poisson Model - \vSeven data}
+    
+    \begin{subfigure}[b]{.43\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_fh_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of non-linear predictor $\eta_{x,t}^{\text{lin}}$.}
+        \label{fig:poiss_fh_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.43\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_fh_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. }
+        \label{fig:poiss_fh_rw1_random_effects_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_fh_rw1_v7/beta_marginals_comparison.pdf}
+        \caption{Marginal distributions for some values of $\beta_x$}
+        \label{fig:poiss_fh_rw1_beta_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_fh_rw1_v7/kappa_marginals_comparison.pdf}
+        \caption{Marginal distributions for some values of $\kappa_t$}
+        \label{fig:poiss_fh_rw1_kappa_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_model}. }
+    \label{fig:poiss_fh_rw1_v7}
+\end{figure}
 
 \section{Additional Results - Section \ref{sec:inlabru_stan_gamma_precs}}
 \begin{figure}

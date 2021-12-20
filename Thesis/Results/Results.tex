@@ -10,6 +10,19 @@ STAN is a method for Bayesian inference using a Hamiltonian Monte Carlo approach
 
 \newpage
 \subsection{Generating Synthetic Data}
+\label{sec:generating_synthetic_data}
+\textcolor{myDarkGreen}{This is a rough draft}
+We generate a synthetic set of data by running \inlabru on the German lung cancer data set, for the male population. We find the values of the hyperparameters $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\eps$ from these results, as well as the estimated intercept $\mu$. Using these values of the precisions, we sample values of the random effects $\alpha_x$, $\beta_x$, $\kappa_t$ and $\epsilon_{x,t}$. We sample the values of $beta_x$ and $\epsilon_{x,t}$ using a gaussian iid distribution, and we use random walk models of order one and two to sample the values of $\alpha_x$ and $\kappa_t$, respectively. We then shift the values of $\alpha_x$, $\kappa_t$ and $\beta_x$ so that they adhere to their respective sum-to-zero and sum-to-unit constraints. We obtain the value of the predictor $\eta_{x,t}$ by combining the random effects by
+\begin{equation*}
+    \eta_{x,t} = \mu + \lapha_x + \beta_x\cdot \kappa_t + \eps_{x,y}.
+\end{equation*}
+We then use the observed population at risk $E_{x,t}$ together with the synthetic values of the predictor $\eta_{x,t}$ to simulate Poisson-distributed values of the death counts $Y_{x,t}$:
+\begin{equation}
+    Y_{x,t} \sim \Poisson(E_{x,t} \cdot e^{\eta_{x,t}}).
+\end{equation}
+By doing this, we have obtained some synthetic observed death counts $Y_{x,t}$ which has the same dimensions of our real data, $x = 1,\ldots, 18$, $t = 1,\ldots, 18$ and which is of roughly the same order of magnitude, and for which we know the true values of $\eta_{x,t}$ and its decomposition into age- and period effects. We refer to this set of data as the \vFour data. 
+
+We also do the same procedure to make a synthetic set of data from the male lung cancer data, where the data points from all ages under 45 years old are removed. We refer to this as the \vSeven data, and it has dimensions $x=1,\ldots,9$, $t = 1,\ldots,18$. Since we base the \vSeven data on the lung cancer data for older ages, for which there is a higher occurrance of lung cancer, the \vSeven data has an overall higher mortality level and the data $Y_{x,t}^{\vSevenNS}$ has fewer (\textcolor{myDarkGreen}{No?}) zero counts. 
 
 \import{}{Results/SyntheticStanInlabru}
 

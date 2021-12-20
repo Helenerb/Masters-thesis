@@ -80,51 +80,32 @@ The sum-to-zero and sum-to-unit constraints of Equation \textcolor{myDarkGreen}{
 \label{sec:inlabru_stan_fixed_precs}
 In the first part of our analysis, we simplify the model further by fixing the values of the precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$. To ensure that we fix give the precisions realistic values, we fix the precisions at the same values that were used to produce the synthetic data. For the \vFour data, these are:
 \begin{equation}
-    \tau_\alpha = 1.96, \tau_\beta = 202, \tau_\kappa = 336, \tau_\regepsilon = \tau_\eps = 420
+    \tau_\alpha = 1.96,\quad  \tau_\beta = 202,\quad \tau_\kappa = 336,\quad \tau_\regepsilon = \tau_\eps = 420
     \label{eq:fixed_precisions_v4}
 \end{equation}
 and for the \vSeven data, the values are
 \begin{equation}
-    \tau_\alpha = 1.96, \tau_\beta = 64, \tau_\kappa = 336, \tau_\regepsilon = \tau_\eps = 420.
+    \tau_\alpha = 1.96,\quad \tau_\beta = 64,\quad \tau_\kappa = 336, \tau_\regepsilon = \tau_\eps = 420.
     \label{eq:fixed_precisions_v7}
 \end{equation}
 We note that the values of $\kappa_t$ for both the \vFour and \vSeven data are produced using a random walk model of order two, not order one, with precision $\tau_\kappa$. This means that this value for $\tau_\kappa$ is an overestimation compared to the precision $\kappa_t$ would have if it was a realization of a random walk of order one. \textcolor{myDarkGreen}{I think I should check if this seems to have an effect. If it does not, I can say that it still seems okay}
 
-
-
-We consider the two models
-\begin{equation}
-        M1: \quad m_{x,t} \sim \Normal(\xi_{x,t}, 1/\tau_{\epsilon}), \quad \xi_{x,t} = \mu + \alpha_x + \beta_x \cdot \kappa_t
-    \label{eq:gaussian_model}
-\end{equation}
-\begin{equation}
-    \begin{aligned}
-        M2: \quad Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}^{\text{lin}}}), \quad \eta_{x,t} = \mu + \alpha_x + \beta_x \cdot \kappa_t + \epsilon_{x,t}
-    \end{aligned}
-    \label{eq:poisson_model}
-\end{equation}
-with $\my$, $\alpha_x$, $\beta_x$, $\kappa_t$ and $\epsilon_{x,t}$ modeled as described in equation \ref{eq:rw1-random-effects} and with fixed values for $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$. \textcolor{myDarkGreen}{Faktisk skriv dem ned. }
+We refer to the M- and P models with values for the hyperparameters given by the Values in \ref{eq:fixed_precisions_v4} or \ref{eq:fixed_precisions_v7} for the G1 and P1 models. 
 
 \subsubsection{Verification With Linear Models}
-To check our implementation, and to ensure that \inlabru acts as we expect in the case with a regular linear predictor, we begin by running the comparison for linear versions of the model:
+To check our implementation, and to ensure that \inlabru acts as we expect in the case with a regular linear predictor, we begin by running the comparison for linear versions of the models:
 \begin{equation}
-    \begin{aligned}
-        M1_{\text{lin}}: \quad &m_{x,t} \sim \Normal(\xi_{x,t}^{\text{lin}}, 1/\tau_{\epsilon}) \\
-        &\xi_{x,t}^{\text{lin}} = \mu + \alpha_x + \kappa_t
-    \end{aligned}
+        \text{G1lin}: \quad &m_{x,t} \sim \Normal(\xi_{x,t}^{\text{lin}}, 1/\tau_{\regepsilon}), \quad \xi_{x,t}^{\text{lin}} = \mu + \alpha_x + \kappa_t,
     \label{eq:gaussian_lin}
 \end{equation}
 \begin{equation}
-    \begin{aligned}
-        M2_{\text{lin}}: \quad &Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}^{\text{lin}}}) \\
-        &\eta_{x,t}^{\text{lin}} = \mu + \alpha_x + \kappa_t + \epsilon_{x,t}
-    \end{aligned}
+        \text{P1lin}: \quad &Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}^{\text{lin}}}), \quad \eta_{x,t}^{\text{lin}} = \mu + \alpha_x + \kappa_t + \eps_{x,t}
     \label{eq:poisson_lin}
 \end{equation}
-with $\mu$, $\alpha_x$, $\kappa_t$ and $\epsilon_{x,t}$ as modelled in Equation \ref{eq:rw1-random-effects}. We run the models in \inlabru and \stan, for the two sets of data described in \textcolor{myDarkGreeen}{SECTION DESCRIBING SYNTHETIC DATA}. 
+with $\mu$, $\alpha_x$, $\kappa_t$, $\regepsilon_{x,t}$ and $\eps_{x,t}$ modeled as described in Expression \ref{eq:rw1-random-effects} . We run the models in \inlabru and \stan, for the two sets of data described in Section \ref{sec:generating_synthetic_data}.
 \begin{figure}
     \centering
-    \textbf{M1lin: Linear Gaussian Model}
+    \textbf{G1lin: Linear Gaussian Model}
     
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_fh_rw1_predictor.pdf}
@@ -141,7 +122,7 @@ with $\mu$, $\alpha_x$, $\kappa_t$ and $\epsilon_{x,t}$ as modelled in Equation 
 \end{figure}
 \begin{figure}
     \centering
-    \textbf{M2lin: Linear Poisson Model}
+    \textbf{P1lin: Linear Poisson Model}
     
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_fh_rw1_predictor.pdf}
@@ -156,12 +137,13 @@ with $\mu$, $\alpha_x$, $\kappa_t$ and $\epsilon_{x,t}$ as modelled in Equation 
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_lin}. }
     \label{fig:poiss_lin_fh_rw1}
 \end{figure}
-Figures \ref{fig:gauss_lin_fh_rw1_predictor} and \ref{fig:poiss_lin_fh_rw1_predictor} display some arbitrary values of the linear predictors $\xi_{x,t}^{\text{lin}}$ and $\eta_{x,t}^{\text{lin}}$ for Models \ref{eq:gaussian_lin} and \ref{eq:poisson_lin} respectively, for the Full.1 data. Figures \ref{fig:gauss_lin_fh_rw1_random_effects} and \ref{fig:poiss_lin_fh_rw1_random_effects} display the corresponding effects $\mu$, $\alpha_x$ and $\kappa_t$. We observe that \inlabru and \stan gives exactly the same results. This is as expected, since we know that \inlabru should produce the same results as \inla for the models with linear predictors, and it has been thoroughly shown that the \inla approximations are very close to the exact results for these kinds of values \textcolor{myDarkGreen}{Reformulate and CITE}. The results for the Reduced.1 data are similar, and plots of these results for can be found in Figures \textcolor{myDarkGreen}{ADD} in the Appendix. 
+Figures \ref{fig:gauss_lin_fh_rw1_predictor} and \ref{fig:poiss_lin_fh_rw1_predictor} display some arbitrary values of the linear predictors $\xi_{x,t}^{\text{lin}}$ and $\eta_{x,t}^{\text{lin}}$ for Models \ref{eq:gaussian_lin} and \ref{eq:poisson_lin} respectively, for the Full.1 data. Figures \ref{fig:gauss_lin_fh_rw1_random_effects} and \ref{fig:poiss_lin_fh_rw1_random_effects} display the corresponding effects $\mu$, $\alpha_x$ and $\kappa_t$. We observe that \inlabru and \stan gives exactly the same results. This is as expected, since we know that \inlabru should produce the same results as \inla for the models with linear predictors, and it has been thoroughly shown that the \inla approximations are very close to the exact results for these kinds of values \textcolor{myDarkGreen}{Reformulate and CITE}. The results for the \vSeven data are similar, and plots of these results for can be found in Figures \ref{fig:gauss_lin_fh_rw1_v7} and \ref{fig:poiss_lin_fh_rw1_v7} in the Appendix. 
+
 \subsubsection{Full Models with Multiplicative Terms}
-We now run \inlabru and \stan on the full models with multiplicative terms, M1 from Equation \ref{eq:gaussian_model} and M2 from Equation \ref{eq:poisson_model}. 
+We now run \inlabru and \stan on the full models with multiplicative terms, G1 from Equation \ref{eq:gaussian_model} and P1 from Equation \ref{eq:poisson_model}. 
 \begin{figure}
     \centering
-    \textbf{M1: Gaussian Model}
+    \textbf{G1: Gaussian Model}
     
     \begin{subfigure}[b]{.43\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1_predictor.pdf}
@@ -173,8 +155,6 @@ We now run \inlabru and \stan on the full models with multiplicative terms, M1 f
         \caption{Estimated random effects}
         \label{fig:gauss_fh_rw1_random_effects}
     \end{subfigure}
-    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_model}}
-    \label{fig:gauss_fh_rw1}
     
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1_beta.pdf}
@@ -189,7 +169,7 @@ We now run \inlabru and \stan on the full models with multiplicative terms, M1 f
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_model}}
     \label{fig:gauss_fh_rw1}
 \end{figure}
-The results for the Full.1 data are presented in Figures \ref{fig:gauss_fh_rw1} and \ref{fig:poiss_fh_rw1}. For the Gaussian M1 model, we see, from Figure \ref{fig:gauss_fh_rw1_predictor} that the predictor $\xi_{x,t}$ is estimated almost exactly similarily by \stan and \inlabru. One might point out a marginal shift between the two estimation procedures, but this is so small that we in practice consider them as identical. \textcolor{myDarkGreen}{Holder dette?} The estimated random effects, however, are estimated differently by \inlabru and \stan, as seen in Figures \ref{fig:gauss_fh_rw1_random_effects}, \ref{fig:gauss_fh_rw1_beta} and \ref{fig:gauss_fh_rw1_kappa}. More specifically, the two factors in the multiplicative term, $\beta_x$ and $\kappa_t$ are estimated differently by the two methods, while the estimates for $\alpha_x$ and $\mu$ seems to be identical. Furthermore, we notice that the difference in the estimation varies between the two sets of data. For the Reduced.1 data, the difference in the estimation of $\kappa_t$ and $\beta_x$ is observeable, as shown in Figures \textcolor{myDarkGreen}{ADD} in the Appendix, but very small. One poissible explanation for this is that there are some unidentifiability between $\beta_x$ and $\kappa_t$ in the Full.1 data, that is not as apparent in the Reduced.1 data. Looking at the estimates of $\kappa_t$ in Figures \ref{fig:gauss_fh_rw1_random_effects}, we see that the change points of $\kappa_t$ are similar in the \stan and \inlabru estimation, and that the difference in the estimations of $\kappa_t$ lies in the slope; the \inlabru estimations is steeper than the \stan estimation, but they have the same shape. We note that theoretical identifiability of the basic Lee-Carter model which have been shown multiple times \textcolor{myDarkGreen}{CITE}, does not guarantee identifiability in practice for all realised data. \textcolor{myDarkGreen}{You are unsure whether you can just state this! Should come with some sources, some other places this has been discussed?}
+The results for the \vFour data are presented in Figures \ref{fig:gauss_fh_rw1} and \ref{fig:poiss_fh_rw1}. For the Gaussian G1 model, we see, from Figure \ref{fig:gauss_fh_rw1_predictor} that the predictor $\xi_{x,t}$ is estimated almost exactly similarily by \stan and \inlabru. We do, however, notice a marginal shift between the two estimation procedures, but this is so small that we in practice consider them as identical. \textcolor{myDarkGreen}{Holder dette?} The estimated random effects, on the other hand, are estimated differently by \inlabru and \stan, as seen in Figures \ref{fig:gauss_fh_rw1_random_effects}, \ref{fig:gauss_fh_rw1_beta} and \ref{fig:gauss_fh_rw1_kappa}. More specifically, the two factors in the multiplicative term, $\beta_x$ and $\kappa_t$ are estimated differently by the two methods, while the estimates for $\alpha_x$ and $\mu$ seems to be identical. Furthermore, we notice that the difference in the estimation varies between the two sets of data. For the \vSeven data, the difference in the estimation of $\kappa_t$ and $\beta_x$ is observable, as shown in Figures \textcolor{myDarkGreen}{ADD} in the Appendix, but very small. One poissible explanation for this is that there are some unidentifiability between $\beta_x$ and $\kappa_t$ in the Full.1 data, that is not as apparent in the Reduced.1 data. Looking at the estimates of $\kappa_t$ in Figures \ref{fig:gauss_fh_rw1_random_effects}, we see that the change points of $\kappa_t$ are similar in the \stan and \inlabru estimation, and that the difference in the estimations of $\kappa_t$ lies in the slope; the \inlabru estimations is steeper than the \stan estimation, but they have the same shape. We note that theoretical identifiability of the basic Lee-Carter model which have been shown multiple times \textcolor{myDarkGreen}{CITE}, does not guarantee identifiability in practice for all realised data. \textcolor{myDarkGreen}{You are unsure whether you can just state this! Should come with some sources, some other places this has been discussed?}
 \begin{figure}
     \centering
     \textbf{M2: Poisson Model}
