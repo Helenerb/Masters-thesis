@@ -4,4 +4,143 @@
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{A\arabic{figure}}
 
-This is included in the appendix. 
+\section{Additional Results - Section \ref{sec:inlabru_stan_fixed_precs}}
+
+\section{Additional Results - Section \ref{sec:inlabru_stan_gamma_precs}}
+\begin{figure}
+    \centering
+    \textbf{M3lin: Linear Gaussian Model - Reduced.1 Data}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of linear predictor $\xi_{x,t}^{\text{lin}}$}
+        \label{fig:gauss_lin_gp_rw1_predictor_v7}
+    \end{subfigure}
+        \begin{subfigure}[b]{.50\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_v7/hypers_comparison.pdf}
+        \caption{Estimated hyperparameters}
+        \label{fig:gauss_lin_gp_rw1_hypers_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimated random effects}
+        \label{fig:gauss_lin_gp_rw1_random_effects_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_v7/kappa_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\kappa_t$}
+        \label{fig:gauss_lin_gp_rw1_kappa_v7}
+    \end{subfigure}
+    
+    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_lin}}
+    \label{fig:gauss_lin_gp_rw1_v7}
+\end{figure}
+\begin{figure}
+    \centering
+    \textbf{M4lin: Linear Poisson Model - Reduced.1 Data}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of linear predictor $\eta_{x,t}^{\text{lin}}$.}
+        \label{fig:poiss_lin_gp_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. }
+        \label{fig:poiss_lin_fgp_rw1_random_effects_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_v7/kappa_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\kappa_t$}
+        \label{fig:poiss_lin_gp_rw1_kappa_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_v7/epsilon_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\epsilon_xt$}
+        \label{fig:poiss_lin_fgp_rw1_epsilon_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.50\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_v7/hypers_comparison.pdf}
+        \caption{Estimated hyperparameters}
+        \label{fig:poiss_lin_gp_rw1_hypers_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_lin}. }
+    \label{fig:poiss_lin_gp_rw1_v7}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \textbf{M3: Gaussian Model - Reduced.1 Data}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of the predictor $\xi_{x,t}^{\text{lin}}$}
+        \label{fig:gauss_gp_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimated random effects}
+        \label{fig:gauss_gp_rw1_random_effects_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v7/beta_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\beta_x$}
+        \label{fig:gauss_gp_rw1_beta_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v7/kappa_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\kappa_t$}
+        \label{fig:gauss_gp_rw1_kappa_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.50\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v7/hypers_comparison.pdf}
+        \caption{Estimated hyperparameters}
+        \label{fig:gauss_gp_rw1_hypers_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_model}}
+    \label{fig:gauss_gp_rw1_v7}
+\end{figure}
+\begin{figure}
+    \centering
+    \textbf{M4lin: Poisson Model - Reduced.1 Data}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_gp_rw1_v7/predictor_marginals_comparison.pdf}
+        \caption{Estimation results of the predictor $\eta_{x,t}^{\text{lin}}$.}
+        \label{fig:poiss_gp_rw1_predictor_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_gp_rw1_v7/random_effects_comparison.pdf}
+        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. }
+        \label{fig:poiss_fgp_rw1_random_effects_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.30\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_gp_rw1_v7/beta_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\beta_x$}
+        \label{fig:poiss_gp_rw1_beta_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.30\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_gp_rw1_v7/kappa_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\kappa_t$}
+        \label{fig:poiss_fgp_rw1_kappa_v7}
+    \end{subfigure}
+    \begin{subfigure}[b]{.30\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_gp_rw1_v7/epsilon_marginals_comparison.pdf}
+        \caption{Marginal posterior distributions for selected values of $\epsilon_xt$}
+        \label{fig:poiss_fgp_rw1_epsilon_v7}
+    \end{subfigure}
+    
+    \begin{subfigure}[b]{.50\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_gp_rw1_v7/hypers_comparison.pdf}
+        \caption{Estimated hyperparameters}
+        \label{fig:poiss_gp_rw1_hypers_v7}
+    \end{subfigure}
+    \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_model}. }
+    \label{fig:poiss_gp_rw1_v7}
+\end{figure}

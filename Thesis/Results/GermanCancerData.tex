@@ -1,18 +1,19 @@
 \newpage
 \subsection{German Cancer Data}
-Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the observed mortality rates for males and females, averaged over all years 1999-2016 and all ages 0-85+ respectively. 
+Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the observed mortality rates for males and females, averaged over all years 1999-2016 and all ages 0-85+ respectively. Figure \ref{fig:obs-mr-by-cohort} display the observed mortality rates for male
 
 % German cancer data - average over all years
 \begin{figure}
     \centering
     \textbf{Mortality rates averaged over the period 1999-2016}
+    
     \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_stomach_by_age.pdf}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_RealData/dataPlotted/mr_stomach_by_age.pdf}
         \caption{\textbf{Stomach}: Average mortality rates for stomach cancer, male and female}
         \label{fig:obs-mr-stomach-by-age}
     \end{subfigure}
     \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_lung_by_age.pdf}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_RealData/dataPlotted/mr_lung_by_age.pdf}
         \caption{\textbf{Lung}: Average mortality rates for lung cancer, male and female}
         \label{fig:obs-mr-lung-by-age}
     \end{subfigure}
@@ -24,16 +25,36 @@ Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the obse
 \begin{figure}
     \centering
     \textbf{Mortality rates averaged over ages 0-85+}
+    
     \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_stomach_by_period.pdf}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_RealData/dataPlotted/mr_stomach_by_period.pdf}
         \caption{\textbf{Stomach}: Average mortality rates for stomach cancer, male and female}
         \label{fig:obs-mr-stomach-by-period}
     \end{subfigure}
     \begin{subfigure}[b]{.45\linewidth}
-        \includegraphics[width=\linewidth]{Master Thesis Code/Scripts/Real data/Output/Figures/observed_data/mr_lung_by_period.pdf}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_RealData/dataPlotted/mr_lung_by_period.pdf}
         \caption{\textbf{Lung}: Average mortality rates for lung cancer, male and female}
         \label{fig:obs-mr-lung-by-period}
     \end{subfigure}
     \caption{Mortality rates averaged over all age groups, for male and females}
     \label{fig:obs-mr-by-period}
+\end{figure}
+
+% German cancer data  - average over all cohorts
+\begin{figure}
+    \centering
+    \textbf{Mortality rates averaged over all birth years}
+    
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_RealData/dataPlotted/mr_stomach_by_cohort.pdf}
+        \caption{\textbf{Stomach}: Average mortality rates for stomach cancer, male and female}
+        \label{fig:obs-mr-stomach-by-cohort}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_RealData/dataPlotted/mr_lung_by_cohort.pdf}
+        \caption{\textbf{Lung}: Average mortality rates for lung cancer, male and female}
+        \label{fig:obs-mr-lung-by-cohort}
+    \end{subfigure}
+    \caption{Mortality rates averaged over all cohorts, for male and females}
+    \label{fig:obs-mr-by-cohort}
 \end{figure}
