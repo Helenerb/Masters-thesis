@@ -6,19 +6,6 @@
 #' 
 
 #   ----   Load libraries and set workspace   ----
-set_workspace <- function(markov=TRUE){
-  if(markov){
-    .libPaths("~/Documents/R_libraries")
-    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
-  } else {
-    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code")
-  }
-}
-
-#set_workspace(markov=TRUE)
-set_workspace(markov=FALSE)
-
-#   ----   Load libraries and set workspace   ----
 library("tidyverse")
 library("inlabru")
 library("ggplot2")
@@ -26,7 +13,9 @@ library("INLA")
 library("patchwork")
 library("rstan")
 
-investigation.name <- "gauss_gp_rw1"
+setwd("/Users/helen/Desktop/Masteroppgave/Masters-thesis/Master\ Thesis\ Code")
+
+investigation.name <- "gauss_fh_rw1_lower_kappa_prec"
 investigation.path <- file.path(investigation.name, "v4")
 
 #   ----    Retrieve the data   ----
@@ -79,11 +68,11 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, confi
 }
 
 run_stan(
-  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_gp_rw1_sc.stan",
-  obs = obs, chains=4, warmup = 300000, iter = 400000, output.path = stan.output,
+  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_fh_rw1_sc_4_lower_kappa_prec.stan",
+  obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
-inlabru.gaus.gp.rw1 <- function(obs, max_iter=30){
+inlabru.gaus.fh.rw1 <- function(obs, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -96,26 +85,24 @@ inlabru.gaus.gp.rw1 <- function(obs, max_iter=30){
   A.beta = matrix(1, nrow = 1, ncol = nx)
   e.beta = 1
   
-  # fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
-  # fixed.theta.beta <- list(prec = list(initial = log(202), fixed = T))
-  # fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
-  # fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
-  
-  loggamma.prior <- list(prec = list(prior = 'loggamma', param = c(1,0.00005), initial = log(1)))
-  loggamma.prior.high.variance <- list(prec = list(prior = 'loggamma', param = c(1,0.005), initial = log(1)))
+  fixed.theta.alpha <- list(prec = list(initial = log(1.96), fixed = T))
+  fixed.theta.beta <- list(prec = list(initial = log(202), fixed = T))
+  #fixed.theta.kappa <- list(prec = list(initial = log(336), fixed = T))
+  fixed.theta.kappa <- list(prec = list(initial = log(75), fixed = T))
+  fixed.theta.epsilon <- list(prec = list(initial = log(420), fixed = T))
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "rw1", hyper = loggamma.prior, constr = TRUE) +
-    beta(x.c, model = "iid", hyper = loggamma.prior, extraconstr = list(A = A.beta, e = e.beta)) +
-    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE)
+    alpha(x, model = "rw1", hyper = fixed.theta.alpha, constr = TRUE) +
+    beta(x.c, model = "iid", hyper = fixed.theta.beta, extraconstr = list(A = A.beta, e = e.beta)) +
+    kappa(t, model = "rw1", hyper = fixed.theta.kappa, constr = TRUE)
   
   formula = eta ~ Int + alpha + beta*kappa
   
   likelihood = like(formula = formula, family = "gaussian", data = obs)
   
   c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
-  c.family <- list(hyper = loggamma.prior)
+  c.family <- list(hyper = fixed.theta.epsilon)
   
   res.inlabru = bru(components = comp,
                     likelihood, 
@@ -130,7 +117,7 @@ inlabru.gaus.gp.rw1 <- function(obs, max_iter=30){
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.gaus.gp.rw1(obs, max_iter = 100)
+res.inlabru <- inlabru.gaus.fh.rw1(obs, max_iter = 100)
 
 source("Scripts/Functions/plotters.R")
 source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
@@ -139,7 +126,7 @@ source("Scripts/Synthetic data/plot_stan_vs_underlying.R")
 
 output.path <- stan.output
 
-plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc(
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.traditional.lc.fixed.effects(
   res.inlabru,
   underlying.effects,
   path.to.storage = output.path,
@@ -182,8 +169,8 @@ plots_compared <- produce.compared.plots(
   inlabru.summaries = plots.summaries.inlabru$summaries,
   res.inlabru = res.inlabru,
   underlying.effects = underlying.effects,
-  plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
-  #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  #plot.func = function(...) {plot.inlabru.stan.traditional.lc(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
+  plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers(..., cohort=FALSE, tau.beta.cutoff = 700, tau.kappa.cutoff = 500, tau.alpha.cutoff = 10, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   #plot.func = function(...) {plot.inlabru.stan.traditional.lc.fixed.hypers.no.beta(..., cohort=FALSE, tau.beta.cutoff = 5000, tau.kappa.cutoff = 5000, tau.alpha.cutoff = 100, a45=F)},
   save.func = function(...) {save.compared.rw2(..., cohort=FALSE)},
@@ -208,8 +195,8 @@ plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = o
 pred.54.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.054)
 
 p.pred.54 <- ggplot(pred.54.inlabru) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 500) + 
   geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 100) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
@@ -223,7 +210,7 @@ save.figure(p.pred.54, name = "predictor_54", path = output.path, png= F)
 pred.36.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.036)
 
 p.pred.36 <- ggplot(pred.36.inlabru) + 
-  geom_histogram(data = stan.predictor.df, aes(x = X36, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 200) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X36, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 500) + 
   geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
@@ -232,3 +219,4 @@ p.pred.36 <- ggplot(pred.36.inlabru) +
 p.pred.36
 
 save.figure(p.pred.36, name = "predictor_36", path = output.path, png= F)
+

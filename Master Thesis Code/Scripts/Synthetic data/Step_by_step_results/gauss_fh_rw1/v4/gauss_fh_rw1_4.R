@@ -194,8 +194,8 @@ plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = o
 pred.54.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.054)
 
 p.pred.54 <- ggplot(pred.54.inlabru) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 200) + 
   geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(data = stan.predictor.df, aes(x = X54, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 100) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
@@ -203,3 +203,19 @@ p.pred.54 <- ggplot(pred.54.inlabru) +
 p.pred.54
 
 save.figure(p.pred.54, name = "predictor_54", path = output.path, png= F)
+
+#   ----   Specifically check the predictors at xt = 36; t = 18, x = 2:   ----
+
+pred.36.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.036)
+
+p.pred.36 <- ggplot(pred.36.inlabru) + 
+  geom_histogram(data = stan.predictor.df, aes(x = X36, y = after_stat(density), fill = "Stan", color = "Stan"), alpha = 0.5, bins = 200) + 
+  geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Predictor at xt=36", x = "", y = "")
+p.pred.36
+
+save.figure(p.pred.36, name = "predictor_36", path = output.path, png= F)
+
