@@ -1,25 +1,25 @@
 #' Script for comparison of Stan implementations of random walk models
 #' 
 
+
 # on Markov:
 #   ----   Load libraries and set workspace   ----
-set_workspace <- function(markov=TRUE){
+set_workdirectory <- function(markov=TRUE){
   if(markov){
     .libPaths("~/Documents/R_libraries")
-    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw2")
+    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw1")
   } else {
-    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw2")
+    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw1")
   }
 }
 
-set_workspace(markov=TRUE)
+set_workdirectory(markov=T)
 
 library("rstan")
 library("inlabru")
 library("tidyverse")
 library("ggplot2")
 library("patchwork")
-library("INLA")
 
 # generate test data:
 n=100
@@ -35,10 +35,7 @@ data=data.frame(y=y,z=z)
 #   eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(intitial = log(1.93), fixed = TRUE)))
 
 components = ~ -1 +
-  eta(z, model = "rw2", constr = TRUE, hyper = list(prec = list(prior=  "loggamma", param = c(1, 0.00005))))
-
-# components = ~ -1 +
-#   eta(z, model = "rw2", constr = TRUE)
+  eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005))))
 
 formula = y ~ eta
 likelihood = like(formula = formula, family = "gaussian", data = data)
@@ -56,7 +53,7 @@ input_stan <- list(y = data$y)
 # run first stan program: rw1_stepwise.stan:
 
 fit_stepwise <- stan(
-  file = "rw2_stepwise.stan",
+  file = "rw1_stepwise.stan",
   data = input_stan,
   chains = 4,
   iter = 800,
@@ -76,7 +73,7 @@ ggsave("trace_stepwise.pdf", plot = trace_stepwise, dpi="retina", device = "pdf"
 #  run second stan program: rw1_by_differences.stan
 
 fit_diff_1 <- stan(
-  file = "rw2_by_differences.stan",
+  file = "rw1_by_differences.stan",
   data = input_stan,
   chains = 4,
   iter = 800,
@@ -96,7 +93,7 @@ summary_diff_1 <- as.data.frame(summary(fit_diff_1)$summary) %>% mutate("Impleme
 #  run third stan program: rw1_by_differences_icar.stan
 
 fit_diff_2 <- stan(
-  file = "rw2_by_differences_target.stan",
+  file = "rw1_by_differences_target.stan",
   data = input_stan,
   chains = 4,
   iter = 800,
@@ -116,7 +113,7 @@ summary_diff_2 <- as.data.frame(summary(fit_diff_2)$summary) %>% mutate("Impleme
 #  run fourth stan program: rw1_by_differences_3.stan
 
 fit_diff_3 <- stan(
-  file = "rw2_by_differences_3.stan",
+  file = "rw1_by_differences_3.stan",
   data = input_stan,
   chains = 4,
   iter = 800,
@@ -136,7 +133,7 @@ summary_diff_3 <- as.data.frame(summary(fit_diff_3)$summary) %>% mutate("Impleme
 #  run fourth stan program: rw1_by_differences_4.stan
 
 fit_diff_4 <- stan(
-  file = "rw2_by_differences_4.stan",
+  file = "rw1_by_differences_4.stan",
   data = input_stan,
   chains = 4,
   iter = 800,
@@ -153,7 +150,7 @@ save(list_of_draws_diff_4, file = 'draws_diff_4.RData')
 eta_df_diff_4 <- data.frame(list_of_draws_diff_4$eta)
 summary_diff_4 <- as.data.frame(summary(fit_diff_4)$summary) %>% mutate("Implementation" = "Diff.4")
 
-###   ----   Compare results of different rw2 implementations   ----:
+###   ----   Compare results of different rw1 implementations   ----:
 
 
 palette <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
@@ -169,9 +166,9 @@ eta_all <- cbind(eta_df_stepwise_long, Diff.1 = eta_df_diff_1_long$Diff.1, Diff.
   mutate(idx = parse_number(Param))
 
 eta_all_34 <- cbind(eta_df_stepwise_long, Diff.1 = eta_df_diff_1_long$Diff.1,
-                     Diff.2 = eta_df_diff_2_long$Diff.2,
-                     Diff.3 = eta_df_diff_3_long$Diff.3,
-                     Diff.4 = eta_df_diff_4_long$Diff.4) %>% 
+                    Diff.2 = eta_df_diff_2_long$Diff.2,
+                    Diff.3 = eta_df_diff_3_long$Diff.3,
+                    Diff.4 = eta_df_diff_4_long$Diff.4) %>% 
   mutate(idx = parse_number(Param))
 
 # every 10th value:
@@ -302,10 +299,10 @@ ggsave("tau.pdf", plot = p.tau, dpi="retina", device = "pdf")
 
 # including diff 3 and 4:
 tau_eta_df_34 <- data.frame(Stepwise = list_of_draws_stepwise$tau_eta,
-                         Diff.1 = list_of_draws_diff_1$tau_eta,
-                         Diff.2 = list_of_draws_diff_2$tau_eta,
-                         Diff.3 = list_of_draws_diff_3$tau_eta,
-                         Diff.4 = list_of_draws_diff_4$tau_eta)
+                            Diff.1 = list_of_draws_diff_1$tau_eta,
+                            Diff.2 = list_of_draws_diff_2$tau_eta,
+                            Diff.3 = list_of_draws_diff_3$tau_eta,
+                            Diff.4 = list_of_draws_diff_4$tau_eta)
 
 p.tau_eta_34 <- ggplot(tau_eta_df_34) + 
   geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
@@ -319,10 +316,10 @@ p.tau_eta_34 <- ggplot(tau_eta_df_34) +
   labs(title = "Tau eta", x = "", y = "")
 
 tau_y_df_34 <- data.frame(Stepwise = list_of_draws_stepwise$tau_y,
-                       Diff.1 = list_of_draws_diff_1$tau_y,
-                       Diff.2 = list_of_draws_diff_2$tau_y,
-                       Diff.3 = list_of_draws_diff_3$tau_y,
-                       Diff.4 = list_of_draws_diff_4$tau_y)
+                          Diff.1 = list_of_draws_diff_1$tau_y,
+                          Diff.2 = list_of_draws_diff_2$tau_y,
+                          Diff.3 = list_of_draws_diff_3$tau_y,
+                          Diff.4 = list_of_draws_diff_4$tau_y)
 
 p.tau_y_34 <- ggplot(tau_y_df_34) + 
   geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
@@ -849,8 +846,3 @@ p.eta.ib.4 <- (p.eta.1.4 | p.eta.20.4 | p.eta.40.4)/(p.eta.60.4 | p.eta.80.4 | p
   plot_layout(guides = "collect")
 
 ggsave("eta_inlabru_diff_4.pdf", plot = p.eta.ib.4, device = "pdf", height = 5, width = 8, dpi = "retina")
-
-
-
-
-
