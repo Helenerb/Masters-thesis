@@ -6,7 +6,7 @@
 set_workspace <- function(markov=TRUE){
   if(markov){
     .libPaths("~/Documents/R_libraries")
-    setwd("~/Documents/Github/Masteroppgave/Masters-thesis/Master\ Thesis\ Code/Scripts/Synthetic\ data/Random\ walk\ implementations/Rw2")
+    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw2")
   } else {
     setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw2")
   }
