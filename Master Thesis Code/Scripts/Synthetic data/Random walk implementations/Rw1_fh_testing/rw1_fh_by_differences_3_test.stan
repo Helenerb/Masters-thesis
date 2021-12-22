@@ -9,7 +9,7 @@ parameters {
 }
 
 transformed parameters {
-  real tau_eta = 7500;
+  real tau_eta = 75;
   real tau_y = 4.5;
 }
 

@@ -17,7 +17,7 @@ parameters {
 }
 
 transformed parameters {
-  real tau_eta = 7500;
+  real tau_eta = 75;
   real tau_y = 4.5;
 }
 
@@ -25,8 +25,7 @@ model {
   
   // random walk of order two implementation, stepwise
   eta[1] ~  normal(0, 100);
-  eta[2] ~ normal(eta[1], 100);
-  eta[3:100] ~ normal(2*eta[2:99] - eta[1:98], 1/sqrt(tau_eta));
+  eta[2:100] ~ normal(eta[1:99], 1/sqrt(tau_eta));
   
   sum(eta) ~ normal(0, 0.001*100);
   

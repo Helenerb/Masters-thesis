@@ -9,7 +9,7 @@ parameters {
 }
 
 transformed parameters {
-  real theta_eta = log(7500);
+  real theta_eta = log(75);
   real theta_y = log(4.5);
   
   real tau_eta = exp(theta_eta);

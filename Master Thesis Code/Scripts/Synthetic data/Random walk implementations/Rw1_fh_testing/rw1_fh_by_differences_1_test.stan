@@ -10,7 +10,7 @@ parameters {
 }
 
 transformed parameters{
-  real tau_eta = 7500;
+  real tau_eta = 75;
   real tau_y = 4.5;
   
   vector[100 - 1] eta_diff = eta[2:100] - eta[1:99];

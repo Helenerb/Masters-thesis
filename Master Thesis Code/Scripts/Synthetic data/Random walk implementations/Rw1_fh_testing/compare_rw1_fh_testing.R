@@ -24,29 +24,40 @@ library("INLA")
 # generate test data:
 n=100
 z=seq(0,6,length.out=n)
-y=sin(z)+rnorm(n,mean=0,sd=0.5)
-data=data.frame(y=y,z=z)
+#y=sin(z)+rnorm(n,mean=0,sd=0.5)
+offset = rep(50, length(z))
+y=rpois(length(z), offset*exp(sin(z)))
+data=data.frame(y=y,z=z, x=z)
 
 # quickly estimate in inlabru:
+# components = ~ -1 +
+#   eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(intitial = log(75), fixed = TRUE)), scale.model = T)
+
+hyper.eta <- list(prec = list(initial=log(75), fixed = T))
+
 components = ~ -1 +
-  eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(intitial = log(7500), fixed = TRUE)))
+  eta(x, values = data$z, model = "rw1", constr = TRUE, hyper = hyper.eta)
 
 formula = y ~ eta
-likelihood = like(formula = formula, family = "gaussian", data = data)
+#likelihood = like(formula = formula, family = "gaussian", data = data)
+likelihood = like(formula = formula, family = "poisson", data = data, E = offset)
 
-c.family <- list(hyper = list(prec = list(initial = log(4.5), fixed = TRUE)))
+#c.family <- list(hyper = list(prec = list(initial = 4.5, fixed = T)))
+
+
+c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
 
 res.inlabru <- bru(components = components,
                    likelihood = likelihood, 
                    options = list(verbose = F, 
                                   bru_verbose = 1,
-                                  control.family  = c.family))
-
+                                  #control.family  = c.family,
+                                  control.compute = c.compute))
 
 ggplot(data.frame(eta = res.inlabru$summary.random$eta$mean, z = z, sin.z = sin(z))) + geom_point(aes(x = z, y = eta)) + geom_point(aes(x = z, y = sin.z))
 
 ###   ----   Run stan analyses   ---- 
-input_stan <- list(y = data$y)
+input_stan <- list(y = data$y, E = offset)
 
 # run first stan program: rw1_stepwise.stan:
 
@@ -54,9 +65,9 @@ fit_stepwise <- stan(
   file = "rw1_fh_stepwise_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
-  refresh = 1000,
+  iter = 1000,
+  warmup = 100,
+  refresh = 100,
   seed = 123
 )
 
@@ -72,15 +83,16 @@ summary_stepwise <- as.data.frame(summary(fit_stepwise)$summary) %>% mutate("Imp
 trace_stepwise <- plot(fit_stepwise, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
 ggsave("trace_stepwise.pdf", plot = trace_stepwise, dpi="retina", device = "pdf")
 
+#   ----   Stan diff.1   ----
 #  run second stan program: rw1_by_differences.stan
 
 fit_diff_1 <- stan(
   file = "rw1_fh_by_differences_1_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
-  refresh = 1000,
+  iter = 1000,
+  warmup = 100,
+  refresh = 100,
   seed = 123
 )
 
@@ -96,15 +108,16 @@ load('draws_diff_1.RData')
 eta_df_diff_1 <- data.frame(list_of_draws_diff_1$eta)
 summary_diff_1 <- as.data.frame(summary(fit_diff_1)$summary) %>% mutate("Implementation" = "Diff.1")
 
+#   ---- Stan diff.2   ----
 #  run third stan program: rw1_by_differences_icar.stan
 
 fit_diff_2 <- stan(
   file = "rw1_fh_by_differences_2_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
-  refresh = 1000,
+  iter = 1000,
+  warmup = 100,
+  refresh = 100,
   seed = 123
 )
 
@@ -120,15 +133,16 @@ load("draws_diff_2.RData")
 eta_df_diff_2 <- data.frame(list_of_draws_diff_2$eta)
 summary_diff_2 <- as.data.frame(summary(fit_diff_2)$summary) %>% mutate("Implementation" = "Diff.2")
 
+#   ----   Stan diff.3   ----
 #  run fourth stan program: rw1_by_differences_3.stan
 
 fit_diff_3 <- stan(
-  file = "rw1_fh_by_differences_3-test.stan",
+  file = "rw1_fh_by_differences_3_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
-  refresh = 1000,
+  iter = 1000,
+  warmup = 100,
+  refresh = 100,
   seed = 123
 )
 
@@ -144,15 +158,16 @@ load("draws_diff_3.RData")
 eta_df_diff_3 <- data.frame(list_of_draws_diff_3$eta)
 summary_diff_3 <- as.data.frame(summary(fit_diff_3)$summary) %>% mutate("Implementation" = "Diff.3")
 
+#   ----   Stan diff.4   ----
 #  run fourth stan program: rw1_by_differences_4.stan
 
 fit_diff_4 <- stan(
   file = "rw1_fh_by_differences_4_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
-  refresh = 1000,
+  iter = 1000,
+  warmup = 100,
+  refresh = 100,
   seed = 123
 )
 
@@ -168,7 +183,7 @@ load("draws_diff_4.RData")
 eta_df_diff_4 <- data.frame(list_of_draws_diff_4$eta)
 summary_diff_4 <- as.data.frame(summary(fit_diff_4)$summary) %>% mutate("Implementation" = "Diff.4")
 
-###   ----   Compare results of different rw2 implementations   ----:
+###   ----   Compare results of different rw2 implementations:   ----
 
 
 palette <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
@@ -301,16 +316,30 @@ eta_summary_diff_2 <- summary_diff_2%>%
   filter(grepl("eta", idx)) %>% filter(!grepl("tau_eta", idx)) %>% filter(!grepl("scaled", idx)) %>%
   mutate(idx = parse_number(idx))
 
+eta_summary_diff_3 <- summary_diff_3%>%
+  rownames_to_column(var="idx") %>%
+  filter(grepl("eta", idx)) %>% filter(!grepl("tau_eta", idx)) %>% filter(!grepl("scaled", idx)) %>%
+  mutate(idx = parse_number(idx))
+
+eta_summary_diff_4 <- summary_diff_4%>%
+  rownames_to_column(var="idx") %>%
+  filter(grepl("eta", idx)) %>% filter(!grepl("tau_eta", idx)) %>% filter(!grepl("scaled", idx)) %>% filter(!grepl("theta", idx)) %>%
+  mutate(idx = parse_number(idx))
+
 summary_eta <- data.frame(idx = eta_summary_stewpwise$idx,
                           Stepwise = eta_summary_stewpwise$mean, 
                           Diff.1 = eta_summary_diff_1$mean,
-                          Diff.2 = eta_summary_diff_2$mean) %>%
+                          Diff.2 = eta_summary_diff_2$mean,
+                          Diff.3 = eta_summary_diff_3$mean,
+                          Diff.4 = eta_summary_diff_4$mean) %>%
   mutate(True = sin(z)[idx])
 
 p.summary.eta <- ggplot(summary_eta, aes(x = idx)) + 
   geom_point(aes(y = Stepwise, color = "Stepwise"), shape = 1) + 
   geom_point(aes(y = Diff.1, color = "Difference 1"), shape = 1, alpha = 0.5) + 
   geom_point(aes(y = Diff.2, color = "Difference 2"), shape = 1, alpha = 0.5) + 
+  geom_point(aes(y = Diff.3, color = "Difference 3"), shape = 1, alpha = 0.5) + 
+  geom_point(aes(y = Diff.4, color = "Difference 4"), shape = 1, alpha = 0.5) + 
   geom_point(aes(y = True, color = "True"), alpha = 0.5) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
@@ -323,6 +352,8 @@ p.summary.eta.ib <- ggplot(summary_eta, aes(x = idx)) +
   geom_point(aes(y = Stepwise, color = "Stepwise"), shape = 1) + 
   geom_point(aes(y = Diff.1, color = "Difference 1"), shape = 1, alpha = 0.5) + 
   geom_point(aes(y = Diff.2, color = "Difference 2"), shape = 1, alpha = 0.5) + 
+  geom_point(aes(y = Diff.3, color = "Difference 3"), shape = 1, alpha = 0.5) + 
+  geom_point(aes(y = Diff.4, color = "Difference 4"), shape = 1, alpha = 0.5) + 
   geom_point(data = data.frame(res.inlabru$summary.random$eta) %>% mutate(idx = summary_eta$idx), aes(x = idx, y = mean, color = "Inlabru"), alpha = 0.5, shape = 1) + 
   geom_point(aes(y = True, color = "True"), alpha = 0.5) + 
   theme_classic() + 
@@ -331,6 +362,17 @@ p.summary.eta.ib <- ggplot(summary_eta, aes(x = idx)) +
   labs("Means of eta", x = "z", y = "")
 
 ggsave("summary_eta_ib.pdf", plot = p.summary.eta.ib, dpi="retina", device = "pdf", height = 5, width = 8)
+
+p.summary.eta.ib.sw <- ggplot(summary_eta, aes(x = idx)) + 
+  geom_point(aes(y = Stepwise, color = "Stepwise"), shape = 1) + 
+  geom_point(data = data.frame(res.inlabru$summary.random$eta) %>% mutate(idx = summary_eta$idx), aes(x = idx, y = mean, color = "Inlabru"), alpha = 0.5, shape = 1) + 
+  geom_point(aes(y = True, color = "True"), alpha = 0.5) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs("Means of eta", x = "z", y = "")
+
+ggsave("summary_eta_ib_stepwise.pdf", plot = p.summary.eta.ib.sw, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #   ----    Plot comparison of Stan and inlabru   ----
 
