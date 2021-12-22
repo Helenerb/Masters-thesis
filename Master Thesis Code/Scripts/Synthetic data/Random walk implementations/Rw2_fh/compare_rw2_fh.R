@@ -63,9 +63,9 @@ fit_stepwise <- stan(
   file = "rw2_fh_stepwise.stan",
   data = input_stan,
   chains = 4,
-  iter = 800,
-  warmup = 80,
-  refresh = 100,
+  iter = 300000,
+  warmup = 30000,
+  refresh = 100000,
   seed = 123
 )
 
@@ -83,9 +83,9 @@ fit_diff_1 <- stan(
   file = "rw2_fh_by_differences_1.stan",
   data = input_stan,
   chains = 4,
-  iter = 800,
-  warmup = 80,
-  refresh = 100,
+  iter = 300000,
+  warmup = 30000,
+  refresh = 100000,
   seed = 123
 )
 
@@ -103,9 +103,9 @@ fit_diff_2 <- stan(
   file = "rw2_fh_by_differences_2.stan",
   data = input_stan,
   chains = 4,
-  iter = 800,
-  warmup = 80,
-  refresh = 100,
+  iter = 300000,
+  warmup = 30000,
+  refresh = 100000,
   seed = 123
 )
 
@@ -123,9 +123,9 @@ fit_diff_3 <- stan(
   file = "rw2_fh_by_differences_3.stan",
   data = input_stan,
   chains = 4,
-  iter = 800,
-  warmup = 80,
-  refresh = 100,
+  iter = 300000,
+  warmup = 30000,
+  refresh = 100000,
   seed = 123
 )
 
@@ -143,9 +143,9 @@ fit_diff_4 <- stan(
   file = "rw2_fh_by_differences_4.stan",
   data = input_stan,
   chains = 4,
-  iter = 800,
-  warmup = 80,
-  refresh = 100,
+  iter = 300000,
+  warmup = 30000,
+  refresh = 100000,
   seed = 123
 )
 
