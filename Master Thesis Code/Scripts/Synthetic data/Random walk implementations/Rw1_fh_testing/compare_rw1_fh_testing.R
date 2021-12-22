@@ -6,13 +6,13 @@
 set_workspace <- function(markov=TRUE){
   if(markov){
     .libPaths("~/Documents/R_libraries")
-    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw2")
+    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw1_fh_testing")
   } else {
-    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw2")
+    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic data/Random walk implementations/Rw1_fh_testing")
   }
 }
 
-set_workspace(markov=TRUE)
+set_workspace(markov=F)
 
 library("rstan")
 library("inlabru")
@@ -28,27 +28,22 @@ y=sin(z)+rnorm(n,mean=0,sd=0.5)
 data=data.frame(y=y,z=z)
 
 # quickly estimate in inlabru:
-# components = ~ -1 + 
-#   eta(z, model = "rw2", constr = TRUE, hyper = list(prec = list(intitial = log(1.93), fixed = TRUE)))
-
-# components = ~ -1 +
-#   eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(intitial = log(1.93), fixed = TRUE)))
-
 components = ~ -1 +
-  eta(z, model = "rw2", constr = TRUE, hyper = list(prec = list(prior=  "loggamma", param = c(1, 0.00005))))
-
-# components = ~ -1 +
-#   eta(z, model = "rw2", constr = TRUE)
+  eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(intitial = log(7500), fixed = TRUE)))
 
 formula = y ~ eta
 likelihood = like(formula = formula, family = "gaussian", data = data)
 
+c.family <- list(hyper = list(prec = list(initial = log(4.5), fixed = TRUE)))
+
 res.inlabru <- bru(components = components,
                    likelihood = likelihood, 
                    options = list(verbose = F, 
-                                  bru_verbose = 1))
+                                  bru_verbose = 1,
+                                  control.family  = c.family))
 
-print("Finish running inlabru")
+
+ggplot(data.frame(eta = res.inlabru$summary.random$eta$mean, z = z, sin.z = sin(z))) + geom_point(aes(x = z, y = eta)) + geom_point(aes(x = z, y = sin.z))
 
 ###   ----   Run stan analyses   ---- 
 input_stan <- list(y = data$y)
@@ -56,17 +51,21 @@ input_stan <- list(y = data$y)
 # run first stan program: rw1_stepwise.stan:
 
 fit_stepwise <- stan(
-  file = "rw2_stepwise.stan",
+  file = "rw1_fh_stepwise_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
 list_of_draws_stepwise <- rstan::extract(fit_stepwise)
+
+# save or load data
 save(list_of_draws_stepwise, file = 'draws_stepwise.RData')
+load('draws_stepwise.RData')
+
 eta_df_stepwise <- data.frame(list_of_draws_stepwise$eta)
 summary_stepwise <- as.data.frame(summary(fit_stepwise)$summary) %>% mutate("Implementation" = "Stepwise")
 
@@ -76,12 +75,12 @@ ggsave("trace_stepwise.pdf", plot = trace_stepwise, dpi="retina", device = "pdf"
 #  run second stan program: rw1_by_differences.stan
 
 fit_diff_1 <- stan(
-  file = "rw2_by_differences.stan",
+  file = "rw1_fh_by_differences_1_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -89,19 +88,23 @@ trace_diff_1 <- plot(fit_diff_1, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_1.pdf", plot = trace_diff_1, dpi="retina", device = "pdf")
 
 list_of_draws_diff_1 <- rstan::extract(fit_diff_1)
+
+# save or load draws:
 save(list_of_draws_diff_1, file = 'draws_diff_1.RData')
+load('draws_diff_1.RData')
+
 eta_df_diff_1 <- data.frame(list_of_draws_diff_1$eta)
 summary_diff_1 <- as.data.frame(summary(fit_diff_1)$summary) %>% mutate("Implementation" = "Diff.1")
 
 #  run third stan program: rw1_by_differences_icar.stan
 
 fit_diff_2 <- stan(
-  file = "rw2_by_differences_target.stan",
+  file = "rw1_fh_by_differences_2_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -109,19 +112,23 @@ trace_diff_2 <- plot(fit_diff_2, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_2.pdf", plot = trace_diff_2, dpi="retina", device = "pdf")
 
 list_of_draws_diff_2 <- rstan::extract(fit_diff_2)
+
+# save or load draws
 save(list_of_draws_diff_2, file = 'draws_diff_2.RData')
+load("draws_diff_2.RData")
+
 eta_df_diff_2 <- data.frame(list_of_draws_diff_2$eta)
 summary_diff_2 <- as.data.frame(summary(fit_diff_2)$summary) %>% mutate("Implementation" = "Diff.2")
 
 #  run fourth stan program: rw1_by_differences_3.stan
 
 fit_diff_3 <- stan(
-  file = "rw2_by_differences_3.stan",
+  file = "rw1_fh_by_differences_3-test.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -129,19 +136,23 @@ trace_diff_3 <- plot(fit_diff_3, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_3.pdf", plot = trace_diff_3, dpi="retina", device = "pdf")
 
 list_of_draws_diff_3 <- rstan::extract(fit_diff_3)
+
+# save or load draws
 save(list_of_draws_diff_3, file = 'draws_diff_3.RData')
+load("draws_diff_3.RData")
+
 eta_df_diff_3 <- data.frame(list_of_draws_diff_3$eta)
 summary_diff_3 <- as.data.frame(summary(fit_diff_3)$summary) %>% mutate("Implementation" = "Diff.3")
 
 #  run fourth stan program: rw1_by_differences_4.stan
 
 fit_diff_4 <- stan(
-  file = "rw2_by_differences_4.stan",
+  file = "rw1_fh_by_differences_4_test.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -149,7 +160,11 @@ trace_diff_4 <- plot(fit_diff_4, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_4.pdf", plot = trace_diff_4, dpi="retina", device = "pdf")
 
 list_of_draws_diff_4 <- rstan::extract(fit_diff_4)
+
+# save or load draws
 save(list_of_draws_diff_4, file = 'draws_diff_4.RData')
+load("draws_diff_4.RData")
+
 eta_df_diff_4 <- data.frame(list_of_draws_diff_4$eta)
 summary_diff_4 <- as.data.frame(summary(fit_diff_4)$summary) %>% mutate("Implementation" = "Diff.4")
 
@@ -268,181 +283,6 @@ eta.plot.full <- ggplot(eta_all) +
   facet_wrap(~Param)
 
 ggsave("eta_histogram_full.pdf", plot = eta.plot.full, dpi="retina", device = "pdf")
-
-#   ----   Plot distributions of hyperparameters:   ----
-tau_eta_df <- data.frame(Stepwise = list_of_draws_stepwise$tau_eta,
-                         Diff.1 = list_of_draws_diff_1$tau_eta,
-                         Diff.2 = list_of_draws_diff_2$tau_eta)
-
-p.tau_eta <- ggplot(tau_eta_df) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau eta", x = "", y = "")
-
-tau_y_df <- data.frame(Stepwise = list_of_draws_stepwise$tau_y,
-                       Diff.1 = list_of_draws_diff_1$tau_y,
-                       Diff.2 = list_of_draws_diff_2$tau_y)
-
-p.tau_y <- ggplot(tau_y_df) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau y", x = "", y = "")
-
-p.tau  <- (p.tau_eta | p.tau_y)
-
-ggsave("tau.pdf", plot = p.tau, dpi="retina", device = "pdf")
-
-# including diff 3 and 4:
-tau_eta_df_34 <- data.frame(Stepwise = list_of_draws_stepwise$tau_eta,
-                         Diff.1 = list_of_draws_diff_1$tau_eta,
-                         Diff.2 = list_of_draws_diff_2$tau_eta,
-                         Diff.3 = list_of_draws_diff_3$tau_eta,
-                         Diff.4 = list_of_draws_diff_4$tau_eta)
-
-p.tau_eta_34 <- ggplot(tau_eta_df_34) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau eta", x = "", y = "")
-
-tau_y_df_34 <- data.frame(Stepwise = list_of_draws_stepwise$tau_y,
-                       Diff.1 = list_of_draws_diff_1$tau_y,
-                       Diff.2 = list_of_draws_diff_2$tau_y,
-                       Diff.3 = list_of_draws_diff_3$tau_y,
-                       Diff.4 = list_of_draws_diff_4$tau_y)
-
-p.tau_y_34 <- ggplot(tau_y_df_34) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau y", x = "", y = "")
-
-p.tau_34  <- (p.tau_eta_34 | p.tau_y_34)
-
-ggsave("tau_34.pdf", plot = p.tau_34, dpi="retina", device = "pdf")
-
-#  with inlabru comparison
-
-p.tau_eta_ib <- ggplot(tau_eta_df) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for eta`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau eta", x = "", y = "")
-
-p.tau_y_ib <- ggplot(tau_y_df) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau y", x = "", y = "")
-
-p.tau_ib  <- (p.tau_eta_ib | p.tau_y_ib) + plot_layout(guides = "collect")
-
-ggsave("tau_ib.pdf", plot = p.tau_ib, dpi="retina", device = "pdf")
-
-#   ---   Plot histograms as densities   ----
-
-p.tau_eta_dens <- ggplot(tau_eta_df) + 
-  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau eta", x = "", y = "")
-
-
-p.tau_y_dens <- ggplot(tau_y_df) + 
-  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise",), alpha = 0.2) + 
-  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau y", x = "", y = "")
-
-p.tau_dens  <- (p.tau_eta_dens | p.tau_y_dens)
-
-ggsave("tau_dens.pdf", plot = p.tau_dens, dpi="retina", device = "pdf")
-
-# including diff 3 and 4:
-
-p.tau_eta_34_dens <- ggplot(tau_eta_df_34) + 
-  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) + 
-  geom_density(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4"), alpha = 0.2) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau eta", x = "", y = "")
-
-p.tau_y_34_dens <- ggplot(tau_y_df_34) + 
-  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.20) + 
-  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.2) + 
-  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.2) + 
-  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3", y = after_stat(density)), alpha = 0.2) + 
-  geom_density(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4", y = after_stat(density)), alpha = 0.2) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau y", x = "", y = "")
-
-p.tau_34_dens  <- (p.tau_eta_34_dens | p.tau_y_34_dens)
-
-ggsave("tau_34_dens.pdf", plot = p.tau_34_dens, dpi="retina", device = "pdf", height = 5, width = 8)
-
-#  with inlabru comparison
-
-p.tau_eta_ib <- ggplot(tau_eta_df) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for eta`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau eta", x = "", y = "")
-
-p.tau_y_ib <- ggplot(tau_y_df) + 
-  geom_histogram(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_histogram(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2", y = after_stat(density)), alpha = 0.5, bins = 500, size = 0) + 
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Tau y", x = "", y = "")
-
-p.tau_ib  <- (p.tau_eta_ib | p.tau_y_ib) + plot_layout(guides = "collect")
-
-ggsave("tau_ib.pdf", plot = p.tau_ib, dpi="retina", device = "pdf")
 
 #   ---   Plot means from summary together with "true" value   ----
 

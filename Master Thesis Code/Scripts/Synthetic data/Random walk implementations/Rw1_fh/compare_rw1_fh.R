@@ -12,7 +12,7 @@ set_workspace <- function(markov=TRUE){
   }
 }
 
-set_workspace(markov=T)
+set_workspace(markov=F)
 
 library("rstan")
 library("inlabru")
@@ -61,7 +61,11 @@ fit_stepwise <- stan(
 )
 
 list_of_draws_stepwise <- rstan::extract(fit_stepwise)
+
+# save or load data
 save(list_of_draws_stepwise, file = 'draws_stepwise.RData')
+load('draws_stepwise.RData')
+
 eta_df_stepwise <- data.frame(list_of_draws_stepwise$eta)
 summary_stepwise <- as.data.frame(summary(fit_stepwise)$summary) %>% mutate("Implementation" = "Stepwise")
 
@@ -84,7 +88,11 @@ trace_diff_1 <- plot(fit_diff_1, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_1.pdf", plot = trace_diff_1, dpi="retina", device = "pdf")
 
 list_of_draws_diff_1 <- rstan::extract(fit_diff_1)
+
+# save or load draws:
 save(list_of_draws_diff_1, file = 'draws_diff_1.RData')
+load('draws_diff_1.RData')
+
 eta_df_diff_1 <- data.frame(list_of_draws_diff_1$eta)
 summary_diff_1 <- as.data.frame(summary(fit_diff_1)$summary) %>% mutate("Implementation" = "Diff.1")
 
@@ -104,7 +112,11 @@ trace_diff_2 <- plot(fit_diff_2, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_2.pdf", plot = trace_diff_2, dpi="retina", device = "pdf")
 
 list_of_draws_diff_2 <- rstan::extract(fit_diff_2)
+
+# save or load draws
 save(list_of_draws_diff_2, file = 'draws_diff_2.RData')
+load("draws_diff_2.RData")
+
 eta_df_diff_2 <- data.frame(list_of_draws_diff_2$eta)
 summary_diff_2 <- as.data.frame(summary(fit_diff_2)$summary) %>% mutate("Implementation" = "Diff.2")
 
@@ -124,7 +136,11 @@ trace_diff_3 <- plot(fit_diff_3, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_3.pdf", plot = trace_diff_3, dpi="retina", device = "pdf")
 
 list_of_draws_diff_3 <- rstan::extract(fit_diff_3)
+
+# save or load draws
 save(list_of_draws_diff_3, file = 'draws_diff_3.RData')
+load("draws_diff_3.RData")
+
 eta_df_diff_3 <- data.frame(list_of_draws_diff_3$eta)
 summary_diff_3 <- as.data.frame(summary(fit_diff_3)$summary) %>% mutate("Implementation" = "Diff.3")
 
@@ -144,7 +160,11 @@ trace_diff_4 <- plot(fit_diff_4, plotfun = "trace", pars = c("tau_y", "tau_eta",
 ggsave("trace_diff_4.pdf", plot = trace_diff_4, dpi="retina", device = "pdf")
 
 list_of_draws_diff_4 <- rstan::extract(fit_diff_4)
+
+# save or load draws
 save(list_of_draws_diff_4, file = 'draws_diff_4.RData')
+load("draws_diff_4.RData")
+
 eta_df_diff_4 <- data.frame(list_of_draws_diff_4$eta)
 summary_diff_4 <- as.data.frame(summary(fit_diff_4)$summary) %>% mutate("Implementation" = "Diff.4")
 
