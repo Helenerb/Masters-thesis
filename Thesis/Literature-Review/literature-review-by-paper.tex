@@ -1,5 +1,6 @@
 \newpage
 \section{Literature Review - by Paper}
+\label{sec_literature_review_by_paper}
 
 \subsection{\textcite{LeeCarter1992}}The original paper of \textcite{LeeCarter1992}. 
 
@@ -10,6 +11,7 @@ Describes identifiability issues with cohort-extended Lee-Carter models. Connect
 Describes identifiability issues in cohort-extended Lee-Carter models, attempts to prove that there is identifiability under some assumptions for so-called plug-in models.
   
 \subsection{\textcite{fung_peters_shevchenko_2017}}
+\textbm{A unified approach to mortality modelling using state-space framework: characterisation, identification, estimation and forecasting}
 Describes Bayesian state space Lee-Carter models. Does not consider cohort extensions thoroughly in this paper, but refers to \textcite{fung_peters_shevchenko_2019} that discusses this. Focus on implementing volality of the error term (heteroscedaticity). Some interesting discussion on previous Bayesian vs frequentist (usually two-step) procedures, and also discusses downsides of the MCMC approach for Bayesian inference. 
 
 \subsection{\textcite{Currie_2016}} 
@@ -20,7 +22,7 @@ Paper containing proof that age-period-cohort models on the form
 \begin{equation}
     \eta_{x,t} = \alpha_x + \sum_{i=1}^{N}\beta_x^{(i)}\kappa_t^{(i)} + \gamma_{t-x}
 \end{equation}
-does not have any identifiability issues that is not also present in the corresponding age-period model, as long as the $\beta_x^{(i)}$ is non-parametric. I find it a little difficult to understand whether this applies to $\alpha_x$ as well - in any case, we will choose a non-parametric prior for $\alpha_x$ as well. Also discusses independence of projected period and cohort effects?
+does not have any identifiability issues that is not also present in the corresponding age-period model, as long as the $\beta_x^{(i)}$ is non-parametric. Also discusses independence of projected period and cohort effects?
   
 \subsection{\textcite{Hunt_blake_2021}}
 First impression: interesting discussion of uncertainty in cohort parameters. Discusses properties of cohort effects, for instance that $\mathbb{E}[\gamma_c]=0$ and that the cohort effects should be treated as independent of the period effects - in contrast to the discussion of \textcite{Currie_2016}. Raises an important key issue; the different cohort effects are estimated based on different amounts of data. Fewer observations of younger cohorts. Argues that estimates of cohort effects based on historical data should not be treated as known with some parameter uncertainty, but as an initial estimate of an ongoing process. They argue that the cohort effect should have the following properties:
@@ -33,6 +35,7 @@ First impression: interesting discussion of uncertainty in cohort parameters. Di
 \end{itemize}
 They do point one flaw of the single-step fit-and-project procedure, which is that it might be less suitable if we want to use the fitted model for different data sets where other time series models might be more appropriate? (I don´t really see this point, it is in footnote of page S240. How would we use the model from one data set to fit values for another data set? Isn´t this model quite data-specific?) 
 \subsubsection{Data Generating Process for Cohorts}
+\textit{This is a bit too technical - we don´t do this, so it should only be mentioned briefly, if mentioned at all}
 To incorporate uncertainty about recent cohorts, \textcite{Hunt_blake_2021} specifies the underlying "data generating process" of the cohort mortality. They introduce the following quantities:
 \begin{itemize}
     \item 
@@ -41,54 +44,44 @@ To incorporate uncertainty about recent cohorts, \textcite{Hunt_blake_2021} spec
 \subsection{\textcite{Wong_Forster_2018}}:
 Discusses Bayesian inference with the Poisson Lee-Carter model, where an error term for overdispersion is added. Discusses the added ability to correctly estimate uncertainty in the estimation when this extra term is included. Uses MCMC for model fitting, goes through this procedure thoroughly. Possible to use some of this procedure in our research? Does not include cohort effects, but discusses their presence in some of their results, and refers to future work on this topic. 
 
-\section{Literature Review - by Topic}
+\subsection{\textcite{LiKogure2021}: Bayesian Mixture Modelling for Mortality Projection}
+Contains some arguments on why a Bayesian approach is desirable. Not published in a very respected journal, so perhaps don´t cite it too much.  
 
-\subsection{Mortality Modeling as a Statistical Field}
-Her kan du snakke litt om historien til mortality modellering, og gjennomgå de viktigste modellene. Du kan nevne Lee-Carter modellen, og hvordan mange forskjellige versjoner av den har vært populær. Du kan nevne alternative modeller, og si litt om hva som har blitt sagt og gjort med disse tidligere - gjerne sett i forhold til Lee-Carter. Du kan også nevne forskjeller i Cause-specific og generell mortality. For eksempel at cohort har vært vanlig i cause-specific mortality, og nå også blir vanligere for general mortality. 
+\subsection{\textcite{Renshaw_Haberman_2011}: A Comparative Study of Parametric Mortality Projection Models}
+A well-written paper, discussing different mortality models. Considers the Lee-Carter model as a Parametric model, which I am a little confused about. But does not consider the models in a Bayesian setting, and does not discuss identifiability beyond applying constraints on the effects. Considers a log-odds link function, and considers the cohort-Lee-Carter structure with an age-modulated cohort effect.
+\newline
+Actually, they consider four versions of what you would consider the Lee-Carter model (note, with a different link-function than yourself).
+\newline
+Instead of applying the model to the force of mortality, or cases of deaths $Y_{x,t}$ directly, \textcite{Renshaw_Haberman_2011} defines the model in relation to the probability of death $q_{x,t}$. They define the model on the log-odds of the probability of death:
+\begin{equation*}
+    \log\big(\frac{q_{x,t}}{1 - q_{x,t}}\big) = \eta_{x,t}.
+\end{equation*}
+They consider a range of precictor structures, and among these are four structures which can be considered as versions of the Lee-Carter model, with or without a cohort extension:
+\begin{equation*}
+    \begin{aligned}
+    LC:\quad  \eta_{x,t} &= \alpha_x + \beta_x\kappa_t\\ 
+    H_1:\quad  \eta_{x,t} &= \alpha_x + \beta_x\kappa_t + \iota_{t - x}\\
+    M:\quad  \eta_{x,t} &= \lapha_x + \beta_x\kappa_t + \beta_x^{(0)}\iota_{t-x}\\
+    LC2:\quad \eta_{x,t} &= \alpha_x + \beta_x^{(1)}\kappa_t^{(1)} + \beta_x^{(2)}\kappa_t^{(2)}
+    \end{aligned}
+\end{equation*}
+They consider these in relation to the basic age-period-effect model:
+\begin{equation*}
+    H_0:\quad \eta_{x,t} = \alpha_x + \kappa_t + \iota_{t-x}.
+\end{equation*}
+There are some interesting things to note about this. \textcolor{myDarkGreen}{I am not quite sure if the LC2 model is meant to capture some cohort effects. } \textcite{Renshaw_Haberman_2011} conclude that the LC and the LC2 model give similar predictions for the probability of mortality. Secondly, because of the relationship
+\begin{equation*}
+    \text{cohort = period - age},
+\end{equation*}
+they apply a two-stage fitting strategy. \textcolor{myDarkGreen}{Sånn jeg tolker dette: two-stage fitting procedure er nødvendig PÅ GRUNN AV identifiability mellom age, period og cohort. Dette er interessant. }
 
-\subsection{Model Formulation - Different Versions of Cohort-Extended Lee-Carter Model}
-
-\subsection{Mortality Models in a Bayesian Framework}
-Her kan du snakke spesifikt om Bayesianske versjoner av Mortality modeller. Kanskje ikke her du skal argumentere for fordelene ved Bayesianske modeller, du kan evt referere til det hvis det står noe om det i annen litteratur. Men du kan legge det litt til grunn. Snakk om utfordringer andre har hatt ved Bayesisk modellering - nevne convergence issues? Snakk om hvilke metoder som har vært brukt for å løse disse modellene.  
-
-\subsection{Error Terms - Handling Uncertainty and Volality}
-Si noe om hvordan utviklingen har gått. Fra enkel error term, til Poisson-antagelse, til dobbel-usikkerhet - med både error term og Poisson. Hvilke papers bruker de forskjellige (hvis det gir mening, kan være det blir litt oppramsende)
-
-\subsection{Choices of Prior Distributions}
-
-\subsection{Projection of Period and Cohort Effects}
-Her må du sette deg godt inn i ting, for du synes at det er ganske vanskelig. 
-
-Hvilke metoder har andre brukt for å projektere (forecast - forsøk å forstå begrepene godt) mortality rates. Hvilke utfordringer er knyttet til forskjellige metoder?
-
-Gjennomgå - hvordan blir det gjort i Bayesiansk og frekventistisk sammenheng?
-
-\subsection{Choices of Constraints}
-
-\subsection{Discussion about Identifiability}
-
-Se hvor mye som blir relevant å ha med - det avhenger litt av om du får til å vise mange resultater med cohort effect - og dermed også resultater som har litt identifiability issues. Men: Nevn resultatet til \textcite{hunt_blake_2020} som sier at dersom $\beta_x$ er non-parametric, så er cohort-effekten identifiserbar. Her kan du trekke inn den klassiske APC-modellen som eksempel på en modell der $\beta_x$ er parametrisk, og dermed også ikke-identifiserbar. 
-
-\subsection{Convergence in Mortality Models}
-Her kan du diskutere det som har blitt sagt om konvergensproblemer for dødelighetsmodeller generelt og Lee-Carter modeller spesielt. Merk deg om det gjelder Lee-Carter modeller også uten cohort-effekter. Her kan du referere mye til \textcite{HUNT_Villegas_2015}, som snakker om Rubustness og Convergence. Ha dette i bakhodet i videre diskusjon. 
-
-
-
-The following papers models assumes the number of deaths to be Poisson distributed:
+Does not consider ages below 20, arguing that they are considering the model in an actuarial setting. Refers to \textcite{LeeCarter1992} and Renshaw and Haberman(2003a,b, 2006).. Give some interesting results: 
 \begin{itemize}
-    \item \textcite{Czado_2005}
-    \item \textcite{Cairns_2009}
-    \item \textcite{Wong_Forster_2018}
-    \item \textcite{HUNT_Villegas_2015}
+    \item Their Lee-Carter cohort and theie Lee-Carter model produce the same predictions as the Lee-Carter cohort model.. (Note that this containts an age-modulating effect on the cohort effect). Note also that this does not at all seem to be the case for your data... So you can talk about differences in disease data and actuarial data?
+    \item 
+    
 \end{itemize}
+\textcolor{myDarkGreen}{MERK: Noe du lurer veldig på. Renshaw og Haberman refererer til disse som parametriske; spesifikt referer de til prediktorer på formen f.eks. $\eta_{x,t} = \alpha_x + \beta_x\kappa_t$} som parametriske. Hva innebærer dette? Er parametrisk i samme betydning som Hunt og Blake refererer til det i tilfellet fet $\beta_x$ må være non-parametric for at du skal ha identifiability?
 
-The following papers follow a Bayesian approach:
-\begin{itemize}
-    \item \textcite{Hunt_blake_2021}
-    \item \textcite{Wong_Forster_2018}
-\end{itemize}
-
-I still need to read through and consider the relevance of the following papers:
-\begin{itemize}
-    \item \textcite{Cairns_2009}
-\end{itemize}
+\section{TODO: Cairns et al, 2008x3, 2009}
+Renshaw and Haberman refererer mye til Cairns, de har modellene der $\beta_x = (x - \bar{x})$ osv. Ligner ikke så mye på det vi skal ha, men sikkert greit å nevne... 

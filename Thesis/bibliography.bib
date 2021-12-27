@@ -129,6 +129,21 @@ keywords = {Life insurance, Age–sex-specific mortality, Lifetable functions, A
 abstract = {This paper implements Wilmoth’s [Computational methods for fitting and extrapolating the Lee–Carter model of mortality change, Technical report, Department of Demography, University of California, Berkeley] and Alho’s [North American Actuarial Journal 4 (2000) 91] recommendation for improving the Lee–Carter approach to the forecasting of demographic components. Specifically, the original method is embedded in a Poisson regression model, which is perfectly suited for age–sex-specific mortality rates. This model is fitted for each sex to a set of age-specific Belgian death rates. A time-varying index of mortality is forecasted in an ARIMA framework. These forecasts are used to generate projected age-specific mortality rates, life expectancies and life annuities net single premiums. Finally, a Brass-type relational model is proposed to adapt the projections to the annuitants population, allowing for estimating the cost of adverse selection in the Belgian whole life annuity market.}
 }
 
+% paper using a Bayesian approach for a mixture model, mixing various mortality models (inlcuding Lee-Carter)
+@article{LiKogure2021,
+AUTHOR = {Li, Jackie and Kogure, Atsuyuki},
+TITLE = {Bayesian Mixture Modelling for Mortality Projection},
+JOURNAL = {Risks},
+VOLUME = {9},
+YEAR = {2021},
+NUMBER = {4},
+ARTICLE-NUMBER = {76},
+URL = {https://www.mdpi.com/2227-9091/9/4/76},
+ISSN = {2227-9091},
+ABSTRACT = {Although a large number of mortality projection models have been proposed in the literature, relatively little attention has been paid to a formal assessment of the effect of model uncertainty. In this paper, we construct a Bayesian framework for embedding more than one mortality projection model and utilise the finite mixture model concept to allow for the blending of model structures. Under this framework, the varying features of different model structures can be exploited jointly and coherently to have a more detailed description of the underlying mortality patterns. We show that the proposed Bayesian approach performs well in fitting and forecasting Japanese mortality.},
+DOI = {10.3390/risks9040076}
+}
+
 @misc{martinoRiebler2019,
       title={Integrated Nested Laplace Approximations (INLA)}, 
       author={Sara Martino and Andrea Riebler},
@@ -270,7 +285,7 @@ journal={Gking. Harvard. Edu},
 }
 
 % The first log-bilinear Lee-Carter paper, not cohort
-@article{CZADO2005260,
+@article{Czado_1005,
 title = {Bayesian Poisson log-bilinear mortality projections},
 journal = {Insurance: Mathematics and Economics},
 volume = {36},
@@ -423,7 +438,7 @@ keywords = {Life insurance, Age–sex-specific mortality, Lifetable functions, A
 }
 
 % original paper including cohort effect in Lee-Carter method
-@article{RENSHAW2006556,
+@article{Renshaw_Haberman_2006,
 title = {A cohort-based extension to the Lee–Carter model for mortality reduction factors},
 journal = {Insurance: Mathematics and Economics},
 volume = {38},
@@ -435,6 +450,34 @@ doi = {https://doi.org/10.1016/j.insmatheco.2005.12.001},
 url = {https://www.sciencedirect.com/science/article/pii/S0167668705001678},
 author = {A.E. Renshaw and S. Haberman},
 keywords = {Cohort effects, Mortality reduction factors, Generalised non-linear models, Time series, Mortality projections}
+}
+
+% Thourough article reviewing (parametric) mortality models
+@article{Renshaw_Haberman_2011,
+title = {A comparative study of parametric mortality projection models},
+journal = {Insurance: Mathematics and Economics},
+volume = {48},
+number = {1},
+pages = {35-55},
+year = {2011},
+issn = {0167-6687},
+doi = {https://doi.org/10.1016/j.insmatheco.2010.09.003},
+url = {https://www.sciencedirect.com/science/article/pii/S0167668710001022},
+author = {Steven Haberman and Arthur Renshaw},
+keywords = {Mortality forecasting, Binomial response models, Age-period effects, Age-period-cohort effects, Forecast statistics, Model and forecast comparison, Back-fitting},
+abstract = {The relative merits of different parametric models for making life expectancy and annuity value predictions at both pensioner and adult ages are investigated. This study builds on current published research and considers recent model enhancements and the extent to which these enhancements address the deficiencies that have been identified of some of the models. The England & Wales male mortality experience is used to conduct detailed comparisons at pensioner ages, having first established a common basis for comparison across all models. The model comparison is then extended to include the England & Wales female experience and both the male and female USA mortality experiences over a wider age range, encompassing also the working ages.}
+}
+
+% More basic article, considering projection with age-period-cohort (and Lee-Carter models) in a frequantist, parametric setting.
+@article{Renshaw_Haberman_2009,
+author = {Haberman, Steven and Renshaw, Arthur},
+year = {2009},
+month = {10},
+pages = {255-270},
+title = {On Age-Period-Cohort Parametric Mortality Rate Projections},
+volume = {45},
+journal = {Insurance: Mathematics and Economics},
+doi = {10.1016/j.insmatheco.2009.07.006}
 }
 
 % cancer data

@@ -7,21 +7,21 @@ We perform a step-wise analysis of the accuracy of the \inlabru results. We begi
 \label{sec:testing_model_structures}
 We consider two different versions of mortality models in this phase of our research, which are both based on the Lee-Carter type of model structure, as described in Section \ref{section:Lee-Carter}. Since our goal is to investigate whether \inlabru correctly perform inference with models that contain a multiplicative term, $\beta_x \cdot \kappa_t$ in our case, we omit the cohort effect for simplicity. The first model is close to the original model formulation proposed by \textcite{LeeCarter1992}, where we assume that the logarithm of the mortality rates follow a Gaussian distribution:
 \begin{equation*}
-    \log(m_{x,t}) \sim \Normal(\xi_{x,t}, 1/\tau_{\regepsilon}), \quad \xi_{x,t} = \my + \alpha_x + \beta_x \cdot \kappa_t,
+    \text{G}:\quad \log(m_{x,t}) \sim \Normal(\xi_{x,t}, 1/\tau_{\regepsilon}), \quad \xi_{x,t} = \mu + \alpha_x + \beta_x \cdot \kappa_t,
 \end{equation*}
 or equivalently
 \begin{equation}
     \text{G}:\quad \log(m_{x,t}) = \mu + \alpha_x + \beta_x\cdot \kappa_t + \regepsilon_{x,t}, \quad \regepsilon_{x,t} \sim \Normal(0, 1/\tau_{\regepsilon}).
     \label{eq:gaussian_model}
 \end{equation}
-Here, $m_{xt}$ is the observed rate of mortality of the population of age $x$ in year $t$, and $\mu$, $\alpha_x$, $\beta_x$ and $\kappa_t$ have the same interpretation as described in Section \ref{section:Lee-Carter}, and $\regepsilon_{x,t}$ is a normally distributed error term with a zero mean, which contains the variation of the Gaussian distribution. In the following section, we refer to this model structure as model G.
+Here, $m_{xt}$ is the observed rate of mortality of the population of age $x$ in year $t$, and $\mu$, $\alpha_x$, $\beta_x$ and $\kappa_t$ have the same interpretation as described in Section \ref{section:Lee-Carter}. $\regepsilon_{x,t}$ is a normal distributed error term with a zero mean, which contains the variation of the Gaussian distribution. In the following section, we refer to this model structure as model G.
 
-In the second model we consider, we assume the counts of death $Y_{x,t}$ to follow a Poisson distribution:
+In the second model, we assume the counts of death $Y_{x,t}$ to follow a Poisson distribution:
 \begin{equation}
     \text{P}:\quad Y_{x,t} \sim \Poisson(E_{x,t} \cdot e^{\eta_{x,t}}), \quad \eta_{x,t} = \mu + \alpha_x + \beta_x \cdot \kappa_t + \eps_{x,t},
     \label{eq:poisson_model}
 \end{equation}
-where $Y_{x,t}$ is the number of deaths occurring in year $t$ for people of age $x$. $\mu$, $\alpha_x$, $\beta_x$, $\kappa_t$ has the same interpretation as in the Gaussian model G, and $\eps_{x,t}$ is an error term. We refer to this Poisson model as model P throughout this section. A key difference between the two models is that the latter model P includes two ways\textcolor{myDarkGreen}{terms?} of accounting for and explaining stochastic variation in the observed data. The first is through the random error term $\eps_{x,t}$ and the second is through the variance of the Poisson distribution of the death counts. In model G, all variation in the data that can not be explained by age or period effects must be accounted for in the variation of the Gaussian distribution, i.e. through the error term $\regepsilon_{x,t}$. 
+where $Y_{x,t}$ is the number of deaths occurring in year $t$ for people of age $x$. The intercept $\mu$ and the effects $\alpha_x$, $\beta_x$, $\kappa_t$ have the same interpretation as in the Gaussian model G, and $\eps_{x,t}$ is an error term. We refer to this Poisson model as model P throughout this section. A key difference between the two models is that the latter model P includes two ways/\textcolor{myDarkGreen}{terms?} of accounting for and explaining stochastic variation in the observed data. The first is through the random error term $\eps_{x,t}$ and the second is through the variance of the Poisson distribution of the death counts. In model G, all variation in the data that can not be explained by age- or period effects must be accounted for in the variation of the Gaussian distribution, i.e. through the error term $\regepsilon_{x,t}$. 
 
 To ensure identifiability, we impose the following constraints on both models:
 \begin{equation}
@@ -35,7 +35,7 @@ Additionally, the effects $\mu$, $\alpha_x$, $\beta_x$, $\kappa_t$ and $\regepsi
         \alpha_x &\sim \rwone(1/\tau_\alpha) \\
         \beta_x &\sim \iid(0, 1/\tau_\beta) \\
         \kappa_t &\sim \rwone(1, \tau_\kappa) \\
-        \regepsilon_{x,t} &\sim \iid(0, 1/\tau_\regepsilon), \eps_{x,t} \sim \iid(0, 1/\tau_\eps)
+        \regepsilon_{x,t} &\sim \iid(0, 1/\tau_\regepsilon),\quad \eps_{x,t} \sim \iid(0, 1/\tau_\eps)
     \end{aligned}
     \label{eq:rw1-random-effects}
 \end{equation}
@@ -49,6 +49,7 @@ A benefit of testing the performance of \inlabru for both these models, is that 
 
 \subsection{Implementation of Random Walk Models in \stan and \inlabru}
 \label{sec:implementation_random_walk}
+\textcolor{myDarkGreen}{This section is not finished, no need to read!}
 In \inla, and in \inlabru, a random walk of order one is defined by Gaussian distributed differences:
 \begin{equation}
     \Delta x_i = x_i - x_{x-1} \sim \Normal(0, 1/\tau),
@@ -66,6 +67,7 @@ and giving Gaussian priors to the following steps of the random walk, with means
 
 \subsection{Implementation of Constraints in \stan and \inlabru}
 \label{sec:implementation_constraints}
+\textcolor{myDarkGreen}{This section is not finished, no need to read!}
 The sum-to-zero and sum-to-unit constraints of Equation \textcolor{myDarkGreen}{REF} are implemented differently in \inlabru and in \stan. The \inlabru framework implements constraints by ... \textcolor{myDarkGreen}{TODO: Q-matrix something?}. As this would prove quite implementationally complicated in \stan, we model the constraints by imposing so-called soft constraints, by imposing a sharp prior with mean at zero for on the sum of the effects:
 \begin{equation}
     \begin{aligned}
@@ -85,10 +87,10 @@ In the first part of our analysis, we simplify the model further by fixing the v
 \end{equation}
 and for the \vSeven data, the values are
 \begin{equation}
-    \tau_\alpha = 1.96,\quad \tau_\beta = 64,\quad \tau_\kappa = 336, \tau_\regepsilon = \tau_\eps = 420.
+    \tau_\alpha = 1.96,\quad \tau_\beta = 64,\quad \tau_\kappa = 336, \quad  \tau_\regepsilon = \tau_\eps = 420.
     \label{eq:fixed_precisions_v7}
 \end{equation}
-We note that the values of $\kappa_t$ for both the \vFour and \vSeven data are produced using a random walk model of order two, not order one, with precision $\tau_\kappa$. This means that this value for $\tau_\kappa$ is an overestimation compared to the precision $\kappa_t$ would have if it was a realization of a random walk of order one. \textcolor{myDarkGreen}{I think I should check if this seems to have an effect. If it does not, I can say that it still seems okay}
+We note that the values of $\kappa_t$ for both the \vFour and \vSeven data are produced using a random walk model of order two, not order one, with precision $\tau_\kappa$. This means that this value for $\tau_\kappa$ is an overestimation compared to the precision $\kappa_t$ would have if it was a realization of a random walk of order one. However, this does not seem to make a large difference.  \textcolor{myDarkGreen}{I checked with a lower value for $\tau_\kappa$ as well, it did not seem to make a lot of difference. }
 
 We refer to the M- and P models with values for the hyperparameters given by the Values in \ref{eq:fixed_precisions_v4} or \ref{eq:fixed_precisions_v7} for the G1 and P1 models. 
 
@@ -102,7 +104,7 @@ To check our implementation, and to ensure that \inlabru acts as we expect in th
         \text{P1lin}: \quad &Y_{x,t} \sim \Poisson(E_{x,t}\cdot e^{\eta_{x,t}^{\text{lin}}}), \quad \eta_{x,t}^{\text{lin}} = \mu + \alpha_x + \kappa_t + \eps_{x,t}
     \label{eq:poisson_lin}
 \end{equation}
-with $\mu$, $\alpha_x$, $\kappa_t$, $\regepsilon_{x,t}$ and $\eps_{x,t}$ modeled as described in Expression \ref{eq:rw1-random-effects} . We run the models in \inlabru and \stan, for the two sets of data described in Section \ref{sec:generating_synthetic_data}.
+with $\mu$, $\alpha_x$, $\kappa_t$, $\regepsilon_{x,t}$ and $\eps_{x,t}$ modeled as described in Expression \ref{eq:rw1-random-effects} . We run the models in \inlabru and \stan, for the two sets of data described in Section \ref{sec:generating_synthetic_data}, the \vFour data and the \vSeven data.
 \begin{figure}
     \centering
     \textbf{G1lin: Linear Gaussian Model}
@@ -114,7 +116,7 @@ with $\mu$, $\alpha_x$, $\kappa_t$, $\regepsilon_{x,t}$ and $\eps_{x,t}$ modeled
     \end{subfigure}
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_fh_rw1_random_effects.pdf}
-        \caption{Estimated random effects}
+        \caption{Estimated random effects. \textcolor{myDarkGreen}{Note: the "True" value does not make sense here!}}
         \label{fig:gauss_lin_fh_rw1_random_effects}
     \end{subfigure}
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_lin}}
@@ -131,7 +133,7 @@ with $\mu$, $\alpha_x$, $\kappa_t$, $\regepsilon_{x,t}$ and $\eps_{x,t}$ modeled
     \end{subfigure}
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_fh_rw1_random_effects.pdf}
-        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. }
+        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. \textcolor{myDarkGreen}{Note: the "True" value does not make sense here!}}
         \label{fig:poiss_lin_fh_rw1_random_effects}
     \end{subfigure}
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_lin}. }
@@ -166,10 +168,20 @@ We now run \inlabru and \stan on the full models with multiplicative terms, G1 f
         \caption{Estimated random effects}
         \label{fig:gauss_fh_rw1_kappa}
     \end{subfigure}
+    
+    \begin{subfigure}[b]{.43\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_fh_rw1/predictor_36.pdf}
+        \caption{Estimated predictor $\xi_{x=2, t=18}$.}
+        \label{fig:gauss_fh_rw1_predictor_36}
+    \end{subfigure}
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_model}}
     \label{fig:gauss_fh_rw1}
 \end{figure}
-The results for the \vFour data are presented in Figures \ref{fig:gauss_fh_rw1} and \ref{fig:poiss_fh_rw1}. For the Gaussian G1 model, we see, from Figure \ref{fig:gauss_fh_rw1_predictor} that the predictor $\xi_{x,t}$ is estimated almost exactly similarily by \stan and \inlabru. We do, however, notice a marginal shift between the two estimation procedures, but this is so small that we in practice consider them as identical. \textcolor{myDarkGreen}{Holder dette?} The estimated random effects, on the other hand, are estimated differently by \inlabru and \stan, as seen in Figures \ref{fig:gauss_fh_rw1_random_effects}, \ref{fig:gauss_fh_rw1_beta} and \ref{fig:gauss_fh_rw1_kappa}. More specifically, the two factors in the multiplicative term, $\beta_x$ and $\kappa_t$ are estimated differently by the two methods, while the estimates for $\alpha_x$ and $\mu$ seems to be identical. Furthermore, we notice that the difference in the estimation varies between the two sets of data. For the \vSeven data, the difference in the estimation of $\kappa_t$ and $\beta_x$ is observable, as shown in Figures \textcolor{myDarkGreen}{ADD} in the Appendix, but very small. One poissible explanation for this is that there are some unidentifiability between $\beta_x$ and $\kappa_t$ in the Full.1 data, that is not as apparent in the Reduced.1 data. Looking at the estimates of $\kappa_t$ in Figures \ref{fig:gauss_fh_rw1_random_effects}, we see that the change points of $\kappa_t$ are similar in the \stan and \inlabru estimation, and that the difference in the estimations of $\kappa_t$ lies in the slope; the \inlabru estimations is steeper than the \stan estimation, but they have the same shape. We note that theoretical identifiability of the basic Lee-Carter model which have been shown multiple times \textcolor{myDarkGreen}{CITE}, does not guarantee identifiability in practice for all realised data. \textcolor{myDarkGreen}{You are unsure whether you can just state this! Should come with some sources, some other places this has been discussed?}
+The results for the \vFour data are presented in Figures \ref{fig:gauss_fh_rw1} and \ref{fig:poiss_fh_rw1}. For the Gaussian G1 model, we see, from Figure \ref{fig:gauss_fh_rw1_predictor} that the predictor $\xi_{x,t}$ is estimated almost exactly similarily by \stan and \inlabru. We do, however, notice a marginal shift between the two estimation procedures, but this is so small that we in practice consider them as identical. Figure \ref{fig:gauss_fh_rw1_predictor_36} displays the difference in the estimated values of $\xi_{x=2, t=18}$, which was one of the values with the largest difference in the estimation. For this value, the shift between \inlabru and \stan is clearly noticeable, but still not very large. \textcolor{myDarkGreen}{Holder dette?} 
+
+For the estimated random effects, on the other hand, the differences in the estimations are clearer, as can be seen in Figures \ref{fig:gauss_fh_rw1_random_effects}, \ref{fig:gauss_fh_rw1_beta} and \ref{fig:gauss_fh_rw1_kappa}. More specifically, the two factors in the multiplicative term, $\beta_x$ and $\kappa_t$ are estimated differently by the two methods, while the estimates for $\alpha_x$ and $\mu$ seems to be identical. Furthermore, we notice that the difference in the estimation varies between the two sets of data. For the \vSeven data, the differences in the estimation of $\kappa_t$ and $\beta_x$ are observable, as shown in Figures \ref{fig:gauss_fh_rw1_v7} and \ref{fig:poiss_fh_rw1_v7} in the Appendix, but they are very small. 
+
+One possible explanation for the difference in the estimated random effects is that there are some unidentifiability between $\beta_x$ and $\kappa_t$ in the \vFour data, that is not as apparent in the \vSeven data. Looking at the estimates of $\kappa_t$ in Figures \ref{fig:gauss_fh_rw1_random_effects}, we see that the change points of $\kappa_t$ are similar in the \stan and \inlabru estimation, and that the difference in the estimations of $\kappa_t$ lies in the slope; the \inlabru estimations are steeper than the \stan estimation, but they have the same shape. We note that theoretical identifiability of the basic Lee-Carter model which have been shown multiple times \textcolor{myDarkGreen}{CITE}, does not guarantee identifiability in practice for all realised data. \textcolor{myDarkGreen}{I should probably do more than just state this. Perhaps I can inlclude some theory about the "flat mode" in the \inlabru estimation process, and then refer to it}
 \begin{figure}
     \centering
     \textbf{M2: Poisson Model}
@@ -195,24 +207,36 @@ The results for the \vFour data are presented in Figures \ref{fig:gauss_fh_rw1} 
         \caption{Marginal distributions for some values of $\kappa_t$}
         \label{fig:poiss_fh_rw1_kappa}
     \end{subfigure}
+    
+     \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_fh_rw1/predictor_start.pdf}
+        \caption{Marginal distributions for $\eta_{x,t}$ at for selected values at younger ages}
+        \label{fig:poiss_fh_rw1_predictor_start}
+    \end{subfigure}
+    \begin{subfigure}[b]{.45\linewidth}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_fh_rw1/predictor_54.pdf}
+        \caption{Marginal distributions for $\eta_{x=3,t=18}$}
+        \label{fig:poiss_fh_rw1_predictor_54}
+    \end{subfigure}
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_model}. }
     \label{fig:poiss_fh_rw1}
 \end{figure}
-Equivalent results fro the M2 Poisson model are displayed in Figure \ref{fig:poiss_fh_rw1}. For the M2 model, we notice a very slight difference in the estimated values for the Full.1 data. For the Reduced.1 data, this difference is not observeable, as seen in Figure \textcolor{myDarkGreen}{ADD}. \textcolor{myDarkGreen}{What should you say about this?}
-For the random effects, we observe a shift in the estimated $\beta_x$ and $\kappa_t$ from \inlabru and \stan. Again, this shift is clearer for the Full.1 data than for the Reduced.1 data.
-\newline
-In conclusion, for the easier case with fixed parameters, \inlabru seems to give almost identical estimations for the predictors $\xi_{x,t}$ and $\eta_{x,t}$ of models M1 and M2. We do observe differences in the estimation of the random effects for the Full.1 data. This difference may be explained by unidentifiability between the age effect $\beta_x$ and the period effect $\kappa_t$ for this data. \textcolor{myDarkGreen}{I know that this needs to be discussed further, not just stated, but I don´t really know how to do that}
+
+Equivalent results for the P1 Poisson model are displayed in Figure \ref{fig:poiss_fh_rw1}. For the P1 model, we notice a slight difference in the estimated values for the Full.1 data. This difference is especially clear for the values of $\eta_{x,t}$ where $x$ is low, and some of the values of $\eta_{x,t}$ with the clearest difference is displayed in Figures \ref{fig:poiss_fh_rw1_predictor_start} and \ref{fig:poiss_fh_rw1_predictor_54}. However, the difference between the results from \inlabru and \stan is not as apparent for the P1 model as it were for the G1 model. For the Reduced.1 data, this difference is not observable, as seen in Figure \ref{fig:poiss_fh_rw1_v7}. \textcolor{myDarkGreen}{What should you say about this? I´m in the process of double checking with other data similar to the \vSeven data}
+ For the random effects, we observe a shift in the estimated $\beta_x$ and $\kappa_t$ from \inlabru and \stan. Again, this shift is clearer for the Full.1 data than for the Reduced.1 data.
+
+In conclusion, for the easier case with fixed parameters, \inlabru and \stan seem to give almost, but not exactly identical estimations for the predictors $\xi_{x,t}$ and $\eta_{x,t}$ of models G1 and P1. The slight difference between the two estimations of the predictors are clearer for the \vFour data than for the \vSeven data, for both models G1 and P1. We do observe differences in the estimation of the random effects for the Full.1 data, and somewhat smaller differences for the \vSeven data. This difference may be explained by unidentifiability between the age effect $\beta_x$ and the period effect $\kappa_t$. 
 
 \subsection{Comparison for Models With Gamma Precisions}
 \label{sec:inlabru_stan_gamma_precs}
-In the previous part, we fixed the hyperparameters of models M1 and M2. This allowed us to reduce the scope of the analysis, and to isolate our investigation around the behaviour of \inlabru and \stan for non-linear predictors. When applying these models to real data however, we do not know the values of these hyperparameters, and we need to impose some hyperpriors. In the following analysis, we investigate how the estimation results of \inlabru and \stan compare when we treat the hyperparameters as unknown. We do this by imposing sufficiently uninformative priors on the hyperparameters. Specifically, we assume the precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$ to follow gamma distributions:
+In the previous part, we fixed the hyperparameters of models G1 and P1. This allowed us to reduce the scope of the analysis, and to isolate our investigation around the behavior of \inlabru and \stan for non-linear predictors. When applying these models to real data however, we do not know the values of these hyperparameters, and we need to impose some hyperpriors. In the following analysis, we investigate how the estimation results of \inlabru and \stan compare when we treat the hyperparameters as unknown. We do this by imposing sufficiently uninformative priors on the hyperparameters. Specifically, we assume the precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$ to follow gamma distributions:
 \begin{equation*}
     \begin{aligned}
         &\tau_\alpha, \tau_\beta, \tau_\epsilon \sim \gammaDist(1, 0.00005),\\
         &\tau_\kappa \sim \gammaDist(1 , 0.005).
     \end{aligned}
 \end{equation*}
-In \inlabru, the hyperpriors of \rwone and \iid effects are defined in the log-precisions $\theta = \log(\tau)$ instead of directly on the precisions. We define the model in \stan accordingly, by defining
+In \inlabruNS, the hyperpriors of \rwoneS and \iidS effects are apllied to the log-precisions $\theta = \log(\tau)$ instead of directly to the precisions of the processes. We define the model in \stan accordingly, by defining
 \begin{equation}
     \begin{aligned}
         &\theta_\alpha = \log(\tau_\alpha), \quad \theta_\alpha \sim \logGamma(1, 0.00005)\\
@@ -222,13 +246,15 @@ In \inlabru, the hyperpriors of \rwone and \iid effects are defined in the log-p
     \end{aligned}
     \label{eq:gamma_priors}
 \end{equation}
-where $\theta = \log(\tau) \sim \logGamma(a,b)$ is $\tau \sim \gammaDist(a,b)$. We use the same model structures, M1 and M2, as described in Equations \ref{eq:gaussian_model} and \ref{eq:poisson_model}, for Gaussian and Poisson models respectively, and we impose the priors described in \ref{eq:gamma_priors} on the precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$ for both models. From this point, we refer to the Gaussian M1 model structure with hyperpriors as described in Expressions \ref{eq:gamma_priors} as model M3, and the Poisson M2 model structure with hyperpriors as defined in Expressions \ref{eq:gamma_priors} as model M4.
+where $\theta = \log(\tau) \sim \logGamma(a,b)$ is $\tau \sim \gammaDist(a,b)$.
+
+We use the same model structures, G and P, as described in Equations \ref{eq:gaussian_model} and \ref{eq:poisson_model}, for Gaussian and Poisson models respectively, and we impose the priors described in \ref{eq:gamma_priors} on the precisions $\tau_\alpha$, $\tau_\beta$, $\tau_\kappa$ and $\tau_\epsilon$ for both models. From this point, we refer to the Gaussian model structure G with hyperpriors as described in Expressions \ref{eq:gamma_priors} as model G2, and the Poisson model structure P with hyperpriors as defined in Expressions \ref{eq:gamma_priors} as model P2.
 
 \subsubsection{Verification With Linear Models}
-As for the analysis with fixed hyperpriors, we begin by running examples for linear versions of the models. We denothe these M3lin and M4lin, and they are constructed by applying the hyperpriors described in Equation \ref{eq:gamma_priors} to the precisions of models M1lin and M2lin, respectively. We run \stan and \inlabru on M3lin and M4lin, and the results for the Full.1 data are displayed in Figures \ref{fig:gauss_lin_gp_rw1} and \ref{fig:poiss_lin_gp_rw1}.
+As for the analysis with fixed hyperpriors, we begin by running examples for linear versions of the models. We denote these G2lin and P4lin, and they are constructed by applying the hyperpriors described in Equation \ref{eq:gamma_priors} to the precisions of models G1lin and P1lin, as stated in Expressions \ref{eq:gaussian_lin} and \ref{eq:poisson_lin}. We run \stan and \inlabru on G2lin and P2lin, and the results for the \VFour data are displayed in Figures \ref{fig:gauss_lin_gp_rw1} and \ref{fig:poiss_lin_gp_rw1}.
 \begin{figure}
     \centering
-    \textbf{M3lin: Linear Gaussian Model}
+    \textbf{G2lin: Linear Gaussian Model}
     
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_predictor.pdf}
@@ -237,13 +263,13 @@ As for the analysis with fixed hyperpriors, we begin by running examples for lin
     \end{subfigure}
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_random_effects.pdf}
-        \caption{Estimated random effects}
+        \caption{Estimated random effects. \textcolor{myDarkGreen}{Note: the "True" value does not make sense here!}}
         \label{fig:gauss_lin_gp_rw1_random_effects}
     \end{subfigure}
     
     \begin{subfigure}[b]{.50\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_lin_gp_rw1_hypers.pdf}
-        \caption{Estimated hyperparameters}
+        \caption{Estimated hyperparameters. \textcolor{myDarkGreen}{Note: the "True" value does not make sense here!}}
         \label{fig:gauss_lin_gp_rw1_hypers}
     \end{subfigure}
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:gaussian_lin}}
@@ -251,7 +277,7 @@ As for the analysis with fixed hyperpriors, we begin by running examples for lin
 \end{figure}
 \begin{figure}
     \centering
-    \textbf{M4lin: Linear Poisson Model}
+    \textbf{P2lin: Linear Poisson Model}
     
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_predictor.pdf}
@@ -260,30 +286,30 @@ As for the analysis with fixed hyperpriors, we begin by running examples for lin
     \end{subfigure}
     \begin{subfigure}[b]{.45\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_random_effects.pdf}
-        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. }
+        \caption{Estimation results of random effects $\alpha_x$, $\kappa_t$ and intercept $\mu$. \textcolor{myDarkGreen}{Note: the "True" value does not make sense here!}}
         \label{fig:poiss_lin_fgp_rw1_random_effects}
     \end{subfigure}
     
     \begin{subfigure}[b]{.50\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/poiss_lin_gp_rw1_hypers.pdf}
-        \caption{Estimated hyperparameters}
+        \caption{Estimated hyperparameters. \textcolor{myDarkGreen}{Note: the "True" value does not make sense here!}}
         \label{fig:poiss_lin_gp_rw1_hypers}
     \end{subfigure}
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_lin}. }
     \label{fig:poiss_lin_gp_rw1}
 \end{figure}
-As expected, the predictor and the random effects are estimated similarily by \stan and \inlabru for both model M3lin and model M4lin. A result that was not expected, is the difference in the esimtations of the hgyperparameters, which can be seen in Figures \ref{fig:gauss_lin_gp_rw1_hypers} and \ref{fig:poiss_lin_gp_rw1_hypers}. \textcolor{myDarkGreen}{Don´t really know what to say about this... but there is probably a mistake with this.. }
+As expected, the predictor and the random effects are estimated similarly by \stan and \inlabru for both model M3lin and model M4lin. A result that was not expected, is the difference in the estimations of the hyperparameters, which can be seen in Figures \ref{fig:gauss_lin_gp_rw1_hypers} and \ref{fig:poiss_lin_gp_rw1_hypers}. \textcolor{myDarkGreen}{Don´t really know what to say about this... bit I am starting to think that it has to be a mistake... Perhaps I should try to find one hyperprior that is implemented in both inlabru and stan already, and see if it is still a difference then..}
 
 \subsubsection{Full Models With Multiplicative Terms}
-We now compare the results of \inlabru and \stan when they are applied to the full M3 and M4 models. The results are displayed in Figures --- and --- for the M3 and M4 models respectively, for the Full.1 data. 
+We now compare the results of \inlabru and \stan when they are applied to the full G2 and P2 models. The results are displayed in Figures \ref{fig:gauss_gp_rw1} and \ref{fig:poiss_gp_rw1} for the G2 and P2 models respectively, for the \vFour data. 
 \begin{figure}
     \centering
-    \textbf{M3: Gaussian Model}
+    \textbf{G2: Gaussian Model}
     
     \begin{subfigure}[b]{.30\linewidth}
-        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v4/predictor_54.pdf}
+        \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v4/predictor_36.pdf}
         \caption{Estimation results of linear predictor $\xi_{x,t}$}
-        \label{fig:gauss_gp_rw1_predictor}
+        \label{fig:gauss_gp_rw1_predictor_36}
     \end{subfigure}
     \begin{subfigure}[b]{.30\linewidth}
         \includegraphics[width=\linewidth]{Thesis/Results/Figures_SyntheticStanInlabru/gauss_gp_rw1_v4/random_effects_comparison.pdf}
@@ -347,7 +373,9 @@ We now compare the results of \inlabru and \stan when they are applied to the fu
     \caption{Estimation results from applying \stan and \inlabru to model \ref{eq:poisson_model}}
     \label{fig:poiss_gp_rw1}
 \end{figure}
-When we compare the results for the Gaussian M3 model and the Poisson M4 model, we observed some differences in the behaviour of \inlabru and \stan in the two cases. As previously observed, there are differences in the estimated posterior distributions of the predictors $\xi_{x,t}$ and $\eta_{x,t}$ from \inlabru and \stan. While these differences were small for both the M1 Gaussian and the M2 Poisson models, for the models with non-fixed hyperparameters, the difference is much more apparent for the M4 Poisson model than for the M3 Gaussian model. Figure \ref{fig:poiss_gp_rw1_predictor} displays the difference in the estimates of the 54th value of the predictor, $\eta_{x = 3, t = 18}$, which seems to be a value where the difference in the estimations by \inlabru and \stan is particularly large. For this value, we observe a clear shift between the two estimates. Noteably, we do not observe any equivalent shifts for the Reduced.1 data, as can be seen in Figure \ref{fig:poiss_gp_rw1_predictor_v7}. Note that while we only display a selection of the values of the predictor, none of the values of the predictor seemed to display significant differences. \textcolor{myDarkGreen}{Possible explanations for this could be differences in how \inlabru and \stan handles Poisson distributions with low counts ... I don´t really know if I believe this anymore... Something else?}
+When we compare the results for the Gaussian G2 model and the Poisson P2 model, we observed some differences in the behavior of \inlabru and \stan in the two cases. As previously observed, there are differences in the estimated posterior distributions of the predictors $\xi_{x,t}$ and $\eta_{x,t}$ from \inlabru and \stan. While these differences were small and of roughly the same size, for both the G1 Gaussian and the P1 Poisson models with fixed precisions, as we saw in Section \ref{sec:inlabru_stan_fixed_precs}, the difference more apparent for the P2 Poisson model compared to the G2 Gaussian model. Figure \ref{fig:poiss_gp_rw1_predictor} displays the difference in the estimates of the 54th value of the predictor, $\xi_{x = 3, t = 18}$, which seems to be a value where the difference in the estimations by \inlabru and \stan is particularly large. For this value, we observe a clear shift between the two estimates. In comparison, one of the largest observed shifts in the predictor of the G2 model, at $\xi_{x=2, t=18}$ is not as large, as can be seen in Figure \ref{fig:fig:gauss_gp_rw1_predictor_36}. 
 
-Additionally, we observe clear shifts in the estimated values for $\beta_x$ and $\kappa_t$, as well as differences in the estimations of the hyperparameters. For these estimates as well, the differences are larger for the M4 model. 
+Noteably, we do not observe any equivalently large shifts for the Reduced.1 data, as can be seen in Figure \ref{fig:poiss_gp_rw1_predictor_v7}, neither for the P2 nor the G2 model.\textcolor{myDarkGreen}{Possible explanations for this could be differences in how \inlabru and \stan handles Poisson distributions with low counts ... I don´t really know if I believe this anymore... Something else?}
+
+Additionally, we observe clear shifts in the estimated values for $\beta_x$ and $\kappa_t$, as well as differences in the estimations of the hyperparameters. For these estimates as well, the differences are larger for the P2 model.
 
