@@ -2,36 +2,50 @@
 \section{Mortality Modeling as a Statistical Field}
 \label{sec:literature_review_by_topic}
 \textcolor{myDarkGreen}{Her kan du snakke litt om historien til mortality modellering, og gjennomgå de viktigste modellene. Du kan nevne Lee-Carter modellen, og hvordan mange forskjellige versjoner av den har vært populær. Du kan nevne alternative modeller, og si litt om hva som har blitt sagt og gjort med disse tidligere - gjerne sett i forhold til Lee-Carter. Du kan også nevne forskjeller i Cause-specific og generell mortality. For eksempel at cohort har vært vanlig i cause-specific mortality, og nå også blir vanligere for general mortality. }
-Good statistical methods for modeling trends in mortality rates are important tools in several scientific fields. In the public sector, projections of general and cause-specific mortality are of key interest in, among others, the development of health policies and planning of social securities and pension funds, and in actuarial applications, mortality forecasts play an important role in the pricing of life insurances and pension products (\textcite{LeeCarter1992}, \textcite{Brouhns_2002}, \textcite{Czado_2005}, \textcite{Renshaw_Haberman_2006},\textcite{Renshaw_Haberman_2009}). The dominating approach to mortality modelling on a populational level is to consider mortality, it being observed counts of mortality, mortality rates or probability of mortality as a combination of age- and period specific effects. In some cases, a so-called cohort effect is included, which describes lifelong effects for the population with the same birth year. This general structure is common for most mortality models in literature. The differences between the numerous models that we see in the field of mortality modeling lies in the structure of the relationship between the time effects, how variability is captured by the model, whether a separate cohort effect is included and whether the model is considered in a Bayesian setting. \textcolor{myDarkGreen}{Dette har du egentlig ikke kilder på. Burde du ha det?}
+Good statistical methods for modeling trends in mortality rates are important tools in several scientific fields. In the public sector, projections of general and cause-specific mortality are of key interest in, among others, the development of health policies and planning of social securities and pension funds, and in actuarial applications, mortality forecasts play an important role in the pricing of life insurances and pension products (\textcite{LeeCarter1992}, \textcite{Brouhns_2002}, \textcite{Czado_2005}, \textcite{Renshaw_Haberman_2006},\textcite{Renshaw_Haberman_2009}). 
+
+The dominating approach to mortality modelling on a populational level is to consider mortality, in the form of observed counts of mortality, mortality rates or probability of mortality, as a combination of age- and period specific effects. In some cases, a cohort effect is included, which describes lifelong effects for the population with the same birth year. This general structure is common for most mortality models in literature. The differences between the numerous models that we see in the field of mortality modeling lies in the structure of the relationship between the time effects, how variability is captured by the model, whether a separate cohort effect is included and whether the model is considered in a Bayesian setting. \textcolor{myDarkGreen}{Dette har du egentlig ikke kilder på. Burde du ha det?}
 
 \subsection{The Dominating Models for Mortality Modeling}
 \label{sec:most-common-mortality-models}
-\textcolor{myDarkGreen}{In this section, you will account for the modst popular mortality models. How are they structured, for what purpose are they mainly used. You do not need to talk about advantages/ disadvantages here. Just say what they are, how they are defined etc. Perhaps also mention common model choices for random effects. }
+\textcolor{myDarkGreen}{In this section, you will account for the most popular mortality models. How are they structured, for what purpose are they mainly used. You do not need to talk about advantages/ disadvantages here. Just say what they are, how they are defined etc. Perhaps also mention common model choices for random effects. }
 
-\textcolor{myDarkGreen}{The most basic mortality model is the APC model, which defines a linear, additive relationship between the age, period and cohort effects. This model has been used in medical and demographical sciences, and is often applied to cause-specific mortality \cite{RieblerThesis2010}. Its simple structure makes it easy to perform inference with, but also causes problems of identifiability, due to the linear relationship 
+\textcolor{myDarkBlue}{The most basic mortality model is the APC model, which defines a linear, additive relationship between the age, period and cohort effects. This model has been used in medical and demographic sciences (see e.g. \textcite{Clayton1987} or \textcite{Hobcraft_1982}), and is often applied to cause-specific mortality \parencite{RieblerThesis2010}. Its simple structure makes it easy to perform inference with, especially when it is considered in a Bayesian setting. However, due to the linear dependence between the time effects, arising from the relation
 \begin{equation*}
-    \text{cohort} = \text{period} - \text{age}.
+    \text{cohort} = \text{period} - \text{age},
 \end{equation*}
+this model is especially sensitive to identifiability issues between the three time effects. 
 }
 
-In the actuarial sciences, the model proposed by \textcite{LeeCarter1992}, hereby referred to as the Lee-Carter model, has been popular ever since its introduction, and variations if this model has largely dominated the actuarial field (\textcite{Renshaw_Haberman_2009}, \textcite{booth_tickle_2008}). In its most basic form, the Lee-Carter model assumes a Gaussian distribution of the log-mortality rates, where the mean of the distribution is linked to some age- and period effects through a predictor:
+In the actuarial sciences, the model proposed by \textcite{LeeCarter1992}, hereby referred to as the Lee-Carter model, has been popular ever since its introduction, and variations if this model has largely dominated the field of mortality modeling for actuarial purposes (\textcite{Renshaw_Haberman_2009}, \textcite{booth_tickle_2008}). In its most basic form, the Lee-Carter model assumes a Gaussian distribution of the log-mortality rates, where the mean of the distribution is linked to some age- and period effects through a predictor:
 \begin{equation}
     \log(m_{x,t}) = \alpha_x + \beta_x\kappa_t + \eps_{x,t}.
 \end{equation}
-Here $m_{x,t}$ are the central mortality rates and $\eps_{x,t}$ is an error term with zero mean and some variance, representing the variability in the mortality that cannot be explained by any age- or period effects. $\alpha_x$ and $\kappa_t$ are the main age- and period effects, and $\beta_x$ is an age-specific modulating factor, that says something about how sensitive the population at a given age is to period-specific changes in mortality. 
+Here $m_{x,t}$ is the central mortality rate for an age group $x$ at period $t$. $\eps_{x,t}$ is an error term with zero mean and some variance, representing the variability in the mortality that cannot be explained by any age- or period effects. $\alpha_x$ and $\kappa_t$ are the main age- and period effects, and $\beta_x$ is an age-specific modulating factor, that should reflect how sensitive the population at a given age is to period-specific changes in mortality. 
 
-After its introduction, numerous extensions of the Lee-Carter model have been proposed. \textcite{Brouhns_2002} suggested to exchange the Gaussian log-mortality model structure with a Poisson distribution, considering the observed number of deaths to follow a Poisson distribution:
+After its introduction, numerous extensions of the Lee-Carter model have been proposed. \textcite{Brouhns_2002} suggest to exchange the Gaussian log-mortality model structure with a Poisson structure, where they consider the observed number of deaths to follow a Poisson distribution:
 \begin{equation*}
     Y_{x,t} \sim \Poisson(E_{x,t}e^{\eta_{x,t}}), \quad \eta_{x,t} = \alpha_x + \beta_x\kappa_t.
-\end{equation*}.
-\textcite{Czado_2005} used this model structure in a Bayesian setting, and achieved convinsing results with this approach. \textcolor{myDarkGreen}{Usikker på dette..}
+\end{equation*}
+\textcite{Czado_2005} extended this model further, by incorporating it into a Bayesian framework.
 \textcolor{myDarkBlue}{SOMEONE: proposed to extend predictor of this Poisson-model structure with an additional error term to accound for overdispersion in the model. They argue that since the variability of the Poisson distribution is constrained/bounded? by the value of the mean, the plain Poisson model would not be able to correctly quantify all variability in the data. }
+
+Other extensions to the original Lee-Carter includes including multiple period terms, as suggested by \textcite{Renshaw_Haberman_2003}, to increase flexibility with respect to age. \textcite{Cairns_Blake_Dowd_2006} introduced a model directed at mortality at pensioner ages, suited for modeling of longevity risk, which is known as the CBD model. \textcolor{myDarkGreen}{Should you say something more about this?}
 
 \subsubsection{Inclusion of a Cohort Term}
 \label{sec:inclusion-of-cohort-term}
 \textcolor{myDarkGreen}{This could be a subsection in its own - see how it is natural. But at least, talk about how some models include a cohort term and some does not. Talk about demographic significance? Talk about how the models are altered to inlclude the cohort term. }
 
-\textcolor{myDarkBlue}{In the field of medical mortality modeling, the inclusion of the cohort effect have long been considered a useful tool to correctly capture mortality \cite{} ER DET FRA RIEBLER?? In recent years however, the need to include a cohort effect to describe tendencies in general mortality has been pointed out also in the actuarial community FINN UT HVEM DU KAN SITERE, DET ER MANGE. }
+\textcolor{myDarkBlue}{In the field of medical mortality modeling, the inclusion of the cohort effect have long been considered a useful tool to correctly capture mortality \cite{} ER DET FRA RIEBLER??} Additionally, in recent years, the need to include a explicit cohort effect also when describing tendencies in general mortality has been pointed out increasingly often in the actuarial community (e.g. \textcite{HUNT_Villegas_2015}). This is in contrast to more traditional Lee-Carter models, where cohort effects are acknowledged \textcolor{myDarkGreen}{Kilde eller stryk}, but treated as secondary to the age- and period effects \parencite{HUNT_Villegas_2015}.
+
+The inclusion of this cohort effect can be formulated in several ways. The main division between the modeling of the cohort effect is whether it should be modulated with an additional age effect, in a similar manner to the period effect, or not. In the original proposition of the cohort-effect by \textcite{Renshaw_Haberman_2006} \textcolor{myDarkGreen}{Var det dem???}, it is age-modulated, but it has been suggested by e.g. \textcolor{myDarkGreen}{HVEM} that this only serves to further complicate the model and does not add additional insight/value \textcolor{myDarkGreen}{Du har det fra et sted, finn ut hvor}
+
+Similarily, different choices of constraints have been considered for the cohort effect. \textcolor{myDarkGreen}{Vet ikke helt om denne skal her, men hvertfall snakk om man må ha constraints for "basic" identifiability, hvem som har brukt hvilke typer constraints, hvordan H&B har gjort det, siden de snakker mye om constraints}
+
+\subsubsection{Multiplicative Term}
+\label{sec:multiplicative-term}
+\textcolor{myDarkGreen}{I don´t really think you need this as a subsection, you should just specifically mention it}
+A common trait for most of the models mentioned above, is the inclusion of one or more the age-modulated period terms in the predictor. \textcolor{myDarkBlue}{This has been proven to be a good model choice, reflecting the data well. Additionally, as described more thoroughly in Section \ref{sec:identifiability_mortality_models}, for non-parametric model choices of the age-modulating term (usually $\beta_x$), the model is identifiable, as opposed to simpler linear structures, such as that of the APC model.}
 
 \subsection{Choices of Constraints}
 \label{sec:common-choices-of-constraints}
@@ -55,9 +69,26 @@ to be precautious. \textcolor{myDarkGreen}{Har ikke helt forstått hva de konklu
 \label{sec:mortality_models_bayesian}
 Her kan du snakke spesifikt om Bayesianske versjoner av Mortality modeller. Kanskje ikke her du skal argumentere for fordelene ved Bayesianske modeller, du kan evt referere til det hvis det står noe om det i annen litteratur - ja , det kan du! Snakk om utfordringer andre har hatt ved Bayesisk modellering - nevne convergence issues? Snakk om hvilke metoder som har vært brukt for å løse disse modellene.  
 
-\subsection{Common Choices of Prior Distributions}
+\textcolor{myDarkBlue}{The APC model has commonly been considered in a Bayesian framework. Its simple linear structure allows usage of the efficient \inla framework for Bayesian inference, which has an advantage in compulational speed over more traditional MCMC methods \parencite{rue2009inla}, which is typically the alternative for these kinds of models.}
+
+\textcite{Czado_2005} proposed incorporating the Poisson-extended Lee-Carter model in a Bayesian framework, and they use MCMC methods to carry out the inference. 
+
+An advantage with considering these models in a Bayesian framework, as pointed out by e.g. \textcite{Czado_2005}, is that incorporates uncertainty into the model and connected(?) predictions in a simple manner. \textcolor{myDarkBlue}{Since one obtains the model components as posterior marginal distributions as opposed to point estimates, finding the uncertainty of the estimates is straightforward.} Additionally, a Bayesian frameworks allows for easy incorporation of uncertainty about model parameters and previous expert knowledge, as argued by e.g. \textcite{Wisniowski2015}. 
+
+\subsection{Common Model Choices of Time Effects}
 \label{sec:common_choices_of_priors}
-\textcolor{myDarkGreen}{You are not quite sure whether you should include this...}
+\textcolor{myDarkGreen}{The following is from the project thesis}
+The age, period and cohort effects are also modeled differently throughout the literature, varying with different model assumptions and whether the model is considered in a Bayesian setting or not. 
+
+One key difference is whether the effects, and the modulating age effect in particular, are modeled as parametric or non-parametric. \textcolor{myDarkBlue}{Hent fra H&B for eksempler på parametric. }
+
+The modeling of the main age effect, $\alpha_x$ varies \textcolor{myDarkGreen}{Dette må du finne ut av}
+
+The period effect $\kappa_t$ is usually modeled as some variation of a drifted time series model, typically a random walk with drift or an ARIMA model, as seen in e.g \textcite{Czado_2005}, \textcite{Brouhns_2002} and \textcite{LeeCarter1992}. This is a natural choice, as these time series models can be extended beyond the observed years, and by that produce forecasts.
+
+For the remaining effects, there are less consensus on the model choices in the literature.
+
+\textcolor{myDarkBlue}{A time-series approach is typically used to find forecasts of future mortality rates, and thus the period effect $\kappa_t$ is usually modelled as a random walk with drift (see for instance \textcite{LeeCarter1992}, \textcite{Wisniowski2015}, \textcite{Czado_2005}). The typical approach for mortality forecasts with the Lee-Carter model is then to fit the effects $\alpha_x$, $\beta_x$ and $\kappa_t$ to the available data, and use time-series models, such as the ARIMA model, to forecast future values of $\kappa_t$. Throughout literature, several different models have been used for $\alpha_x$, $\beta_x$ and $\gamma_k$. From previous literature, we see that $\alpha_x$ often takes the form of a smooth curve, increasing with $x$, while $\beta_x$ takes a more erratic shape. Both \textcite{Czado_2005} and \textcite{Wisniowski2015} have used a Gaussian distribution to model $\beta_x$, and \textcite{Wisniowski2015} have used Gaussian distribution to model $\alpha_x$ as well. Time series models have been used to model the cohort effect $\gamma_k$. Specifically, \textcite{Wisniowski2015} use an autoregressive process AR(1) to model $\gamma_k$ for mortality.}
 
 \subsection{Identifiability in Mortality Models}
 \label{sec:identifiability_mortality_models}
@@ -75,11 +106,17 @@ Her må du sette deg godt inn i ting, for du synes at det er ganske vanskelig.
 
 Hvilke metoder har andre brukt for å projektere (forecast - forsøk å forstå begrepene godt) mortality rates. Hvilke utfordringer er knyttet til forskjellige metoder?
 
-Gjennomgå - hvordan blir det gjort i Bayesiansk og frekventistisk sammenheng?
+The classical approach when fitting and producing forecasts with Lee-Carter types of models is to first project the time effects, and then extend the time series model for the period effect to produce forecasts (see e.g. \textcite{LeeCarter1992}, \textcite{Renshaw_Haberman_2003}, \textcite{Brouhns_2002b}). Although widely used, two-step procedure have been criticized to produce possible incoherence \parencite{Czado_2005} and ... 
+
+Several improvements of this have been proposed. \textcite{Czado_2005} argues that an advantage of the Bayesian approach is the possibility of incorporating estimation and forecasting in a single step. \textcolor{myDarkGreen}{Hvordan???}
+
+When the cohort effect is included, a number of the earliest and latest cohorts is omitted from the data (see e.g. \textcite{Renshaw_Haberman_2009}). 
 
 \subsection{Error Terms - Handling Uncertainty and Volality}
 \label{sec:error_terms}
 Si noe om hvordan utviklingen har gått. Fra enkel error term, til Poisson-antagelse, til dobbel-usikkerhet - med både error term og Poisson. Hvilke papers bruker de forskjellige (hvis det gir mening, kan være det blir litt oppramsende)
+
+\textcolor{myDarkGreen}{You just realised: The Gaussian error structure is homoscedastic, and the Poisson error structure is heteroscedastic? Read \textcite{Renshaw_Haberman_2003} to see where this is stated. Is this because the variance of the Gaussian structure is the same for all $x$, $t$? Since $\log(m_{x,t}) \sim \Normal(\eta_{x,t}, 1/\tau_\eps)$? So we expect the error to have the same variance across the field? But for the Poisson error structure, we expect the error to vary with the mean $\eta_{x,t}$. What is then the combination? Both heteroscedastic and homoscedastic? }
 
 \subsection{Convergence in Mortality Models}
 \label{sec:convergence_in_mortality_models}
