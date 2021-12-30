@@ -11,9 +11,71 @@ Describes identifiability issues with cohort-extended Lee-Carter models. Connect
 
 \textcite{HUNT_Villegas_2015}: Compares the two models, describes the identifiability mathematically, proposes a solution and quantifies the effect of the identifiability issues (?). 
 
-\textcite{HUNT_Villegas_2015} states that the cohort-extended Lee-Carter model is 
+\textcite{HUNT_Villegas_2015} states that the cohort-extended Lee-Carter model is endowed with an identifiability issue, and that this identifiability issue can be resolved by imposing an additional constraint on the parameters of the model. 
 
+They inlcude a mathematical formulation of the identifiability in the normal LC-model, and how constraints on $\kappa_t$ and $\beta_x$ resolves this. 
 
+They define a model M, which is one formulation of the cohort-extended Lee-Carter model:
+\begin{equation*}
+    \text{M:}\quad \log(\mu_{x,t}) = \alpha_x + \beta_x^{(1)}\kappa_t + \beta_x^{(0)}\iota_{t - x},
+\end{equation*}
+where $\iota_{t-x}$ is the cohort effects, modulated by the age effect $\beta_x^{(0)}$.  
+In addition, they refer to the reduced model proposed by \textcite{Renshaw_Haberman_2006}
+\begin{equation*}
+    \text{H1: }\quad \log(\mu_{x,t}) = \alpha_x + \beta_x^{(1)}\kappa_t + \iota_{t - x}
+\end{equation*}
+
+Says this about the APC model:
+" The second sub-model is the so-called age-period-cohort (APC) model, which has a long history in the fields of medicine and sociology (see e.g. \textcite{Clayton1987} and \textcite{Hobcraft_1982}), but it has not been widely used in the actuarial field until considered by \textcite{Currie_2006}. 
+
+\subsubsection{On the two-stage fitting approach}
+\textcite{Renshaw_Haberman_2006} propose to partition model M as
+\begin{equation*}
+    \mu_{x,t} = \exp(\alpha_x)F(x, t), \quad \log(F(x,t)) = \beta_x^{(1)}\kappa_t + \beta_x^{(0)}\iota_{t-x},
+\end{equation*}
+where $F(x,t)$ is then a set of reduction factors. With this partition, the two-stage fitting approach is
+\begin{enumerate}
+    \item $\alpha_x$ is found by $\alpha_x = \frac{1}{n}\sum_t\log(\frac{d_{xt}}{e_{xt}})$
+    \item keeping $\alpha_x$ fixed, the other parameters are found by an iterative approach, as described by \textcite{Renshaw_Haberman_2006}, to maximize the log-likelihood
+\end{enumerate}
+A problem with this approach, as pointed out by \textcite{HUNT_Villegas_2015}, is that it will generally lead to poorer model fits than a one-stage approach where all parameters are fitted simultaneously. Since the parameters fitted in the second step of this procedure is conditioned on value of $\alpha_x$, one does not necessarily find the true maximum likelihood estimates. This approach will also lead to bias in the estimation of parameter uncertainty, since $\alpha_x$ is treated as known and all uncertainty is allocated to the other parameters. 
+
+\textcite{Renshaw_Haberman_2009} argues that this reduction in goodness of fit can be justified by increased robustness to changes in data and a more easily explained model, in terms of demographic significance. 
+
+The choices of model constraints are also discussed quite thoroughly in this paper. \textcite{Renshaw_Haberman_2006} impose the following parameter constraints on model M:
+\begin{equation*}
+    \sum_x\beta_x^{(1)} = \sum_x\beta_x^{(0)} = 1, \kappa_{t_1} = 0.
+\end{equation*}
+\textcite{HUNT_Villegas_2015} argues that the last constraint on $\kappa_{t_1}$ is excessive, and not really an identifiability constraint when the model is fitted with the two-stage approach. They argue that under the two-stage fitting approach, when $\alpha_x$ is fixed to $\alpha_x = \frac{1}{n}\sum_t d_{x,t}/e_{x,t}$ in the first stage, the transforms which require a constraint on the period effect are no longer valid. More specifically, with this fixation of $\alpha_s$, the relation $\sum_t\kappa_t \approx 0$ should follow naturally from the estimations. The constraint $\kappa_{t_1} = 0$ is then an additional constraint on the model, not just an identifiability constraint, and will alter the fit of the data instead of simply fixing the parameter estimates to one out of many equivalent realizations. \textcite{HUNT_Villegas_2015} states that this seems to be a recurring problem for this kind of two-stage estimation. 
+
+A straightforward solution to this problem is to keep the two-stage approach, but remove the superfluous constraint on the period effect, here $\kappa_{t_1} = 0$. However, \textcite{HUNT_Villegas_2015} demonstrates that this approach gives estimates for the parameter values that are very sensitive to changes in the data. They show that this is the case for both models M and H1. 
+
+They then consider a single-stage approach to fitting the models, suggested by \textcite{Cairns_2009}, where all parameters are fitted simultaneously using a Poisson likelihood maximization method. Under this fitting procedure, the model requires additional constraints. \textcite{Cairns_2009} choose 
+\begin{equation*}
+    \begin{aligned}
+    &\sum_{x}\beta_x^{(1)} = \sum_{x}\beta_x^{(0)} = 1 \\
+    &\sum_{t = t_1}^{t_n}\kappa_t = 0, \quad \sum_{t = t_1}^{t_n}\sum_{x = x_1}^{x_k}\iota_{t - x} = 0
+    \end{aligned}
+\end{equation*}
+\textcite{HUNT_Villegas_2015} use a variation of the constraint on the cohort effect:
+\begin{equation*}
+    \sum_{c = t_1 - x_k}^{t_n - x_1} \iota_c = 0.
+\end{equation*}
+As mentioned also by \textcite{Cairns_2009}, the downside of this approach is that it can be very slow in converging to the solution, and it lacks robustness to changes in the data. \textcite{HUNT_Villegas_2015} continues with a thorough discussing and investigation of these robustness issues. 
+
+A general concern is that the model is not able to find a global minimum, a suspicion that rises from the results showing that the different model fits does not have the same log-likelihood. 
+
+\textcite{HUNT_Villegas_2015} also checks the robustness of the model when different parts of the data for the younger population is removed, since this might be a useful way to format the data. They find that the model H1 is much more robust than the M model when it comes to changes in the range of ages in the data. 
+
+They then discuss the apparent identifiability issues leading to this lack of robustness. They discuss that some of the observed sensitivity in the parameter estimates, seemingly due to different initial values are a result of some additional identifiability. This additional identifiability is described mathematically, and it explains the observed tilting around the midpoint observed in some of the parameter estimates. 
+
+\textcite{HUNT_Villegas_2015} suggest imposing an extra "apprioximate" identifiability constraint, removing linear drift from the cohort term:
+\begin{equation*}
+    \sum_{c = t_1 - x_k}^{t_n - x_1}(c - \hat{c})\iota_c = 0
+\end{equation*}
+They demonstrate that this constraint does change the model fit, but only slightly, and it does seem to remove quite a lot of the convergence issues. It does not remove all of the robustness issues, but \textcite{HUNT_Villegas_2015} concludes that the H1 model seems much more robust than the M model. 
+
+Further, \textcite{HUNT_Villegas_2015} discusses whether the robustness issues that is still observed might be that it is in general difficult to find unique parameter estimates for this data. 
 
 \subsection{\textcite{BEUTNER_2017}}
 Describes identifiability issues in cohort-extended Lee-Carter models, attempts to prove that there is identifiability under some assumptions for so-called plug-in models.
