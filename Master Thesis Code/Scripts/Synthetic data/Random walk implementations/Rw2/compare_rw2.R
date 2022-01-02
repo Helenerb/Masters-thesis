@@ -12,7 +12,7 @@ set_workspace <- function(markov=TRUE){
   }
 }
 
-set_workspace(markov=TRUE)
+set_workspace(markov=F)
 
 library("rstan")
 library("inlabru")
@@ -71,7 +71,7 @@ eta_df_stepwise <- data.frame(list_of_draws_stepwise$eta)
 summary_stepwise <- as.data.frame(summary(fit_stepwise)$summary) %>% mutate("Implementation" = "Stepwise")
 
 trace_stepwise <- plot(fit_stepwise, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
-ggsave("trace_stepwise.pdf", plot = trace_stepwise, dpi="retina", device = "pdf")
+ggsave("trace_stepwise.pdf", plot = trace_stepwise, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #  run second stan program: rw1_by_differences.stan
 
@@ -86,7 +86,7 @@ fit_diff_1 <- stan(
 )
 
 trace_diff_1 <- plot(fit_diff_1, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
-ggsave("trace_diff_1.pdf", plot = trace_diff_1, dpi="retina", device = "pdf")
+ggsave("trace_diff_1.pdf", plot = trace_diff_1, dpi="retina", device = "pdf", height = 5, width = 8)
 
 list_of_draws_diff_1 <- rstan::extract(fit_diff_1)
 save(list_of_draws_diff_1, file = 'draws_diff_1.RData')
@@ -106,7 +106,7 @@ fit_diff_2 <- stan(
 )
 
 trace_diff_2 <- plot(fit_diff_2, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
-ggsave("trace_diff_2.pdf", plot = trace_diff_2, dpi="retina", device = "pdf")
+ggsave("trace_diff_2.pdf", plot = trace_diff_2, dpi="retina", device = "pdf", height = 5, width = 8)
 
 list_of_draws_diff_2 <- rstan::extract(fit_diff_2)
 save(list_of_draws_diff_2, file = 'draws_diff_2.RData')
@@ -126,7 +126,7 @@ fit_diff_3 <- stan(
 )
 
 trace_diff_3 <- plot(fit_diff_3, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
-ggsave("trace_diff_3.pdf", plot = trace_diff_3, dpi="retina", device = "pdf")
+ggsave("trace_diff_3.pdf", plot = trace_diff_3, dpi="retina", device = "pdf", height = 5, width = 8)
 
 list_of_draws_diff_3 <- rstan::extract(fit_diff_3)
 save(list_of_draws_diff_3, file = 'draws_diff_3.RData')
@@ -146,7 +146,7 @@ fit_diff_4 <- stan(
 )
 
 trace_diff_4 <- plot(fit_diff_4, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
-ggsave("trace_diff_4.pdf", plot = trace_diff_4, dpi="retina", device = "pdf")
+ggsave("trace_diff_4.pdf", plot = trace_diff_4, dpi="retina", device = "pdf", height = 5, width = 8)
 
 list_of_draws_diff_4 <- rstan::extract(fit_diff_4)
 save(list_of_draws_diff_4, file = 'draws_diff_4.RData')
@@ -187,7 +187,7 @@ eta.plot <- ggplot(eta_10) +
   theme_classic() + 
   facet_wrap(~Param)
 
-ggsave("eta_histogram_10.pdf", plot = eta.plot, dpi="retina", device = "pdf")
+ggsave("eta_histogram_10.pdf", plot = eta.plot, dpi="retina", device = "pdf", height = 5, width = 8)
 
 # inlcuding diff 3 and 4
 eta_10_34 <- eta_all_34 %>% filter(idx %% 10 == 0)
@@ -203,7 +203,7 @@ eta.plot.34 <- ggplot(eta_10_34) +
   theme_classic() + 
   facet_wrap(~Param)
 
-ggsave("eta_histogram_10_34.pdf", plot = eta.plot.34, dpi="retina", device = "pdf")
+ggsave("eta_histogram_10_34.pdf", plot = eta.plot.34, dpi="retina", device = "pdf", height = 5, width = 8)
 
 # as density:
 eta.plot.34.dens <- ggplot(eta_10_34) +
@@ -229,7 +229,7 @@ eta.plo.wo.2 <- ggplot(eta_10) +
   theme_classic() + 
   facet_wrap(~Param)
 
-ggsave("eta_histogram_wo_2.pdf", plot = eta.plo.wo.2, dpi="retina", device = "pdf")
+ggsave("eta_histogram_wo_2.pdf", plot = eta.plo.wo.2, dpi="retina", device = "pdf", height = 5, width = 8)
 
 # only diff 2,3,4
 
@@ -267,7 +267,7 @@ eta.plot.full <- ggplot(eta_all) +
   theme_classic() + 
   facet_wrap(~Param)
 
-ggsave("eta_histogram_full.pdf", plot = eta.plot.full, dpi="retina", device = "pdf")
+ggsave("eta_histogram_full.pdf", plot = eta.plot.full, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #   ----   Plot distributions of hyperparameters:   ----
 tau_eta_df <- data.frame(Stepwise = list_of_draws_stepwise$tau_eta,
@@ -298,7 +298,7 @@ p.tau_y <- ggplot(tau_y_df) +
 
 p.tau  <- (p.tau_eta | p.tau_y)
 
-ggsave("tau.pdf", plot = p.tau, dpi="retina", device = "pdf")
+ggsave("tau.pdf", plot = p.tau, dpi="retina", device = "pdf", height = 5, width = 8)
 
 # including diff 3 and 4:
 tau_eta_df_34 <- data.frame(Stepwise = list_of_draws_stepwise$tau_eta,
@@ -337,7 +337,7 @@ p.tau_y_34 <- ggplot(tau_y_df_34) +
 
 p.tau_34  <- (p.tau_eta_34 | p.tau_y_34)
 
-ggsave("tau_34.pdf", plot = p.tau_34, dpi="retina", device = "pdf")
+ggsave("tau_34.pdf", plot = p.tau_34, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #  with inlabru comparison
 
@@ -363,7 +363,7 @@ p.tau_y_ib <- ggplot(tau_y_df) +
 
 p.tau_ib  <- (p.tau_eta_ib | p.tau_y_ib) + plot_layout(guides = "collect")
 
-ggsave("tau_ib.pdf", plot = p.tau_ib, dpi="retina", device = "pdf")
+ggsave("tau_ib.pdf", plot = p.tau_ib, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #   ---   Plot histograms as densities   ----
 
@@ -388,7 +388,7 @@ p.tau_y_dens <- ggplot(tau_y_df) +
 
 p.tau_dens  <- (p.tau_eta_dens | p.tau_y_dens)
 
-ggsave("tau_dens.pdf", plot = p.tau_dens, dpi="retina", device = "pdf")
+ggsave("tau_dens.pdf", plot = p.tau_dens, dpi="retina", device = "pdf", height = 5, width = 8)
 
 # including diff 3 and 4:
 
@@ -442,7 +442,7 @@ p.tau_y_ib <- ggplot(tau_y_df) +
 
 p.tau_ib  <- (p.tau_eta_ib | p.tau_y_ib) + plot_layout(guides = "collect")
 
-ggsave("tau_ib.pdf", plot = p.tau_ib, dpi="retina", device = "pdf")
+ggsave("tau_ib.pdf", plot = p.tau_ib, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #   ---   Plot means from summary together with "true" value   ----
 
@@ -567,7 +567,7 @@ eta_ib <- data.frame(res.inlabru$marginals.random$eta)
 
 p.eta.1.2 <- ggplot(eta_all %>% filter(idx == 1)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.1), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -575,7 +575,7 @@ p.eta.1.2 <- ggplot(eta_all %>% filter(idx == 1)) +
 
 p.eta.20.2 <- ggplot(eta_all %>% filter(idx == 20)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.20), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -583,7 +583,7 @@ p.eta.20.2 <- ggplot(eta_all %>% filter(idx == 20)) +
 
 p.eta.40.2 <- ggplot(eta_all %>% filter(idx == 40)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.40), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -591,7 +591,7 @@ p.eta.40.2 <- ggplot(eta_all %>% filter(idx == 40)) +
 
 p.eta.60.2 <- ggplot(eta_all %>% filter(idx == 60)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.60), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -599,7 +599,7 @@ p.eta.60.2 <- ggplot(eta_all %>% filter(idx == 60)) +
 
 p.eta.80.2 <- ggplot(eta_all %>% filter(idx == 80)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.80), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -607,7 +607,7 @@ p.eta.80.2 <- ggplot(eta_all %>% filter(idx == 80)) +
 
 p.eta.100.2 <- ggplot(eta_all %>% filter(idx == 100)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.100), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.2, color = "Difference 2", fill = "Difference 2"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -622,7 +622,7 @@ ggsave("eta_inlabru_diff_2.pdf", plot = p.eta.ib.2, device = "pdf", height = 5, 
 
 p.eta.1.sw <- ggplot(eta_all %>% filter(idx == 1)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.1), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -630,7 +630,7 @@ p.eta.1.sw <- ggplot(eta_all %>% filter(idx == 1)) +
 
 p.eta.20.sw <- ggplot(eta_all %>% filter(idx == 20)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.20), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -638,7 +638,7 @@ p.eta.20.sw <- ggplot(eta_all %>% filter(idx == 20)) +
 
 p.eta.40.sw <- ggplot(eta_all %>% filter(idx == 40)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.40), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -646,7 +646,7 @@ p.eta.40.sw <- ggplot(eta_all %>% filter(idx == 40)) +
 
 p.eta.60.sw <- ggplot(eta_all %>% filter(idx == 60)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.60), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -654,7 +654,7 @@ p.eta.60.sw <- ggplot(eta_all %>% filter(idx == 60)) +
 
 p.eta.80.sw <- ggplot(eta_all %>% filter(idx == 80)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.80), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -662,7 +662,7 @@ p.eta.80.sw <- ggplot(eta_all %>% filter(idx == 80)) +
 
 p.eta.100.sw <- ggplot(eta_all %>% filter(idx == 100)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.100), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Stepwise, color = "Stepwise", fill = "Stepwise"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -677,7 +677,7 @@ ggsave("eta_inlabru_stepwise.pdf", plot = p.eta.ib.sw, device = "pdf", height = 
 
 p.eta.1.1 <- ggplot(eta_all %>% filter(idx == 1)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.1), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) +
   #geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
@@ -687,7 +687,7 @@ p.eta.1.1 <- ggplot(eta_all %>% filter(idx == 1)) +
 p.eta.20.1 <- ggplot(eta_all %>% filter(idx == 20)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.20), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
   #geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) +
   #geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
@@ -697,7 +697,7 @@ p.eta.20.1 <- ggplot(eta_all %>% filter(idx == 20)) +
 p.eta.40.1 <- ggplot(eta_all %>% filter(idx == 40)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.40), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
   #geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) +
   #geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
@@ -707,7 +707,7 @@ p.eta.40.1 <- ggplot(eta_all %>% filter(idx == 40)) +
 p.eta.60.1 <- ggplot(eta_all %>% filter(idx == 60)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.60), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
   #geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) +
   #geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
@@ -717,7 +717,7 @@ p.eta.60.1 <- ggplot(eta_all %>% filter(idx == 60)) +
 p.eta.80.1 <- ggplot(eta_all %>% filter(idx == 80)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.80), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
   #geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) +
   #geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
@@ -727,7 +727,7 @@ p.eta.80.1 <- ggplot(eta_all %>% filter(idx == 80)) +
 p.eta.100.1 <- ggplot(eta_all %>% filter(idx == 100)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.100), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
   #geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.1, color = "Difference 1", fill = "Difference 1"), alpha = 0.2) +
   #geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
@@ -743,7 +743,7 @@ ggsave("eta_inlabru_diff_1.pdf", plot = p.eta.ib.1, device = "pdf", height = 5, 
 
 p.eta.1.3 <- ggplot(eta_all_34 %>% filter(idx == 1)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.1), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.3, y = after_stat(density), color = "Difference 3", fill = "Difference 3"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -751,7 +751,7 @@ p.eta.1.3 <- ggplot(eta_all_34 %>% filter(idx == 1)) +
 
 p.eta.20.3 <- ggplot(eta_all_34 %>% filter(idx == 20)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.20), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.3, y = after_stat(density), color = "Difference 3", fill = "Difference 3"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -759,7 +759,7 @@ p.eta.20.3 <- ggplot(eta_all_34 %>% filter(idx == 20)) +
 
 p.eta.40.3 <- ggplot(eta_all_34 %>% filter(idx == 40)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.40), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.3, y = after_stat(density), color = "Difference 3", fill = "Difference 3"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -767,7 +767,7 @@ p.eta.40.3 <- ggplot(eta_all_34 %>% filter(idx == 40)) +
 
 p.eta.60.3 <- ggplot(eta_all_34 %>% filter(idx == 60)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.60), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.3, y = after_stat(density), color = "Difference 3", fill = "Difference 3"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -775,7 +775,7 @@ p.eta.60.3 <- ggplot(eta_all_34 %>% filter(idx == 60)) +
 
 p.eta.80.3 <- ggplot(eta_all_34 %>% filter(idx == 80)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.80), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.3, y = after_stat(density), color = "Difference 3", fill = "Difference 3"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -783,7 +783,7 @@ p.eta.80.3 <- ggplot(eta_all_34 %>% filter(idx == 80)) +
 
 p.eta.100.3 <- ggplot(eta_all_34 %>% filter(idx == 100)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.100), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.3, y = after_stat(density), color = "Difference 3", fill = "Difference 3"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.3, color = "Difference 3", fill = "Difference 3"), alpha = 0.2) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -795,11 +795,11 @@ p.eta.ib.3 <- (p.eta.1.3 | p.eta.20.3 | p.eta.40.3)/(p.eta.60.3 | p.eta.80.3 | p
 ggsave("eta_inlabru_diff_3.pdf", plot = p.eta.ib.3, device = "pdf", height = 5, width = 8, dpi = "retina")
 
 
-#   ----    Plot comparison of Diff.3 and inlabru   ----
+#   ----    Plot comparison of Diff.4 and inlabru   ----
 
 p.eta.1.4 <- ggplot(eta_all_34 %>% filter(idx == 1)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.1), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.4, y = after_stat(density), color = "Difference 4", fill = "Difference 4"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4"), alpha = 0.5) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -807,7 +807,7 @@ p.eta.1.4 <- ggplot(eta_all_34 %>% filter(idx == 1)) +
 
 p.eta.20.4 <- ggplot(eta_all_34 %>% filter(idx == 20)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.20), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.4, y = after_stat(density), color = "Difference 4", fill = "Difference 4"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4"), alpha = 0.5) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -831,7 +831,7 @@ p.eta.60.4 <- ggplot(eta_all_34 %>% filter(idx == 60)) +
 
 p.eta.80.4 <- ggplot(eta_all_34 %>% filter(idx == 80)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.80), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.4, y = after_stat(density), color = "Difference 4", fill = "Difference 4"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4"), alpha = 0.5) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 
@@ -839,7 +839,7 @@ p.eta.80.4 <- ggplot(eta_all_34 %>% filter(idx == 80)) +
 
 p.eta.100.4 <- ggplot(eta_all_34 %>% filter(idx == 100)) +
   geom_area(data = data.frame(res.inlabru$marginals.random$eta$index.100), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.5) + 
-  geom_histogram(aes(x = Diff.4, y = after_stat(density), color = "Difference 4", fill = "Difference 4"), bins = 500, alpha = 0.5, size = 0) +
+  geom_density(aes(x = Diff.4, color = "Difference 4", fill = "Difference 4"), alpha = 0.5) +
   scale_fill_manual(name = "", values = palette) + 
   scale_color_manual(name = "", values = palette) + 
   theme_classic() + 

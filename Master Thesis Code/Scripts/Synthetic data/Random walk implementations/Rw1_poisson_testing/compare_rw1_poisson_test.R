@@ -37,8 +37,7 @@ run.inlabru <- function(data, E, initial = log(75)){
   # scale with 1/pi...
   hyper.eta <- list(prec = list(initial = initial, fixed = T))
   
-  components = ~ -1 +
-    eta(x, model = "rw1", constr = TRUE, hyper = hyper.eta)
+  components = ~ eta(x, model = "rw1", constr = TRUE, hyper = hyper.eta)
   
   formula = y ~ eta
   #likelihood = like(formula = formula, family = "gaussian", data = data)
@@ -57,17 +56,17 @@ run.inlabru <- function(data, E, initial = log(75)){
   return(results)
 }
 
-res.inlabru <- run.inlabru(data = data, E = offset, initial = 8)
+res.inlabru <- run.inlabru(data = data, E = offset, initial = log(75)/pi)
 
 run.inla <- function(data, E, initial = log(75)){
   hyper.eta.inla <- list(prec = list(initial = initial, fixed = T))
-  formula  = y ~f(x, model = "rw1", constr = TRUE, hyper = hyper.eta.inla)
+  formula  = y ~ -1 + f(x, model = "rw1", constr = TRUE, hyper = hyper.eta.inla)
   result <- inla(formula, family  ="poisson", data = data, E = E)
   
   return(result)
 }
 
-res.inla <- run.inla(data=data, E = offset, initial = 8)
+res.inla <- run.inla(data=data, E = offset, initial = log(75)/pi)
 
 p.inla_inlabru <- ggplot() + 
   geom_point(data = data.frame(res.inlabru$summary.random$eta), aes(x = ID, y = mean, color = "Inlabru")) + 
