@@ -27,21 +27,14 @@ z=seq(0,6,length.out=n)
 y=sin(z)+rnorm(n,mean=0,sd=0.5)
 data=data.frame(y=y,z=z)
 
-# quickly estimate in inlabru:
-# components = ~ -1 + 
-#   eta(z, model = "rw2", constr = TRUE, hyper = list(prec = list(intitial = log(1.93), fixed = TRUE)))
-
-# components = ~ -1 +
-#   eta(z, model = "rw1", constr = TRUE, hyper = list(prec = list(intitial = log(1.93), fixed = TRUE)))
-
 run.inlabru <- function(input.data){
-  # components = ~ - 1 +
-  #   Int(1, prec.linear = 0.001, mean.linear = 0) +
-  #   eta(z, model = "rw1", constr = TRUE, scale.model = TRUE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005), initial = log(1))))
-  
-  components = ~ 
-    eta(z, model = "rw1", constr = FALSE, scale.model = TRUE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005), initial = log(1))))
-  
+  components = ~ - 1 +
+    Int(1, prec.linear = 0.001, mean.linear = 0) +
+    eta(z, model = "rw1", constr = TRUE, scale.model = TRUE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005), initial = log(1))))
+
+  # components = ~ 
+  #   eta(z, model = "rw1", values = z, constr = FALSE, scale.model = TRUE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005), initial = log(1))))
+  # 
   # components = ~ - 1 +
   #   Int(1, prec.linear = 0.001, mean.linear = 0) +
   #   eta(z, model = "rw1", constr = TRUE, scale.model = TRUE, hyper = list(prec = list(prior ="gaussian", param = c(0, 100))))
@@ -91,11 +84,13 @@ input_stan <- list(y = data$y)
 ####    ----   run second stan program: rw1_by_differences.stan:   ----
 
 fit_diff_1 <- stan(
-  file = "rw1_by_differences_1_test.stan",
+  #file = "rw1_by_differences_1_test.stan",
+  #file = "rw1_by_differences_target.stan",
+  file = "rw1_stepwise.stan",
   data = input_stan,
   chains = 4,
-  iter = 2000,
-  warmup = 200,
+  iter = 4000,
+  warmup = 400,
   refresh = 500,
   seed = 123
 )
@@ -265,7 +260,9 @@ ggsave("eta_inlabru_diff_1.pdf", plot = p.eta.ib.1, device = "pdf", height = 5, 
 
 eta_summary_diff_1 <- summary_diff_1%>%
   rownames_to_column(var="idx") %>%
-  filter(grepl("eta", idx)) %>% filter(!grepl("tau_eta", idx)) %>% filter(!grepl("diff", idx)) %>% filter(!grepl("theta_eta", idx)) %>%
+  filter(grepl("eta", idx)) %>% filter(!grepl("tau_eta", idx)) %>%
+  filter(!grepl("diff", idx)) %>% filter(!grepl("theta_eta", idx)) %>%
+  filter(!grepl("eta_scaled", idx)) %>%
   mutate(idx = parse_number(idx))
 
 summary_eta <- data.frame(idx = eta_summary_diff_1$idx,

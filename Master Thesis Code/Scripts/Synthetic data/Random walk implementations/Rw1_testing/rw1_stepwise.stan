@@ -1,12 +1,11 @@
-//
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
-//
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+// This stan program is for testing purposes!
+
+functions {
+  real log_gamma_lpdf(real theta, real a, real b){
+    //return a*log(b) - lgamma(a) + theta*(a - 1) - b*exp(theta);
+    return a*log(b) - lgamma(a) + theta*a - b*exp(theta);
+  }
+}
 
 data {
   real y[100];
@@ -14,13 +13,19 @@ data {
 
 parameters {
   vector[100] eta;
-  real<lower=0> tau_eta;
+  //real<lower=0> tau_eta;
+  real theta_eta;
   real<lower=0> tau_y;
+  
+  real intercept;
 }
 
 model {
-  tau_eta ~ gamma(1, 0.00005);
+  //tau_eta ~ gamma(1, 0.00005);
+  theta_eta ~ log_gamma(1, 0.00005);
   tau_y ~ gamma(1, 0.00005);
+  
+  intercept ~ normal(0, 1/sqrt(0.001));
   
   // random walk impplementation, stepwise 
   eta[1] ~  normal(0, 100);
@@ -28,6 +33,5 @@ model {
   
   sum(eta) ~ normal(0, 0.001*100);
   
-  y ~ normal(eta, 1/sqrt(tau_y));
+  y ~ normal(rep_vector(intercept, 100) + eta, 1/sqrt(tau_y));
 }
-
