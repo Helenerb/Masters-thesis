@@ -111,8 +111,28 @@ To incorporate uncertainty about recent cohorts, \textcite{Hunt_blake_2021} spec
     \item 
 \end{itemize}
 
-\subsection{\textcite{Wong_Forster_2018}}:
-Discusses Bayesian inference with the Poisson Lee-Carter model, where an error term for overdispersion is added. Discusses the added ability to correctly estimate uncertainty in the estimation when this extra term is included. Uses MCMC for model fitting, goes through this procedure thoroughly. Possible to use some of this procedure in our research? Does not include cohort effects, but discusses their presence in some of their results, and refers to future work on this topic. 
+\subsection{\textcite{Wong_Forster_2018}  - Bayesian Mortality Froecasting with Overdispersion}
+Discusses Bayesian inference with the Poisson Lee-Carter model, where an error term for overdispersion is added. Discusses the added ability to correctly estimate uncertainty in the estimation when this extra term is included. Uses MCMC for model fitting, goes through this procedure thoroughly. Does not include cohort effects, but discusses their presence in some of their results, and refers to future work on this topic. 
+
+Presents two models accounting for overdispersion. The first is what they call the PLNLC model, the Poisson log-normal Lee-Carter model:
+\begin{equation*}
+    \begin{aligned}
+        D_{x,t}\mid \mu_{x,t} \sim \Poisson(e_{x,t}\mu_{x,t}) \\
+        \log(\mu_{x,t}) = \alpha_x + \beta_x\kappa_t + \nu_{x,t} \\
+        \nu_{x,t}\mid \sigma_\mu^2 \sim \Normal(0, \sigma_\mu^2).
+    \end{aligned}
+\end{equation*}
+The second model that they consider is the NBLC model, the Negative binomial Lee-Carter model:
+\begin{equation*}
+    \begin{aligned}
+        D_{x,t}\mid \mu_{x,t} \sim \Poisson(e_{x,t}\mu_{x,t}) \\
+        \log(\mu_{x,t}) = \alpha_x + \beta_x\kappa_t + \log(\nu_{x,t}) \\
+         \nu_{x,t}\mid \phi \sim \gammaDist(\phi, \phi).
+    \end{aligned}
+\end{equation*}
+This model structure was first proposed by \textcite{Delwarde_2007}. \textcite{Wong_Forster_2018} compares these two models to the Poisson Lee-Carter (PLC) model, proposed by \textcite{Czado_2005}, that does not account for overdispersion. Their results show that the PLNLC model and the NBLC model gives very similar performance in goodness of fit, and both perform significantly better than the PLC model. They recommend the NBLC model because of computational advantages. 
+
+They give arguments for why a Bayesian approach is preferrable. 
 
 \subsection{\textcite{LiKogure2021}: Bayesian Mixture Modelling for Mortality Projection}
 Contains some arguments on why a Bayesian approach is desirable. Not published in a very respected journal, so perhaps don´t cite it too much.  
@@ -131,7 +151,7 @@ They consider a range of precictor structures, and among these are four structur
     \begin{aligned}
     LC:\quad  \eta_{x,t} &= \alpha_x + \beta_x\kappa_t\\ 
     H_1:\quad  \eta_{x,t} &= \alpha_x + \beta_x\kappa_t + \iota_{t - x}\\
-    M:\quad  \eta_{x,t} &= \lapha_x + \beta_x\kappa_t + \beta_x^{(0)}\iota_{t-x}\\
+    M:\quad  \eta_{x,t} &= \alpha_x + \beta_x\kappa_t + \beta_x^{(0)}\iota_{t-x}\\
     LC2:\quad \eta_{x,t} &= \alpha_x + \beta_x^{(1)}\kappa_t^{(1)} + \beta_x^{(2)}\kappa_t^{(2)}
     \end{aligned}
 \end{equation*}
