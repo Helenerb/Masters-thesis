@@ -113,6 +113,18 @@ keywords = {Mortality forecast, Overdispersion, Bayesian methods, MCMC, Bridge s
 abstract = {The ability to produce accurate mortality forecasts, accompanied by a set of representative uncertainty bands, is crucial in the planning of public retirement funds and various life-related businesses. In this paper, we focus on one of the drawbacks of the Poisson Lee–Carter model (Brouhns et al., 2002) that imposes mean–variance equality, restricting mortality variations across individuals. Specifically, we present two models to potentially account for overdispersion. We propose to fit these models within the Bayesian framework for various advantages, but primarily for coherency. Markov Chain Monte Carlo (MCMC) methods are implemented to carry out parameter estimation. Several comparisons are made with the Bayesian Poisson Lee–Carter model (Czado et al., 2005) to highlight the importance of accounting for overdispersion. We demonstrate that the methodology we developed prevents over-fitting and yields better calibrated prediction intervals for the purpose of mortality projections. Bridge sampling is used to approximate the marginal likelihood of each candidate model to compare the models quantitatively.}
 }
 
+% Paper proposing negative binomial version of Lee-Carter, to account for overdispersion
+@article{Delwarde_2007,
+author = {Delwarde, Antoine and Denuit, Michel and Partrat, Christian},
+year = {2007},
+month = {09},
+pages = {385 - 401},
+title = {Negative binomial version of the Lee–Carter model for mortality forecasting},
+volume = {23},
+journal = {Applied Stochastic Models in Business and Industry},
+doi = {10.1002/asmb.679}
+}
+
 % Paper proposing Poisson Lee-Carter
 @article{Brouhns_2002,
 title = {A Poisson log-bilinear regression approach to the construction of projected lifetables},
@@ -282,22 +294,6 @@ year = {2007},
 month = {01},
 title = {Understanding the Lee-Carter Mortality Forecasting Method},
 journal={Gking. Harvard. Edu},
-}
-
-% The first log-bilinear Lee-Carter paper, not cohort
-@article{Czado_1005,
-title = {Bayesian Poisson log-bilinear mortality projections},
-journal = {Insurance: Mathematics and Economics},
-volume = {36},
-number = {3},
-pages = {260-284},
-year = {2005},
-issn = {0167-6687},
-doi = {https://doi.org/10.1016/j.insmatheco.2005.01.001},
-url = {https://www.sciencedirect.com/science/article/pii/S0167668705000302},
-author = {Claudia Czado and Antoine Delwarde and Michel Denuit},
-keywords = {Projected lifetables, Expected remaining lifetimes, Poisson regression, MCMC},
-abstract = {Mortality projections are major concerns for public policy, social security and private insurance. This paper implements a Bayesian log-bilinear Poisson regression model to forecast mortality. Computations are carried out using Markov Chain Monte Carlo methods in which the degree of smoothing is learnt from the data. Comparisons are made with the approach proposed by Brouhns et al. [Insur.: Math. Econ. 31 (2002) 373–393; Bull. Swiss Assoc. Actuaries (2002) 105–130], as well as with the original model of Lee and Carter [J. Am. Stat. Assoc. 87 (1992) 659–671].}
 }
 
 % Introduction of multiple beta*kappa terms of Lee-Carter model
