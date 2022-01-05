@@ -22,6 +22,7 @@ library("patchwork")
 library("INLA")
 
 # generate test data:
+set.seed(123)
 n=100
 z=seq(0,6,length.out=n)
 y=sin(z)+rnorm(n,mean=0,sd=0.5)
@@ -59,9 +60,9 @@ fit_stepwise <- stan(
   file = "rw2_stepwise.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 10000,
+  warmup = 1000,
+  refresh = 1000,
   seed = 123
 )
 
@@ -79,9 +80,9 @@ fit_diff_1 <- stan(
   file = "rw2_by_differences.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 10000,
+  warmup = 1000,
+  refresh = 1000,
   seed = 123
 )
 
@@ -99,9 +100,9 @@ fit_diff_2 <- stan(
   file = "rw2_by_differences_target.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 10000,
+  warmup = 1000,
+  refresh = 1000,
   seed = 123
 )
 
@@ -119,9 +120,9 @@ fit_diff_3 <- stan(
   file = "rw2_by_differences_3.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 10000,
+  warmup = 1000,
+  refresh = 1000,
   seed = 123
 )
 
@@ -139,9 +140,9 @@ fit_diff_4 <- stan(
   file = "rw2_by_differences_4.stan",
   data = input_stan,
   chains = 4,
-  iter = 100000,
-  warmup = 10000,
-  refresh = 10000,
+  iter = 10000,
+  warmup = 1000,
+  refresh = 1000,
   seed = 123
 )
 
@@ -229,7 +230,7 @@ eta.plo.wo.2 <- ggplot(eta_10) +
   theme_classic() + 
   facet_wrap(~Param)
 
-ggsave("eta_histogram_wo_2.pdf", plot = eta.plo.wo.2, dpi="retina", device = "pdf", height = 5, width = 8)
+#ggsave("eta_histogram_wo_2.pdf", plot = eta.plo.wo.2, dpi="retina", device = "pdf", height = 5, width = 8)
 
 # only diff 2,3,4
 
@@ -258,16 +259,16 @@ ggsave("eta_dens_10_234.pdf", plot = eta.plot.234.dens, dpi="retina", device = "
 
 # all values of the predictor
 
-eta.plot.full <- ggplot(eta_all) +
-  geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
-  geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
-  scale_fill_manual(name = "", values = palette) + 
-  scale_color_manual(name = "", values = palette) + 
-  theme_classic() + 
-  facet_wrap(~Param)
-
-ggsave("eta_histogram_full.pdf", plot = eta.plot.full, dpi="retina", device = "pdf", height = 5, width = 8)
+# eta.plot.full <- ggplot(eta_all) +
+#   geom_histogram(aes(x = Stepwise, y = after_stat(density), color = "Stepwise", fill = "Stepwise"), bins = 500, alpha = 0.5, size = 0) +
+#   geom_histogram(aes(x = Diff.1, y = after_stat(density), color = "Difference 1", fill = "Difference 1"), bins = 500, alpha = 0.5, size = 0) +
+#   geom_histogram(aes(x = Diff.2, y = after_stat(density), color = "Difference 2", fill = "Difference 2"), bins = 500, alpha = 0.5, size = 0) +
+#   scale_fill_manual(name = "", values = palette) + 
+#   scale_color_manual(name = "", values = palette) + 
+#   theme_classic() + 
+#   facet_wrap(~Param)
+# 
+# ggsave("eta_histogram_full.pdf", plot = eta.plot.full, dpi="retina", device = "pdf", height = 5, width = 8)
 
 #   ----   Plot distributions of hyperparameters:   ----
 tau_eta_df <- data.frame(Stepwise = list_of_draws_stepwise$tau_eta,

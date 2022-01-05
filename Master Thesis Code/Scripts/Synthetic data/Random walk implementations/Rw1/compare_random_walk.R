@@ -13,7 +13,7 @@ set_workdirectory <- function(markov=TRUE){
   }
 }
 
-set_workdirectory(markov=T)
+set_workdirectory(markov=F)
 
 library("rstan")
 library("inlabru")
@@ -56,9 +56,9 @@ fit_stepwise <- stan(
   file = "rw1_stepwise.stan",
   data = input_stan,
   chains = 4,
-  iter = 300000,
-  warmup = 30000,
-  refresh = 100000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -76,9 +76,9 @@ fit_diff_1 <- stan(
   file = "rw1_by_differences.stan",
   data = input_stan,
   chains = 4,
-  iter = 300000,
-  warmup = 30000,
-  refresh = 100000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -96,9 +96,9 @@ fit_diff_2 <- stan(
   file = "rw1_by_differences_target.stan",
   data = input_stan,
   chains = 4,
-  iter = 300000,
-  warmup = 30000,
-  refresh = 100000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -116,9 +116,9 @@ fit_diff_3 <- stan(
   file = "rw1_by_differences_3.stan",
   data = input_stan,
   chains = 4,
-  iter = 300000,
-  warmup = 30000,
-  refresh = 100000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 
@@ -136,9 +136,9 @@ fit_diff_4 <- stan(
   file = "rw1_by_differences_4.stan",
   data = input_stan,
   chains = 4,
-  iter = 300000,
-  warmup = 30000,
-  refresh = 100000,
+  iter = 4000,
+  warmup = 400,
+  refresh = 1000,
   seed = 123
 )
 

@@ -14,20 +14,18 @@ data {
 parameters {
   vector[100] eta;
   //real<lower=0> tau_eta;
-  real theta_eta_unscaled;
+  real theta_eta;
   real<lower=0> tau_y;
   real intercept;
 }
 
 transformed parameters{
-  real theta_eta = 3.1415*theta_eta_unscaled;
   real tau_eta = exp(theta_eta);
 }
 
 model {
   //tau_eta ~ gamma(1, 0.00005);
-  //theta_eta ~ log_gamma(1, 0.00005);
-  theta_eta_unscaled ~ log_gamma(1, 0.00005);
+  theta_eta ~ log_gamma(1, 0.00005);
   tau_y ~ gamma(1, 0.00005);
   
   intercept ~ normal(0, 1/sqrt(0.001));

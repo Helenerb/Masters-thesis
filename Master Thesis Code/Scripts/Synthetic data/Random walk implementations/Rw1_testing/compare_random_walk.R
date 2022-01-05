@@ -1,7 +1,6 @@
 #' Script for comparison of Stan implementations of random walk models
 #' 
 
-
 # on Markov:
 #   ----   Load libraries and set workspace   ----
 set_workdirectory <- function(markov=TRUE){
@@ -43,8 +42,7 @@ run.inlabru <- function(input.data){
   #   Int(1, prec.linear = 0.001, mean.linear = 0) +
   #   eta(z, model = "rw1", constr = TRUE, scale.model = TRUE, hyper = list(prec = list(fixed = TRUE, initial = 2)))
   
-  #formula = y ~ Int + eta
-  formula = y ~ eta
+  formula = y ~ Int + eta
   likelihood = like(formula = formula, family = "gaussian", data = input.data)
   
   results <- bru(components = components,
@@ -84,8 +82,6 @@ input_stan <- list(y = data$y)
 ####    ----   run second stan program: rw1_by_differences.stan:   ----
 
 fit_diff_1 <- stan(
-  #file = "rw1_by_differences_1_test.stan",
-  #file = "rw1_by_differences_target.stan",
   file = "rw1_stepwise.stan",
   data = input_stan,
   chains = 4,
