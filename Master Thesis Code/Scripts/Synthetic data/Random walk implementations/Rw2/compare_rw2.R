@@ -60,9 +60,9 @@ fit_stepwise <- stan(
   file = "rw2_stepwise.stan",
   data = input_stan,
   chains = 4,
-  iter = 10000,
-  warmup = 1000,
-  refresh = 1000,
+  iter = 50000,
+  warmup = 5000,
+  refresh = 5000,
   seed = 123
 )
 
@@ -80,9 +80,9 @@ fit_diff_1 <- stan(
   file = "rw2_by_differences.stan",
   data = input_stan,
   chains = 4,
-  iter = 10000,
-  warmup = 1000,
-  refresh = 1000,
+  iter = 50000,
+  warmup = 5000,
+  refresh = 5000,
   seed = 123
 )
 
@@ -103,7 +103,8 @@ fit_diff_2 <- stan(
   iter = 10000,
   warmup = 1000,
   refresh = 1000,
-  seed = 123
+  seed = 123,
+  control = list(max_treedepth = 15)
 )
 
 trace_diff_2 <- plot(fit_diff_2, plotfun = "trace", pars = c("tau_y", "tau_eta", "eta[1]", "eta[50]", "eta[90]", "eta[100]"))
@@ -120,9 +121,9 @@ fit_diff_3 <- stan(
   file = "rw2_by_differences_3.stan",
   data = input_stan,
   chains = 4,
-  iter = 10000,
-  warmup = 1000,
-  refresh = 1000,
+  iter = 50000,
+  warmup = 5000,
+  refresh = 5000,
   seed = 123
 )
 
@@ -140,9 +141,9 @@ fit_diff_4 <- stan(
   file = "rw2_by_differences_4.stan",
   data = input_stan,
   chains = 4,
-  iter = 10000,
-  warmup = 1000,
-  refresh = 1000,
+  iter = 50000,
+  warmup = 5000,
+  refresh = 5000,
   seed = 123
 )
 
