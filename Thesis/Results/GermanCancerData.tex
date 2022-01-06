@@ -1,7 +1,7 @@
 \newpage
 \subsection{German Cancer Data}
 \label{sec:german_cancer_data}
-\textcolor{myDarkRed}{From project, revise!}
+\textcolor{myDarkRed}{NOTE: Are these central or initial exposures? By January 1st or something else? I think that might be important (at least it is a distinction other papers make), and I think it should be initial. At least, make sure that you have what you say that you have... They are actually "final" exposures.. i.e. exposures by the end of the year. Find out what to do about that... }
 We use data of mortality for lung and stomach cancer in Germany for the years 1999-2016, obtained from \textcite{cancerData}. In these data sets, the observed mortality for the two cancer types is given by the number of cases for men and women, for each year, for five-year age intervals. The exception is for the ages above 85 year, which are collected in a single group. We denote the observed cases of deaths for one cancer type, for one sex, at age group $x$ and cohort $c$ during period $t$ by $Y_{x,t}^{\text{type, sex}}$. We note that the cohort $c$ of the observation is implicitly given by the age $x$ and the year $t$. 
 
 We find data for the total German population, which serve as our at-risk population, for the corresponding years and ages at \textcite{germanPopulation}. This dataset contains observations for age groups of one year, and we aggregate them to the same five-year age groups as for the cancer data. We denote the observed German population for a given sex, for a given age group $x$ and cohort $c$ during period $t$ by $E_{x,t}^{\text{sex}}$. We then find the corresponding mortality rates by
@@ -65,10 +65,7 @@ Figures \ref{fig:obs-all-by-age} and \ref{fig:obs-all-by-period} give representa
 \end{figure}
 %Figure \ref{fig:data-rate} presents the observed mortality rates for years 1999, 2005, 2011 and 2016, for each age group and cohort. We observe that for younger ages, the mortality rates are close to zero for both lung and stomach cancer. For the years 2005, 2011 and 2016 we see, from Figure \ref{fig:data-rate-bottom} that we do not have observations of the  mortality rates for older cohorts (lower cohort index $k$). On the other side, we see that younger cohorts, at around $k > 60$, have mortality rates that are close to zero for all years. From Figure \ref{fig:data-rate-top} we see that the male and female mortality rates behave differently over the periods, for both lung and stomach cancer. As previously indicated, the female mortality rates are generally higher in 2016 compared to 1999, while the opposite is the case for male mortality. This difference is especially apparent for the lung cancer mortality. 
 
-\textcolor{myDarkRed}{Specific to masters:}
-Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the observed mortality rates for males and females, averaged over all years 1999-2016 and all ages 0-85+ respectively. Figure \ref{fig:obs-mr-by-cohort} display the observed mortality rates for male...
-\textcolor{myDarkGreen}{NOTE: Are these central or initial exposures? By January 1st or something else? I think that might be important (at least it is a distinction other papers make), and I think it should be initial. At least, make sure that you have what you say that you have... They are actually "final" exposures.. i.e. exposures by the end of the year. Find out what to do about that... }
-
+Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} display the observed male, female and total mortality rates, as found from the relation in Equation \ref{eq:expression_mr}, averaged over all available years and age groups respectively. We first note that the male and female mortality rates behave quite differently to each other and to the mortality rates for the full population. This is the case for both lung and stomach cancer mortality, and we interpret this as an indication that male and female mortality should be treated separately in modeling. Our previous work on mortality modeling for this data confirms this \parencite{behrens_2021}.
 % German cancer data - average over all years
 \begin{figure}
     \centering
@@ -87,7 +84,6 @@ Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the obse
     \caption{Mortality rates averaged over all years, for male and females}
     \label{fig:obs-mr-by-age}
 \end{figure}
-
 % German cancer data - average over all ages
 \begin{figure}
     \centering
@@ -106,7 +102,7 @@ Figures \ref{fig:obs-mr-by-age} and \ref{fig:obs-mr-by-period} displays the obse
     \caption{Mortality rates averaged over all age groups, for male and females}
     \label{fig:obs-mr-by-period}
 \end{figure}
-
+Figure \ref{fig:obs-mr-by-cohort} displays the observed mortality rates for each cohort for the years 1999, 2007 and 2016. From this figure, we can see that we do not have observations for the older cohorts for all of the years. For instance, for the year 2016 we only have observations of the cohorts down to $c = 17$. This simply results from the fact that all observations older than 85 are counted together. This is of course a simplification of the reality. For example, there will be some small part of the population that were 85 years old or older in 1999, and thus part of the $c = 0$ cohort, that survived until 2016, where the $c=0$ cohort is no longer observed. In 2016, this same person would be assigned the cohort $c = 17$. Although we can technically consider this as an error in the cohort data, we assume that it will not affect our analysis significantly, since it applies to such as small part of the population. However, we note that we in general have fewer observations for the older cohorts. Similarly, we also have fewer observations for the cohorts born after 1999. Additionally, we see from Figure \ref{fig:obs-mr-by-cohort} that for many of the younger cohorts, we can only observe mortality rates close to zero during the entirety of the observed period 1999-2016. We keep this in mind when later considering the cohort estimates for these ages. 
 % German cancer data  - average over all cohorts
 \begin{figure}
     \centering
