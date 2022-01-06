@@ -236,13 +236,13 @@ In the previous part, we fixed the hyperparameters of models G1 and P1. This all
         &\tau_\kappa \sim \gammaDist(1 , 0.005).
     \end{aligned}
 \end{equation*}
-In \inlabruNS, the hyperpriors of \rwoneS and \iidS effects are apllied to the log-precisions $\theta = \log(\tau)$ instead of directly to the precisions of the processes. We define the model in \stan accordingly, by defining
+In \inlabruNS, the hyperpriors of \rwoneS and \iidS effects are applied to the log-precisions $\theta = \log(\tau)$ instead of directly to the precisions of the processes. We define the model in \stan accordingly, by defining
 \begin{equation}
     \begin{aligned}
         &\theta_\alpha = \log(\tau_\alpha), \quad \theta_\alpha \sim \logGamma(1, 0.00005)\\
         &\theta_\beta = \log(\tau_\beta), \quad \theta_\beta \sim \logGamma(1, 0.00005)\\
         &\theta_\kappa = \log(\tau_\kappa), \quad \theta_\kappa \sim \logGamma(1, 0.005)\\
-        &\theta_\epsilon = \log(\tau_\epsilon), \quad \theta_\epsilon \sim \logGamma(1, 0.005)\\
+        &\theta_\epsilon = \log(\tau_\epsilon), \quad \theta_\epsilon \sim \logGamma(1, 0.00005)\\
     \end{aligned}
     \label{eq:gamma_priors}
 \end{equation}
