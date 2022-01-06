@@ -2,14 +2,11 @@
 \section{Results}
 %First, we use synthetic data to show that $\texttt{inlabru}$ produces restults that are sufficiently similar to the one produced by more traditional MCMC approaches. For a fair comparison between the $\texttt{INLA}$ framework and state-of-the-art MCMC methods, we compare results of Bayesian inference using $\texttt{inlabru}$ to results using inference from the STAN methodology. The STAN methodology is an implementation of a Hamiltonian Monte Carlo approach, and is described more closely in Section \ref{sec:stan}. We use the $\texttt{R}$-library $\texttt{rstan}$ to do inference with STAN. 
 
-\subsection{STAN: Hamiltonian Monte Carlo}
-\label{sec:stan}
-%STAN is a method for Bayesian inference using a Hamiltonian Monte Carlo approach. It was proposed by ... and has since its introduction gained popularity for its computational power compared to traditional MCMC approaches. bla bla ikke ferdig!!!
-
 \import{}{Results/GermanCancerData}
 
 \newpage
-\subsection{Our Model Definition}
+\subsection{Model Definitions}
+\label{sec:model_definitions}
 For the analysis in this investigation, we will consider a version of the Poisson-extended Lee-Carter model, with an extra error term accounting for overdispersion, as suggested by e.g \textcite{Wong_Forster_2018}. We will consider this model with and without an additional cohort effect. We note that we do not include a modulating age factor for the cohort effect, as suggested by e.g. \textcite{Renshaw_Haberman_2009} \textcolor{myDarkGreen}{Finn ut hvilke andre, hvem var det som først foreslo det? }, so that we do not overcomplicate the model, as it was argued by \textcolor{myDarkGreen}{FINN UT HVEM} that it might. We refer to our version of the Lee-Carter model without a cohort effect as the LC model, and to the version for which we include a cohort effect as the LCC model. They are defined as follows:
 \begin{align}
     \text{LC:}&\quad Y_{x,t} \sim \Poisson(E_{x,t}e^{\eta_{xt}}), \quad \eta_{x,t} = \mu + \alpha_x + \beta_x\kappa_t + \epsilon_{x,t} \label{eq:LC-model}\\
@@ -19,13 +16,13 @@ Here, $Y_{x,t}$ are the number of deaths of the population of age $x$ during per
 
 To ensure identifiability, we constrain the age-modulating effect $\beta_x$, the period effect $\kappa_t$ \textcolor{myDarkGreen}{and the cohort effect $\gamma_c$} by
 \begin{equation*}
-    \sum_x\beta_x = 1, \quad \sum_t\kappa_t = 0, \textcolor{myDarkGreen}{\sum_c\gamma_c = 0}.
+    \sum_x\beta_x = 1, \quad \sum_t\kappa_t = 0, \quad \textcolor{myDarkGreen}{\sum_c\gamma_c = 0}.
 \end{equation*}
 
 %$\epsilon_{x,t}$ is an error term, describing variability in the data that cannot be explained by either any of the time effects or by the variance of the Poisson distribution. The additional error term $\epsilon_{x,t}$ 
 We note that in contrast to e.g. the classical Lee-Carter formulation, we add an intercept $\mu$ to the model structure. We do this to extract a separate value for the overall mortality level, and by enforcing $\sum_x \alpha_x = 0$, this is equivalent to models without an intercept and where the values of $\alpha_x$ are unconstrained. Consequently, our full set of constraints becomes
 \begin{equation}
-    \sum_x\lapha_x = 0,\quad  \sum_x\beta_x = 1, \quad \sum_t\kappa_t = 0, \textcolor{myDarkGreen}{\sum_c\gamma_c = 0}.
+    \sum_x\alpha_x = 0,\quad  \sum_x\beta_x = 1, \quad \sum_t\kappa_t = 0, \quad \textcolor{myDarkGreen}{\sum_c\gamma_c = 0}.
     \label{eq:LC-constraints}
 \end{equation}
 

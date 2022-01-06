@@ -1,7 +1,7 @@
 \newpage
 \section{STAN: Hamiltonian Monte Carlo}
 \label{sec:stan}
-The Markov Chain Monte Carlo (MCMC) method is perhaps the most widely used method for performing Bayesian inference. There are several strong benefits with this method, it is for instance applicable to most \textcolor{myDarkGreen}{All?} Bayesian models, it converges in distribution to the target distribution and it is asymptotically unbiased (see e.g. \textcite{neal1993}). The commonly known downside to MCMC methods is its slowness in convergence, which is the reason for the popularity of approximate methods such as \inla and \inlabruNS. However, other computationally more efficient methods within the MCMC methodology have also been proposed, and we wish to investigate their performance on our problem compared to the performance of \inlabru. 
+The Markov Chain Monte Carlo (MCMC) method is perhaps the most widely used method for performing Bayesian inference. There are several strong benefits with this method, it is for instance applicable to most Bayesian models, it converges in distribution to the target distribution and it is asymptotically unbiased (see e.g. \textcite{neal1993}). The commonly known downside to MCMC methods is its slowness in convergence, which is the reason for the popularity of approximate methods such as \inla and \inlabruNS. However, other computationally more efficient methods within the MCMC methodology have also been proposed, and we wish to investigate their performance on our problem compared to the performance of \inlabru. 
 
 Specifically, we consider the Hamiltonian Monte Carlo (HMC) method \parencite{duane1987} with No-U-Turn Sampling (NUTS) \parencite{hoffman2014}, as it is implemented in the increasingly popular Stan methodology \parencite{stan2022}. Stan provides an interface with $\texttt{R}$ through the library $\texttt{Rstan}$, and we use this library throughout our analysis. 
 
@@ -12,43 +12,72 @@ The idea behind the Hamiltonian Monte Carlo method is to consider the target pro
     p(\boldsymbol{\rho}, \boldsymbol{\theta}) = p(\boldsymbol{\rho}\mid \boldsymbol{\theta})p(\boldsymbol{\theta}).
     \label{eq:hmc_joint_distribution}
 \end{equation}
-Usually, the density of $\boldsymbol{\rho}$ is chosen so that it is independent of $\boldsymbol{\theta}$, and Equation \ref{eq:hmc_joint_dist} reduces to 
+Usually, the density of $\boldsymbol{\rho}$ is chosen so that it is independent of $\boldsymbol{\theta}$, and Equation \ref{eq:hmc_joint_distribution} reduces to 
 \begin{equation*}
     p(\boldsymbol{\rho}, \boldsymbol{\theta}) = p(\boldsymbol{\rho})p(\boldsymbol{\theta}).
 \end{equation*}
 Specifically, in Stan, the density for $\boldsymbol{\rho}$ is chosen to be a multivariate normal distribution:
 \begin{equation*}
-    \boldsymbol{\rho} \sim \MultiNormal(0, M).
+    \boldsymbol{\rho} \sim \MultiNormal(0, M),
 \end{equation*}
-
-The performance and sampling efficiency of HMC greatly depends on the choice of the parameters of the algorithm:
-\begin{itemize}
-    \item The step size, or discretization in time, $\epsilon$
-    \item The metric M
-    \item The number of leapfrog integration steps L
-\end{itemize}
-(\textcite{hoffman2014}, \textcite{stan2022}). To obtain efficient sampling, $\epsilon$ should be balanced so that a sufficiently large number of proposal samples are accepted, while still being large enough so that the integration procedure is not too computationally demanding. Similarly, the choice of L involves a trade-off between too large values of L resulting in making unnecessary steps in computation, while too low values of L give short leapfrog trajectories and sampling patterns that exhibit random walk behavior. Lastly, the inverse metric $\text{M}^{-1}$ should be a sufficiently good estimate of the posterior covariance. If it is not, $\epsilon$ must be kept small, and then larger values are needed for L, to compensate for the loss of arithmetic precision \parencite{stan2022}. 
-
-The Stan methodology automatically optimizes all of these parameters. $\epsilon$ is adjusted to match a target acceptance rate, the warm-up samples are used to estimated M and the No-U-Turn Sampler is used to dynamically adapt L. We refer to the Stan reference manual \parencite{stan2022} for a detailed description of the adaption of $\epsilon$ and M, and briefly outline the concept of the NUTS algorithm for adaption of L in the following section. 
-
+where M is the euclidean metric \parencite{stan2022}. A Hamiltonian can be defined on this joint density as 
+\begin{equation*}
+    \begin{aligned}
+        H(\boldsymbol{\rho}, \boldsymbol{\theta}) &= -\log(p(\boldsymbol{\rho}, \boldsymbol{\theta}) \\
+        &= -\log(p(\boldsymbol{\rho} \mid \boldsymbol{\theta})) - \log(p(\boldsymbol{\rho})) \\
+        &= -\log(p(\boldsymbol{\rho})) - \log(p(\boldsymbol{\rho})) \\
+        &= T(\boldsymbol{\rho}) + V(\boldsymbol{\theta}),
+    \end{aligned}
+    \label{eq:hmc_hamiltonian}
+\end{equation*}
+when the density of $\boldsymbol{\rho}$ is independent of $\boldsymbol{\theta}$. 
+$H(\boldsymbol{\rho}, \boldsymbol{\theta})$ satisfies Hamilton's equations:
 \begin{equation}
     \begin{aligned}
-        &\frac{d\theta}{dt} = \frac{\partial H}{\partial \rho} = \frac{\partial T}{\partial \rho}\\
-        &\frac{d\rho}{dt} = -\frac{\partial H}{\partial \theta} = -\frac{\partial V}{\partial \theta}
+        \frac{d\boldsymbol{\theta}}{dt} = &\frac{\partial H}{\partial \boldsymbol{\rho}} = \frac{\partial T}{\partial \boldsymbol{\rho}}\\
+        \frac{d\boldsymbol{\rho}}{dt} = -&\frac{\partial H}{\partial \boldsymbol{\theta}} = -\frac{\partial V}{\partial \boldsymbol{\theta}}
     \end{aligned}
     \label{eq:hamiltonian_system}
 \end{equation}
+As an analogy to the physical systems usually described by Hamiltonian equations, $T(\boldsymbol{\rho})$ is often referred to as the kinetic energy of the system, and the term $V(\boldsymbol{\theta})$ is often referred to as the potential energy of the system. These types of systems of equations are frequently used e.g. in the field of quantum physics \parencite{betancourt2018}, and they van be solved by the leapfrog algorithm for numerical integration, which is especially adapted to be stable for Hamiltonian systems \parencite{stan2022}.
+
+The sampling in most HMC algorithms, including the HMC implementation of Stan, is done in two steps.
+\begin{itemize}
+    \item First, a value for the momentum $\boldsymbol{\rho}$ is independently sampled.
+    \item Then, the system in Equation \ref{eq:hamiltonian_system} is developed using the leapfrog method for numerical integration, starting at the newly sampled value of $\boldsymbol{\rho}$ and the value of $\boldsymbol{\theta}$ from the previous sample. 
+\end{itemize}
+One step of the leapfrog method, incrementing the trajectory of $(\boldsymbol{\rho}, \boldsymbol{\theta})$ for a time step $\eps$, consists of the following three substeps:
+\begin{equation*}
+    \begin{aligned}
+        \boldsymbol{\rho}_{t + \frac{1}{2}} &\leftarrow \boldsymbol{\rho}_t - \frac{\eps}{2}\frac{\partial V}{\partial \boldsymbol{\theta}}(\boldsymbol{\theta}_t)\\
+        \boldsymbol{\theta}_{t + 1} &\leftarrow \boldsymbol{\theta}_t + \eps\boldsymbol{\rho}_{t + \frac{1}{2}} \\
+        \boldsymbol{\rho}_{t + 1} &\leftarrow \boldsymbol{\rho}_{t + \frac{1}{2}} - \frac{\eps}{2}\frac{\partial V}{\partial \boldsymbol{\theta}}(\boldsymbol{\theta}_{t + 1}).
+    \end{aligned}
+\end{equation*}
+These leapfrog steps are performed a total of L times, developing the trajectory for a time $\eps\text{L}$, and the resulting state $(\tilde{\boldsymbol{\rho}}, \tilde{\boldsymbol{\theta}})$ becomes the proposed sample. 
+
+Stan uses the NUTS algorithm, as described in the following Section \ref{sec:nuts}, to perform the leapfrog development, and then uses a multinomial sampling procedure to find the final sample given the proposed sample $(\tilde{\boldsymbol{\theta}}, \tilde{\boldsymbol{\rho}})$. In the case where NUTS is not applied, some correcting Metropolis step is typically applied to find the final sample. The reason for this final step, is that the leapfrog method is approximate, and so the proposal samples should not be used directly \parencite{stan2022}. 
+
+The performance and sampling efficiency of HMC greatly depends on the choice of the parameters of the algorithm:
+\begin{itemize}
+    \item The step size, or discretization in time, $\eps$
+    \item The metric M
+    \item The number of leapfrog integration steps L
+\end{itemize}
+(\textcite{hoffman2014}, \textcite{stan2022}). To obtain efficient sampling, $\eps$ should be balanced so that a sufficiently large number of proposal samples are accepted, while still being large enough so that the integration procedure is not too computationally demanding. Similarly, the choice of L involves a trade-off between too large values of L resulting in making unnecessary steps in computation, while too low values of L give short leapfrog trajectories and sampling patterns that exhibit random walk behavior. Lastly, the inverse metric $\text{M}^{-1}$ should be a sufficiently good estimate of the posterior covariance. If it is not, $\eps$ must be kept small, and then larger values are needed for L, to compensate for the loss of arithmetic precision \parencite{stan2022}. 
+
+The Stan methodology automatically optimizes all of these parameters. $\eps$ is adjusted to match a target acceptance rate, the warm-up samples are used to estimate M and the No-U-Turn Sampler is used to dynamically adapt L. We refer to the Stan reference manual \parencite{stan2022} for a detailed description of the adaption of $\eps$ and M, and briefly outline the concept of the NUTS algorithm for adaption of L in the following section. 
 
 \subsection{No-U-Turn Sampler}
 \label{sec:nuts}
 The No-U-Turn Sampler (NUTS) proposed by \textcite{hoffman2014} is a method for allocating the number of leapfrog steps L in an HMC procedure dynamically for each sampling step. This removes the need for a potentially computationally demanding preliminary analysis to find an optimal value for L, while not adding to the computation time for the procedure \parencite{hoffman2014}. 
 
-The driving idea behind NUTS is that the ideal proposal sample parameter $\tilde{\theta}$ of the HMC is as far as possible from the initially proposed parameter $\theta$. This is because when successive samples are too close to one another, the chain displays the undesired random walk behavior and becomes slow in convergence. The leapfrog trajectories of the HMC act like loops, by moving away from the initial parameter values with the first integration steps, but at some point turning back towards the initial proposal. Consequently, the NUTS approach strives to find the number of integration steps L that corresponds to the point of the trajectory right before it turns back towards the initial values. \textcite{hoffman2014} finds this point by considering the quantity
+The driving idea behind NUTS is that the ideal proposal sample parameter $\tilde{\theta}$ of the HMC is as far as possible from the initially proposed parameter $\boldsymbol{\theta}$. This is because when successive samples are too close to one another, the chain displays the undesired random walk behavior and becomes slow in convergence. The leapfrog trajectories of the HMC act like loops, by moving away from the initial parameter values with the first integration steps, but at some point turning back towards the initial proposal. Consequently, the NUTS approach strives to find the number of integration steps L that corresponds to the point of the trajectory right before it turns back towards the initial values. \textcite{hoffman2014} finds this point by considering the quantity
 \begin{equation}
-    \frac{d}{dt}\frac{(\tilde{\theta} - \theta)(\tilde{\theta} - \theta)}{2} = (\tilde{\theta} - \theta)\frac{d}{dt}(\tilde{\theta} - \theta) = (\tilde{\theta} - \theta)\cdot \tilde{\rho},
+    \frac{d}{dt}\frac{(\tilde{\boldsymbol{\theta}} - \boldsymbol{\theta})(\tilde{\boldsymbol{\theta}} - \boldsymbol{\theta})}{2} = (\tilde{\boldsymbol{\theta}} - \boldsymbol{\theta})\frac{d}{dt}(\tilde{\boldsymbol{\theta}} - \boldsymbol{\theta}) = (\tilde{\boldsymbol{\theta}} - \boldsymbol{\theta})\cdot \tilde{\boldsymbol{\rho}},
     \label{eq:nuts_quantity}
 \end{equation}
-where $\theta$ is the initial parameter proposal, $\tilde{\theta}$ is the current parameter proposal and $\tilde{\rho}$ is the current momentum. This quantity is proportional to what can be interpreted as the amount of progress away from the initial parameter estimate $\theta$ one would make by running the algorithm for $dt$ more time. 
+where $\boldsymbol{\theta}$ is the initial parameter proposal, $\tilde{\theta}$ is the current parameter proposal and $\tilde{\boldsymbol{\rho}}$ is the current momentum. This quantity is proportional to what can be interpreted as the amount of progress away from the initial parameter estimate $\boldsymbol{\theta}$ one would make by running the algorithm for $dt$ more time. 
 
 The above discussion would suggest an algorithm that runs leapfrog integration until the quantity in Equation \ref{eq:nuts_quantity} becomes less than zero, or conceptually, when the trajectory starts to make a U-turn. However, this approach does not guarantee reversibility, and by that, it neither guarantees convergence to the correct distribution \parencite{hoffman2014}. To adjust for this, the NUTS algorithm develops the system in Expression \ref{eq:hamiltonian_system} both forwards and backwards in time, creating a balanced binary tree rather than a single trajectory. The development is then halted when this binary tree begins to turn back on itself, or in other words, when the two trajectories from development of the system forwards and backwards in time begin to approach each other. 
 
