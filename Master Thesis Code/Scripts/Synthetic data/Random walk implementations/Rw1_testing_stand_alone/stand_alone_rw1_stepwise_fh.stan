@@ -33,7 +33,8 @@ model {
   
   // random walk impplementation, stepwise 
   eta[1] ~  normal(0, 100);
-  eta[2:100] ~ normal(eta[1:99], 1/sqrt(tau_eta));
+  //eta[2:100] ~ normal(eta[1:99], 1/sqrt(tau_eta));
+  eta[2:100] ~ normal(eta[1:99], sqrt(0.06060606) * 1/sqrt(tau_eta));
   
   sum(eta) ~ normal(0, 0.001*100);
   

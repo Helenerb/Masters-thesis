@@ -58,18 +58,41 @@ source("Scripts/Synthetic\ data/run_stan_functions.R")
 
 run_stan <- function(stan_program, obs, chains, warmup, iter, output.path, config.name, markov=TRUE){
   
-  stan_fit <- run_stan_program_gaussian(
-    list(obs = obs), chains=chains,warmup=warmup,
-    iter=iter, stan_program=stan_program)
+  # stan_fit <- run_stan_program_gaussian(
+  #   list(obs = obs), chains=chains,warmup=warmup,
+  #   iter=iter, stan_program=stan_program)
+  
+  input_stan <- list(
+    X=length(unique(obs$x)),
+    T=length(unique(obs$t)),
+    x=(obs$x + 1),
+    t=(obs$t + 1),
+    log_mr = obs$eta,
+    nx = length(unique(obs$x)),
+    nt = length(unique(obs$t))
+  )
+  
+  stan_fit <- stan(
+    file = stan_program,
+    data = input_stan,
+    chains = chains,
+    iter = iter,
+    warmup = warmup,
+    refresh = iter%/%10,
+    seed = 123
+  )
   
   store_stan_results_gaus_linear(
     fit=stan_fit, output.path=output.path, config=config.name,
     chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
+  
+  return(stan_fit)
 }
 
-run_stan(
-  stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_lin_gp_rw1_sc.stan",
-  obs = obs, chains=4, warmup = 8000, iter = 80000, output.path = stan.output,
+stan_fit <- run_stan(
+  #stan_program="Scripts/Synthetic data/Stan analyses/stan_programs/step_by_step_results/stan_gaus_lin_gp_rw1_sc.stan",
+  stan_program = file.path(stan.output, "stan_gauss_lin_gp_rw1.stan"),
+  obs = obs, chains=4, warmup = 10000, iter = 100000, output.path = stan.output,
   config.name = investigation.name, markov=F)
 
 inlabru.gaus.lin.gp.rw1 <- function(obs, max_iter=30){
@@ -90,9 +113,9 @@ inlabru.gaus.lin.gp.rw1 <- function(obs, max_iter=30){
   
   comp = ~ -1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    alpha(x, model = "rw1", hyper = loggamma.prior, constr = TRUE) +
+    alpha(x, model = "rw1", hyper = loggamma.prior, constr = TRUE, scale.model = F) +
     #beta(x.c, model = "iid", hyper = fixed.theta.beta, constr = FALSE) +
-    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE)
+    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE, scale.model = F)
   
   formula = eta ~ Int + alpha + kappa
   
@@ -197,3 +220,60 @@ p.pred.54 <- ggplot(pred.54.inlabru) +
 p.pred.54
 
 save.figure(p.pred.54, name = "predictor_54", path = output.path, png= F)
+
+#   ----   Plot densities of hyperparameters   ----
+
+list_of_draws <- rstan::extract(stan_fit)
+
+p.tau.alpha <- ggplot() + 
+  geom_density(data=data.frame("x" = list_of_draws$tau_alpha), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) + 
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% filter(x < 7), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Tau alpha", x = "", y = "")
+
+p.theta.alpha <- ggplot() + 
+  geom_density(data=data.frame("x" = list_of_draws$theta_alpha), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) + 
+  geom_area(data = data.frame(res.inlabru$internal.marginals.hyperpar$`Log precision for alpha`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Theta alpha", x = "", y = "")
+
+p.tau.kappa <- ggplot() + 
+  geom_density(data=data.frame("x" = list_of_draws$tau_kappa), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) + 
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>% filter(x < 4000), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Tau kappa", x = "", y = "")
+
+p.theta.kappa <- ggplot() + 
+  geom_density(data=data.frame("x" = list_of_draws$theta_kappa), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) + 
+  geom_area(data = data.frame(res.inlabru$internal.marginals.hyperpar$`Log precision for kappa`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Theta kappa", x = "", y = "")
+
+p.tau.eta <- ggplot() + 
+  geom_density(data=data.frame("x" = list_of_draws$tau_epsilon), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) + 
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`) %>% filter(x < 500), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Tau eta", x = "", y = "")
+
+p.theta.eta <- ggplot() + 
+  geom_density(data=data.frame("x" = list_of_draws$theta_epsilon), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) + 
+  geom_area(data = data.frame(res.inlabru$internal.marginals.hyperpar$`Log precision for the Gaussian observations`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Theta eta", x = "", y = "")
+
+p.tau <- (p.tau.alpha | p.tau.kappa)/(p.tau.eta) + plot_layout(guides = "collect")
+
+ggsave("marginals_tau.pdf", p.tau, path=output.path, device = "pdf", dpi="retina", height = 5, width = 8)
+

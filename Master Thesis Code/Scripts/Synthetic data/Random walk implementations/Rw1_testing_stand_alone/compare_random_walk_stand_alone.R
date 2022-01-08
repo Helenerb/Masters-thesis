@@ -25,7 +25,7 @@ data=data.frame(y=y,z=z)
 run.inlabru <- function(input.data){
   components = ~ - 1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    eta(z, model = "rw1", constr = TRUE, scale.model = TRUE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005), initial = log(1))))
+    eta(z, model = "rw1", constr = TRUE, scale.model = FALSE, hyper = list(prec = list(prior ="loggamma", param = c(1, 0.00005), initial = log(1))))
   
   formula = y ~ Int + eta
   likelihood = like(formula = formula, family = "gaussian", data = input.data)
@@ -49,8 +49,8 @@ fit_diff_1 <- stan(
   file = "stand_alone_rw1_stepwise.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
+  iter = 10000,
+  warmup = 1000,
   refresh = 500,
   seed = 123
 )
@@ -85,7 +85,7 @@ p.theta_eta_ib <- ggplot(tau_eta_df)  +
 
 p.tau_eta_ib <- ggplot(tau_eta_df) + 
   geom_density(aes(x = Diff.1, color = "Stan", fill = "Stan"), alpha = 0.3) + 
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for eta`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.3) + 
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for eta`) %>% filter(x < 40), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.3) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
@@ -93,7 +93,7 @@ p.tau_eta_ib <- ggplot(tau_eta_df) +
 
 p.tau_y_ib <- ggplot(tau_y_df) + 
   geom_density(aes(x = Diff.1, color = "Stan", fill = "Stan"), alpha = 0.3) + 
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.3) + 
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`) %>% filter(x < 15), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.3) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
@@ -204,7 +204,7 @@ ggsave("intercept.pdf", plot = p.intercept, dpi="retina", device = "pdf", height
 run.inlabru.fh <- function(input.data){
   components = ~ - 1 +
     Int(1, prec.linear = 0.001, mean.linear = 0) +
-    eta(z, model = "rw1", constr = TRUE, scale.model = TRUE, hyper = list(prec = list(initial = 2, fixed = T, prior ="loggamma", param = c(1, 0.00005))))
+    eta(z, model = "rw1", constr = TRUE, scale.model = FALSE, hyper = list(prec = list(initial = 2, fixed = T, prior ="loggamma", param = c(1, 0.00005))))
   
   formula = y ~ Int + eta
   likelihood = like(formula = formula, family = "gaussian", data = input.data)
@@ -227,8 +227,8 @@ fit_diff_1_fh <- stan(
   file = "stand_alone_rw1_stepwise_fh.stan",
   data = input_stan,
   chains = 4,
-  iter = 4000,
-  warmup = 400,
+  iter = 10000,
+  warmup = 1000,
   refresh = 500,
   seed = 123
 )
