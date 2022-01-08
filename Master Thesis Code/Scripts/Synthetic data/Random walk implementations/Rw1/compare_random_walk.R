@@ -51,7 +51,7 @@ fit_stepwise <- stan(
   data = input_stan,
   chains = 4,
   iter = 2000,
-  warmup = 2000,
+  warmup = 200,
   refresh = 200,
   seed = 123
 )
