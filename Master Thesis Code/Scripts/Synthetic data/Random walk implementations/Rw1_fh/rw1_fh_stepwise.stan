@@ -17,17 +17,17 @@ parameters {
 }
 
 transformed parameters {
-  real tau_eta = 75;
-  real tau_y = 4.5;
+  real tau_eta = exp(2);
+  real tau_y = 4;
 }
 
 model {
   
   // random walk of order two implementation, stepwise
   eta[1] ~  normal(0, 100);
-  eta[2:100] ~ normal(eta[1:99], 1/sqrt(tau_eta));
+  eta[2:100] ~ normal(eta[1:99], sqrt(6.0/99.0) * 1/sqrt(tau_eta));
   
-  sum(eta) ~ normal(0, 0.001*100);
+  //sum(eta) ~ normal(0, 0.001*100);
   
   y ~ normal(eta, 1/sqrt(tau_y));
   
