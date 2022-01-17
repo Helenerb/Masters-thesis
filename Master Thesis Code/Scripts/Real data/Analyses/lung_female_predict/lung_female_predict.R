@@ -91,7 +91,26 @@ Y.samples.df <- data.frame(Y.samples)
 Y.inlabru <- female.lung.cancer %>%
   mutate(Y.mean = apply(Y.samples.df, 1, mean)) %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
-  mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975))
+  mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
+  mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
+  mutate(DSS = ((female - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+
+MDSS.all <- mean(Y.inlabru$DSS)
+MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
+
+MDSS.all.in.data <- mean({Y.inlabru %>% filter(year %in% 1999:2010)}$DSS)
+MDSS.x.above.5.in.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 1999:2010)}$DSS)
+
+MDSS.all.out.data <- mean({Y.inlabru %>% filter(year %in% 2011:2016)}$DSS)
+MDSS.x.above.5.out.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 2011:2016)}$DSS)
+
+write.table(list(MDSS.all = MDSS.all,
+                 MDSS.x.above.5 = MDSS.x.above.5,
+                 all.in.data = MDSS.all.in.data,
+                 above.5.in.data = MDSS.x.above.5.in.data,
+                 all.out.data = MDSS.all.out.data,
+                 above.5.out.data = MDSS.x.above.5.out.data), file = file.path(output.path, "DSS.txt"))
+
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) + 
   geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
@@ -105,6 +124,20 @@ p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) +
   labs(x = "Age", y = "")
 
 ggsave("Y_by_age.pdf", p.Y.age, path = output.path, dpi = "retina", height = 5, width = 8)  
+
+p.Y.age.in.data <- ggplot(Y.inlabru %>% filter(year %in% 1999:2010)) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
+  geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
+  facet_wrap(~ as.factor(year)) + 
+  scale_color_manual(name="", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  scale_shape_manual(name = "", values = c(16,4)) + 
+  theme_classic() + 
+  labs(x = "Age", y = "")
+
+ggsave("Y_by_age_in_data.pdf", p.Y.age.in.data, path = output.path, dpi = "retina", height = 5, width = 8)  
+
 
 p.Y.year <- ggplot(Y.inlabru %>% filter(age.int >= 30)) + 
   geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
@@ -140,7 +173,7 @@ p.kappa <- ggplot(data.frame(res.inlabru$summary.random$kappa), aes(x = ID)) +
   geom_point(aes(y = mean), color = palette[1]) + 
   theme_classic() + 
   #scale_color_manual(name="", values = c(palette[3])) + 
-  labs(x = "x", y = "", title = "Kappa")
+  labs(x = "t", y = "", title = "Kappa")
 
 observed.cohorts <- observed %>% select(c(c, year)) %>% mutate(pred.int = if_else(year %in% 2011:2016, 0, 1)) %>%
   group_by(c) %>%
@@ -152,7 +185,7 @@ p.gamma <- ggplot(data.frame(res.inlabru$summary.random$gamma), aes(x = ID)) +
   geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), color = palette[1], fill = palette[1], alpha = 0.3) + 
   geom_point(aes(y = mean), color = palette[1]) + 
   theme_classic() + 
-  labs(x = "x", y = "", title = "Gamma")
+  labs(x = "c", y = "", title = "Gamma")
 
 p.random <- (p.alpha | p.beta)/(p.kappa | p.gamma) + plot_layout(guides = "collect")
 ggsave("random.pdf", p.random, path = output.path, dpi = "retina", height = 5, width = 8)

@@ -84,13 +84,20 @@ ggplot(data.frame(mean = res.inlabru$summary.fitted.values$mean[1:324],
 
 #   ----   Generate samples for Y   ----
 
+#TODO: Also add Poisson sampling!!
 Y.samples <- generate(res.inlabru, female.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 1000)
 Y.samples.df <- data.frame(Y.samples) 
 
 Y.inlabru <- female.lung.cancer %>%
   mutate(Y.mean = apply(Y.samples.df, 1, mean)) %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
-  mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975))
+  mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
+  mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
+  mutate(DSS = ((female - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+
+MDSS.all <- mean(Y.inlabru$DSS)
+MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
+write.table(list(MDSS.all = MDSS.all, MDSS.x.above.5 = MDSS.x.above.5), file = file.path(output.path, "DSS.txt"))
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% c(1999, 2004, 2009, 2016))) + 
   geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
