@@ -71,21 +71,10 @@ observed <- female.lung.cancer
 
 source("Scripts/Misc/palette.R")
 
-# look at fitted values:
-ggplot(data.frame(mean = res.inlabru$summary.fitted.values$mean[1:324],
-                  x = female.lung.cancer$x,
-                  year = female.lung.cancer$year,
-                  true = female.lung.cancer$Y/female.lung.cancer$E)) + 
-  geom_point(aes(x = x, y = mean, color = "Inlabru")) + 
-  geom_point(aes(x = x, y = true, color = "True")) + 
-  facet_wrap(~as.factor(year)) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette)  +
-  labs(title = "Fitted values")
-
 #   ----   Generate samples for Y   ----
 
-Y.samples <- generate(res.inlabru, female.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 1000)
+lambda.samples <- generate(res.inlabru, female.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 10000)
+Y.samples <- matrix(rpois(lambda.samples, n = 324*10000), nrow = 324, ncol = 10000)
 Y.samples.df <- data.frame(Y.samples) 
 
 Y.inlabru <- female.lung.cancer %>%
@@ -93,7 +82,8 @@ Y.inlabru <- female.lung.cancer %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
   mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
   mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
-  mutate(DSS = ((female - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+  mutate(DSS = ((female - Y.mean)/Y.sd)^2 + 2*log(Y.sd)) %>%
+  mutate(contained = if_else(female >= Y.0.025 & female < Y.0.975, 1, 0))
 
 MDSS.all <- mean(Y.inlabru$DSS)
 MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
@@ -104,12 +94,26 @@ MDSS.x.above.5.in.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in%
 MDSS.all.out.data <- mean({Y.inlabru %>% filter(year %in% 2011:2016)}$DSS)
 MDSS.x.above.5.out.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 2011:2016)}$DSS)
 
+contained.all <- mean(Y.inlabru$contained)
+
+contained.95.in.data <- mean({Y.inlabru %>% filter(year %in% 1999:2010)}$contained)
+contained.95.out.data <- mean({Y.inlabru %>% filter(year %in% 2011:2016)}$contained)
+
+contained.95.a.5.in.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 1999:2010)}$contained)
+contained.95.a.5.out.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 2011:2016)}$contained)
+
 write.table(list(MDSS.all = MDSS.all,
                  MDSS.x.above.5 = MDSS.x.above.5,
                  all.in.data = MDSS.all.in.data,
                  above.5.in.data = MDSS.x.above.5.in.data,
                  all.out.data = MDSS.all.out.data,
-                 above.5.out.data = MDSS.x.above.5.out.data), file = file.path(output.path, "DSS.txt"))
+                 above.5.out.data = MDSS.x.above.5.out.data,
+                 contained.95.in.data = contained.95.in.data,
+                 contained.95.a.5.in.data = contained.95.a.5.in.data,
+                 contained.95.out.data = contained.95.out.data,
+                 contained.95.a.5.out.data = contained.95.a.5.out.data,
+                 contained.all = contained.all), file = file.path(output.path, "DSS.txt"))
+
 
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) + 

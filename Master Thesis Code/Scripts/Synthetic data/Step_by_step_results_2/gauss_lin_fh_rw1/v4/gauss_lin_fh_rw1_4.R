@@ -118,8 +118,10 @@ ggsave("trace.pdf", traceplot(stan_fit, pars = c("tau_alpha", "tau_kappa", "tau_
 
 stan.summary <- data.frame(summary(stan_fit))
 save(stan.summary, file = file.path(output.path, "stan_summary.Rda"))
+load(file = file.path(output.path, "stan_summary.Rda"))
 list_of_draws <- rstan::extract(stan_fit)
 save(list_of_draws, file = file.path(output.path, "list_of_draws.RData"))
+load(file = file.path(output.path, "list_of_draws.RData"))
 
 inlabru.gaus.lin.gp.rw1 <- function(obs, output.path, max_iter=30){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
@@ -240,7 +242,7 @@ p.kappa <- ggplot() +
   scale_fill_manual(name = "", values = palette) + 
   labs(title = "Kappa", x = "t", y = "")
 
-p.random <- (p.alpha | p.kappa) + plot_layout(guides = "collect")
+p.random <- (p.alpha | p.kappa) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 
 ggsave("random.pdf", p.random, path = output.path, dpi = "retina", height = 4, width = 6.4)
 

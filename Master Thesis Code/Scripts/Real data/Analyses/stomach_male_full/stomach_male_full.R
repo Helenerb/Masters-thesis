@@ -84,7 +84,8 @@ ggplot(data.frame(mean = res.inlabru$summary.fitted.values$mean[1:324],
 
 #   ----   Generate samples for Y   ----
 
-Y.samples <- generate(res.inlabru, male.stomach.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 1000)
+lambda.samples <- generate(res.inlabru, male.stomach.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 10000)
+Y.samples <- matrix(rpois(lambda = lambda.samples, n = 324*10000), nrow = 324, ncol = 10000)
 Y.samples.df <- data.frame(Y.samples) 
 
 Y.inlabru <- male.stomach.cancer %>%
@@ -92,11 +93,25 @@ Y.inlabru <- male.stomach.cancer %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
   mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
   mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
-  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd)) %>%
+  mutate(contained.less = if_else(Y > Y.0.025 & Y < Y.0.975, 1, 0)) %>%
+  mutate(contained.equal = if_else(Y >= Y.0.025 & Y <= Y.0.975, 1, 0))
 
 MDSS.all <- mean(Y.inlabru$DSS)
 MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
-write.table(list(MDSS.all = MDSS.all, MDSS.x.above.5 = MDSS.x.above.5), file = file.path(output.path, "DSS.txt"))
+
+contained.95.less <- mean(Y.inlabru$contained.less)
+contained.95.equal <- mean(Y.inlabru$contained.equal)
+
+contained.95.less.a.5 <- mean({Y.inlabru %>% filter(x > 5)}$contained.less)
+contained.95.equal.a.5 <- mean({Y.inlabru %>% filter(x > 5)}$contained.equal)
+
+write.table(list(MDSS.all = MDSS.all,
+                 MDSS.x.above.5 = MDSS.x.above.5,
+                 contained.95.less = contained.95.less,
+                 contained.95.equal = contained.95.equal,
+                 contained.95.less.a.5 = contained.95.less.a.5,
+                 contained.95.equal.a.5 = contained.95.equal.a.5), file = file.path(output.path, "DSS.txt"))
 
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% c(1999, 2004, 2009, 2016))) + 

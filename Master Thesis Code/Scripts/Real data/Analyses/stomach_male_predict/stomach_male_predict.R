@@ -71,21 +71,10 @@ observed <- male.stomach.cancer
 
 source("Scripts/Misc/palette.R")
 
-# look at fitted values:
-ggplot(data.frame(mean = res.inlabru$summary.fitted.values$mean[1:324],
-                  x = male.stomach.cancer$x,
-                  year = male.stomach.cancer$year,
-                  true = male.stomach.cancer$Y/male.stomach.cancer$E)) + 
-  geom_point(aes(x = x, y = mean, color = "Inlabru")) + 
-  geom_point(aes(x = x, y = true, color = "True")) + 
-  facet_wrap(~as.factor(year)) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette)  +
-  labs(title = "Fitted values")
-
 #   ----   Generate samples for Y   ----
 
-Y.samples <- generate(res.inlabru, male.stomach.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 1000)
+lambda.samples <- generate(res.inlabru, male.stomach.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 10000)
+Y.samples <- matrix(rpois(lambda.samples, n = 324*10000), nrow = 324, ncol = 10000)
 Y.samples.df <- data.frame(Y.samples) 
 
 Y.inlabru <- male.stomach.cancer %>%
@@ -93,7 +82,8 @@ Y.inlabru <- male.stomach.cancer %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
   mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
   mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
-  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd)) %>%
+  mutate(contained = if_else(male >= Y.0.025 & male < Y.0.975, 1, 0))
 
 MDSS.all <- mean(Y.inlabru$DSS)
 MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
@@ -104,12 +94,25 @@ MDSS.x.above.5.in.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in%
 MDSS.all.out.data <- mean({Y.inlabru %>% filter(year %in% 2011:2016)}$DSS)
 MDSS.x.above.5.out.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 2011:2016)}$DSS)
 
+contained.all <- mean(Y.inlabru$contained)
+
+contained.95.in.data <- mean({Y.inlabru %>% filter(year %in% 1999:2010)}$contained)
+contained.95.out.data <- mean({Y.inlabru %>% filter(year %in% 2011:2016)}$contained)
+
+contained.95.a.5.in.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 1999:2010)}$contained)
+contained.95.a.5.out.data <- mean({Y.inlabru %>% filter(x > 5) %>% filter(year %in% 2011:2016)}$contained)
+
 write.table(list(MDSS.all = MDSS.all,
                  MDSS.x.above.5 = MDSS.x.above.5,
                  all.in.data = MDSS.all.in.data,
                  above.5.in.data = MDSS.x.above.5.in.data,
                  all.out.data = MDSS.all.out.data,
-                 above.5.out.data = MDSS.x.above.5.out.data), file = file.path(output.path, "DSS.txt"))
+                 above.5.out.data = MDSS.x.above.5.out.data,
+                 contained.95.in.data = contained.95.in.data,
+                 contained.95.a.5.in.data = contained.95.a.5.in.data,
+                 contained.95.out.data = contained.95.out.data,
+                 contained.95.a.5.out.data = contained.95.a.5.out.data,
+                 contained.all = contained.all), file = file.path(output.path, "DSS.txt"))
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) + 
   geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
@@ -227,3 +230,17 @@ p.epsilon.prec <- ggplot(data.frame(res.inlabru$marginals.hyperpar$`Precision fo
 
 p.prec <- (p.alpha.prec | p.beta.prec)/(p.kappa.prec | p.gamma.prec |p.epsilon.prec) + plot_layout(guides = "collect")
 ggsave("precisions.pdf", p.prec, path = output.path, dpi = "retina", height = 5, width = 8)
+
+
+#   -------   Testing   --------
+
+test.lambdas <- rpois(n = 200000, lambda = 6000); q1.l = quantile(test.lambdas, 0.025); q2.l = quantile(test.lambdas, 0.975)
+test.Y <- rpois(n = 200000, lambda = test.lambdas); q1.Y = quantile(test.Y, 0.025); q2.Y = quantile(test.Y, 0.975)
+ggplot(data.frame(l = test.lambdas, Y = test.Y)) + 
+  geom_density(aes(x = l), color = palette[1], fill = palette[1], alpha = 0.5) + 
+  geom_density(aes(x = Y), color = palette[2], fill = palette[2], alpha = 0.5) + 
+  geom_vline(aes(xintercept = q1.l), color = palette[1]) + 
+  geom_vline(aes(xintercept = q2.l), color = palette[1]) + 
+  geom_vline(aes(xintercept = q1.Y), color = palette[2]) + 
+  geom_vline(aes(xintercept = q2.Y), color = palette[2]) + 
+  theme_classic()

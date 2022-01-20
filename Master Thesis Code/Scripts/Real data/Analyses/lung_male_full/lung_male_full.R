@@ -84,19 +84,36 @@ ggplot(data.frame(mean = res.inlabru$summary.fitted.values$mean[1:324],
 
 #   ----   Generate samples for Y   ----
 
-Y.samples <- generate(res.inlabru, male.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 1000)
+lambda.samples <- generate(res.inlabru, male.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 10000)
+Y.samples <- matrix(rpois(lambda = lambda.samples, n = 324*10000), nrow = 324, ncol = 10000)
 Y.samples.df <- data.frame(Y.samples) 
 
 Y.inlabru <- male.lung.cancer %>%
   mutate(Y.mean = apply(Y.samples.df, 1, mean)) %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
   mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
+  #mutate(Y.0.025 = qpois(0.025, lambda = Y.mean)) %>%
+  #mutate(Y.0.975 = qpois(0.975, lambda = Y.mean)) %>%
   mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
-  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd)) %>%
+  mutate(contained.less = if_else(Y > Y.0.025 & Y < Y.0.975, 1, 0)) %>%
+  mutate(contained.equal = if_else(Y >= Y.0.025 & Y <= Y.0.975, 1, 0))
 
 MDSS.all <- mean(Y.inlabru$DSS)
 MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
-write.table(list(MDSS.all = MDSS.all, MDSS.x.above.5 = MDSS.x.above.5), file = file.path(output.path, "DSS.txt"))
+
+contained.95.less <- mean(Y.inlabru$contained.less)
+contained.95.equal <- mean(Y.inlabru$contained.equal)
+
+contained.95.less.a.5 <- mean({Y.inlabru %>% filter(x > 5)}$contained.less)
+contained.95.equal.a.5 <- mean({Y.inlabru %>% filter(x > 5)}$contained.equal)
+
+write.table(list(MDSS.all = MDSS.all,
+                 MDSS.x.above.5 = MDSS.x.above.5,
+                 contained.95.less = contained.95.less,
+                 contained.95.equal = contained.95.equal,
+                 contained.95.less.a.5 = contained.95.less.a.5,
+                 contained.95.equal.a.5 = contained.95.equal.a.5), file = file.path(output.path, "DSS.txt"))
 
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% c(1999, 2004, 2009, 2016))) + 
@@ -143,13 +160,13 @@ p.kappa <- ggplot(data.frame(res.inlabru$summary.random$kappa), aes(x = ID)) +
   geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), color = palette[1], fill = palette[1], alpha = 0.3) + 
   geom_point(aes(y = mean), color = palette[1]) + 
   theme_classic() + 
-  labs(x = "x", y = "", title = "Kappa")
+  labs(x = "t", y = "", title = "Kappa")
 
 p.gamma <- ggplot(data.frame(res.inlabru$summary.random$gamma), aes(x = ID)) + 
   geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), color = palette[1], fill = palette[1], alpha = 0.3) + 
   geom_point(aes(y = mean), color = palette[1]) + 
   theme_classic() + 
-  labs(x = "x", y = "", title = "Gamma")
+  labs(x = "c", y = "", title = "Gamma")
 
 p.random <- (p.alpha | p.beta)/(p.kappa | p.gamma) + plot_layout(guides = "collect")
 ggsave("random.pdf", p.random, path = output.path, dpi = "retina", height = 5, width = 8)
@@ -193,3 +210,4 @@ p.epsilon.prec <- ggplot(data.frame(res.inlabru$marginals.hyperpar$`Precision fo
 
 p.prec <- (p.alpha.prec | p.beta.prec)/(p.kappa.prec | p.gamma.prec |p.epsilon.prec) + plot_layout(guides = "collect")
 ggsave("precisions.pdf", p.prec, path = output.path, dpi = "retina", height = 5, width = 8)
+

@@ -373,3 +373,203 @@ plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
   underlying.effects.8,
   path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v8",
   save=TRUE, cutoff_alpha = 50)
+
+###   ----   v9   ----
+
+# seems like inlabru struggles for low absolute values. 
+# first, to show results for non-zero mortalities, we run inlabru for male lung cancer with only ages x = 2, we omit the really worst values:
+lung.cancer.male.above.10 <- lung.cancer.male %>%
+  filter(x > 1)
+
+res.lung.lc.m.a10 <- inlabru.rw2.lc.2(lung.cancer.male.above.10)
+
+source("Scripts/Real data/plot_real_data.R")
+
+inlabru.tau.alpha.a10 <- res.lung.lc.m.a10$summary.hyperpar$mean[1] 
+inlabru.tau.beta.a10 <- res.lung.lc.m.a10$summary.hyperpar$mean[2]
+inlabru.tau.kappa.a10 <- res.lung.lc.m.a10$summary.hyperpar$mean[3]
+inlabru.tau.epsilon.a10 <- res.lung.lc.m.a10$summary.hyperpar$mean[4]
+
+inlabru.intercept.a10 <- res.lung.lc.m.a10$summary.fixed$mean[1]
+
+set.seed(2)
+
+alpha.9 <- rw1(inlabru.tau.alpha.a10, 16); alpha.9 = alpha.9 - mean(alpha.9)
+beta.9 <- rnorm(16, sd = sqrt(1/inlabru.tau.beta.a10)); beta.9 = beta.9 - mean(beta.9) + 1/16
+kappa.9 <- rw2(inlabru.tau.kappa.a10, 18); kappa.9 = kappa.9 - mean(kappa.9)
+epsilon.9 <- rnorm(16*18, sd = sqrt(1/inlabru.tau.epsilon.a10))
+
+obs.9 <- data.frame(x = lung.cancer.male.above.10$x, t = lung.cancer.male.above.10$t, E = lung.cancer.male.above.10$E) %>%
+  mutate(age.int = lung.cancer.male.above.10$age.int, year = lung.cancer.male.above.10$year) %>%
+  mutate(xt = seq_along(x)) %>%
+  mutate(x.c = x) %>%
+  mutate(alpha = alpha.9[x - 2 + 1]) %>%
+  mutate(beta = beta.9[x - 2 + 1]) %>%
+  mutate(kappa = kappa.9[t + 1]) %>%
+  mutate(intercept = inlabru.intercept.a10) %>%
+  mutate(epsilon = epsilon.9[xt]) %>%
+  mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
+  mutate(e.exp.eta = E*exp(eta)) %>%
+  mutate(Y = rpois(length(x), E*exp(eta))) %>%
+  mutate(mr = Y/E) %>%
+  mutate(tau.alpha = inlabru.tau.alpha.a10) %>%
+  mutate(tau.beta = inlabru.tau.beta.a10) %>%
+  mutate(tau.kappa = inlabru.tau.kappa.a10) %>%
+  mutate(tau.epsilon = inlabru.tau.epsilon.a10)
+
+write.csv(obs.9, "Data/synthetic_male_lung_9.csv")
+obs.9 <- read.csv("Data/synthetic_male_lung_9.csv")
+obs.9 <- obs.9 %>% mutate(year.str = as.character(year))
+
+ggplot(obs.9) + geom_line(aes(x = x, y = mr, color = year.str))
+ggplot(obs.9) + geom_line(aes(x = x, y = eta, color = year.str))
+ggplot(obs.9) + geom_line(aes(x = x, y = alpha))
+ggplot(obs.9) + geom_line(aes(x = x, y = beta))
+ggplot(obs.9) + geom_line(aes(x = t, y = kappa))
+
+underlying.effects.9 <- list(obs = obs.9, nx = 16, nt = 18,
+                             alpha.true = c(rep(0,9), {obs.9 %>% filter(t == 0)}$alpha),
+                             beta.true = c(rep(0,9), {obs.9 %>% filter(t == 0)}$beta),
+                             kappa.true = {obs.9 %>% filter(x == 2)}$kappa,
+                             intercept = unique(obs.9$intercept),
+                             tau.alpha.true = unique(obs.9$tau.alpha),
+                             tau.beta.true = unique(obs.9$tau.beta),
+                             tau.kappa.true = unique(obs.9$tau.kappa),
+                             tau.epsilon.true = unique(obs.9$tau.epsilon))
+
+inlabru.synthetic.male.lung.lc.9<- inlabru.rw2.lc.2(obs.9, max_iter = 100)
+
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
+  inlabru.synthetic.male.lung.lc.9,
+  underlying.effects.9,
+  path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v9",
+  save=TRUE,
+  cutoff_alpha = 75, cutoff_beta = 200, cutoff_kappa = 1000, cutoff_epsilon = 1000)
+
+#   ----   V10   ----
+
+# seems like inlabru struggles for low absolute values. 
+# first, to show results for non-zero mortalities, we run inlabru for male lung cancer with only ages above 45:
+lung.cancer.male.above.45 <- lung.cancer.male %>%
+  filter(age.int >= 45)
+
+res.lung.lc.m.a45 <- inlabru.rw2.lc.2(lung.cancer.male.above.45)
+
+inlabru.tau.alpha.a45 <- res.lung.lc.m.a45$summary.hyperpar$mean[1] 
+inlabru.tau.beta.a45 <- res.lung.lc.m.a45$summary.hyperpar$mean[2]
+inlabru.tau.kappa.a45 <- res.lung.lc.m.a45$summary.hyperpar$mean[3]
+inlabru.tau.epsilon.a45 <- res.lung.lc.m.a45$summary.hyperpar$mean[4]
+
+inlabru.intercept.a45 <- res.lung.lc.m.a45$summary.fixed$mean[1]
+
+set.seed(4)
+
+alpha.10 <- rw1(inlabru.tau.alpha.a45, 9); alpha.10 = alpha.10 - mean(alpha.10)
+beta.10 <- rnorm(9, sd = sqrt(1/inlabru.tau.beta.a45)); beta.10 = beta.10 - mean(beta.10) + 1/9
+kappa.10 <- rw2(inlabru.tau.kappa.a45, 18); kappa.10 = kappa.10 - mean(kappa.10)
+epsilon.10 <- rnorm(9*18, sd = sqrt(1/inlabru.tau.epsilon.a45))
+
+obs.10 <- data.frame(x = lung.cancer.male.above.45$x, t = lung.cancer.male.above.45$t, E = lung.cancer.male.above.45$E) %>%
+  mutate(age.int = lung.cancer.male.above.45$age.int, year = lung.cancer.male.above.45$year) %>%
+  mutate(xt = seq_along(x)) %>%
+  mutate(x.c = x) %>%
+  mutate(alpha = alpha.10[x - 9 + 1]) %>%
+  mutate(beta = beta.10[x - 9 + 1]) %>%
+  mutate(kappa = kappa.10[t + 1]) %>%
+  mutate(intercept = inlabru.intercept.a45) %>%
+  mutate(epsilon = epsilon.10[xt]) %>%
+  mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
+  mutate(e.exp.eta = E*exp(eta)) %>%
+  mutate(Y = rpois(length(x), E*exp(eta))) %>%
+  mutate(mr = Y/E) %>%
+  mutate(tau.alpha = inlabru.tau.alpha.a45) %>%
+  mutate(tau.beta = inlabru.tau.beta.a45) %>%
+  mutate(tau.kappa = inlabru.tau.kappa.a45) %>%
+  mutate(tau.epsilon = inlabru.tau.epsilon.a45)
+
+write.csv(obs.10, "Data/synthetic_male_lung_10.csv")
+obs.10 <- read.csv("Data/synthetic_male_lung_10.csv")
+obs.10 <- obs.10 %>% mutate(year.str = as.character(year))
+
+ggplot(obs.10) + geom_line(aes(x = x, y = mr, color = year.str))
+ggplot(obs.10) + geom_line(aes(x = x, y = eta, color = year.str))
+ggplot(obs.10) + geom_line(aes(x = x, y = alpha))
+ggplot(obs.10) + geom_line(aes(x = x, y = beta))
+ggplot(obs.10) + geom_line(aes(x = t, y = kappa))
+
+underlying.effects.10 <- list(obs = obs.10, nx = 9, nt = 18,
+                             alpha.true = c(rep(0,9), {obs.10 %>% filter(t == 0)}$alpha),
+                             beta.true = c(rep(0,9), {obs.10 %>% filter(t == 0)}$beta),
+                             kappa.true = {obs.10 %>% filter(x == 9)}$kappa,
+                             intercept = unique(obs.10$intercept),
+                             tau.alpha.true = unique(obs.10$tau.alpha),
+                             tau.beta.true = unique(obs.10$tau.beta),
+                             tau.kappa.true = unique(obs.10$tau.kappa),
+                             tau.epsilon.true = unique(obs.10$tau.epsilon))
+
+inlabru.synthetic.male.lung.lc.10<- inlabru.rw2.lc.2(obs.10, max_iter = 100)
+
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
+  inlabru.synthetic.male.lung.lc.10,
+  underlying.effects.10,
+  path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v7",
+  save=TRUE,
+  cutoff_alpha = 75, cutoff_beta = 200, cutoff_kappa = 1000, cutoff_epsilon = 1000)
+
+#   ----   v11 - alternative v4   ----
+
+# attempt to find a configuration that is of somewhat comparable size to real data
+set.seed(18) # quite good for alpha and eta, we try this. Note - still not very steep kappa
+alpha.11 <- rw1(inlabru.tau.alpha, 18); alpha.11 = alpha.11 - mean(alpha.11)
+beta.11 <- rnorm(18, sd = 0.4*sqrt(1/inlabru.tau.beta)); beta.11 = beta.11 - mean(beta.11) + 1/18
+kappa.11 <- rw2(0.6*inlabru.tau.kappa, 18); kappa.11 = kappa.11 - mean(kappa.11)
+epsilon.11 <- rnorm(18*18, sd = sqrt(1/inlabru.tau.epsilon))
+
+obs.11 <- data.frame(x = lung.cancer.male$x, t = lung.cancer.male$t, xt = lung.cancer.male$xt, E = lung.cancer.male$E) %>%
+  mutate(age.int = lung.cancer.male$age.int, year = lung.cancer.male$year) %>%
+  mutate(x.c = x) %>%
+  mutate(alpha = alpha.11[x + 1]) %>%
+  mutate(beta = beta.11[x + 1]) %>%
+  mutate(kappa = kappa.11[t + 1]) %>%
+  mutate(intercept = inlabru.intercept) %>%
+  mutate(epsilon = epsilon.11[xt + 1]) %>%
+  mutate(eta = intercept + alpha + beta*kappa + epsilon) %>%
+  mutate(Y = rpois(length(x), E*exp(eta))) %>%
+  mutate(mr = Y/E) %>%
+  mutate(tau.alpha = inlabru.tau.alpha) %>%
+  mutate(tau.beta = inlabru.tau.beta) %>%
+  mutate(tau.kappa = inlabru.tau.kappa) %>%
+  mutate(tau.epsilon = inlabru.tau.epsilon)
+
+ggplot(obs.11) + geom_line(aes(x = x, y = eta, color = year))
+ggplot(obs.11) + geom_line(aes(x = x, y = mr, color = year))
+ggplot(obs.11) + geom_line(aes(x = x, y = alpha))
+ggplot(obs.11) + geom_line(aes(x = x, y = beta))
+ggplot(obs.11) + geom_line(aes(x = t, y = kappa))
+
+write.csv(obs.11, "Data/synthetic_male_lung_11.csv")
+obs.11 <- read.csv("Data/synthetic_male_lung_11.csv")
+
+underlying.effects.11 <- list(obs = obs.11, nx = 18, nt = 18,
+                             alpha.true = {obs.11 %>% filter(t == 0)}$alpha,
+                             beta.true = {obs.11 %>% filter(t == 0)}$beta,
+                             kappa.true = {obs.11 %>% filter(x == 0)}$kappa,
+                             intercept = unique(obs.11$intercept),
+                             tau.alpha.true = unique(obs.11$tau.alpha),
+                             tau.beta.true = unique(obs.11$tau.beta),
+                             tau.kappa.true = unique(obs.11$tau.kappa),
+                             tau.epsilon.true = unique(obs.11$tau.epsilon))
+
+source("Scripts/Functions/inlabru_analyses.R")
+
+inlabru.synthetic.male.lung.lc.11 <- inlabru.rw2.lc.2(obs.11, max_iter = 100)
+
+source("Scripts/Synthetic data/plot_inlabru_vs_underlying.R")
+
+plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
+  inlabru.synthetic.male.lung.lc.11,
+  underlying.effects.11,
+  path.to.storage = "Scripts/Synthetic\ data/Output/Figures/synthetic_male_lung_lc/v4",
+  save=TRUE)
+
+

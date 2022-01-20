@@ -115,7 +115,7 @@ save(stan.summary, file = file.path(output.path, "stan_summary.Rda"))
 #load(file = file.path(output.path, "stan_summary.Rda"))
 list_of_draws <- rstan::extract(stan_fit)
 save(list_of_draws, file = file.path(output.path, "list_of_draws.RData"))
-#load(file = file.path(output.path, "list_of_draws.RData"))
+load(file = file.path(output.path, "list_of_draws.RData"))
 
 
 inlabru.poiss.fh.rw1 <- function(obs, output.path, max_iter=30, write = T){
@@ -324,7 +324,7 @@ save.figure(p.pred.1, name = "predictor_1", path = output.path, png= F)
 
 p.tau.alpha <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_alpha), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% filter(x < 7), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% filter(x < 50), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
@@ -340,7 +340,7 @@ p.theta.alpha <- ggplot() +
 
 p.tau.beta <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_beta), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>% filter(x < 500), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>% filter(x < 300), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
@@ -356,8 +356,8 @@ p.theta.beta <- ggplot() +
 
 p.tau.kappa <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_kappa) %>% filter(x < 750), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>% filter(x < 750), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
-  theme_classic() +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>% filter(x < 200), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  theme_classic() + 
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
   labs(title = "Tau kappa", x = "", y = "")
@@ -372,7 +372,7 @@ p.theta.kappa <- ggplot() +
 
 p.tau.eta <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_epsilon), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>% filter(x < 600), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>% filter(x < 800), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +

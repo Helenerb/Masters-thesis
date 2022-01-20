@@ -1,12 +1,12 @@
-// This STAN model implements the traditional lee-carter model
+// poiss: poisson lee-carter
+// gp: gamma priors for hyperparameters
+// rw1: alpha and kappa as random walks
 
-// The input data is a vector 'y' of length 'N'.
-// functions {
-//   real log_gamma_lpdf(real theta, real a, real b){
-//     //return a*log(b) - lgamma(a) + theta*(a - 1) - b*exp(theta);
-//     return a*log(b) - lgamma(a) + theta*a - b*exp(theta);
-//   }
-// }
+functions {
+  real log_gamma_lpdf(real theta, real a, real b){
+    return a*log(b) - lgamma(a) + theta*a - b*exp(theta);
+  }
+}
 
 
 data {
@@ -24,31 +24,40 @@ data {
 }
 
 parameters {
-  //real intercept;  // included intercept
   
-  vector[X] alpha;  //  before sum-to-zero is implemented
-  vector[X] beta;  //  before sum-to-unit is implemented
-  vector[T] kappa;  //  before sum-to-zero is implemented
+  // hyperparameters
+  real theta_alpha;
+  real theta_beta;
+  real theta_kappa;
+  real theta_epsilon;
   
+  vector[X] alpha;
+  vector[X] beta;  
+  vector[T] kappa;
   vector[X*T] epsilon;  // unconstrained
+  
 }
 
 transformed parameters {
-  real tau_alpha = 1.96;
-  real tau_beta = 64;
-  real tau_kappa = 336;
-  real tau_epsilon = 420;  // precision of normal distribution of epsilon - error term
+  real tau_alpha = exp(theta_alpha);
+  real tau_beta = exp(theta_beta);
+  real tau_kappa = exp(theta_kappa);
+  real tau_epsilon = exp(theta_epsilon); 
   
   vector[X*T] eta = alpha[x] + beta[x].*kappa[t] + epsilon;
 }
 
 model {
-  //intercept ~ normal(0, 1/sqrt(0.001));
+  //hyperpriors
+  theta_alpha ~ log_gamma(1, 0.00005);
+  theta_beta ~ log_gamma(1, 0.00005);
+  theta_kappa ~ log_gamma(1, 0.005);  // prior for higher variance
+  theta_epsilon ~ log_gamma(1, 0.00005);
   
+  //intercept ~ normal(0, 1/sqrt(0.001));
   
   alpha[1] ~ normal(0, 100);  // flat prior
   alpha[2:X] ~ normal(alpha[1:X-1], 1/sqrt(tau_alpha));
-  
   //sum(alpha) ~ normal(0, 0.001*nx);  // soft sum-to-zero
   
   beta ~ normal(0, 1/sqrt(tau_beta));
