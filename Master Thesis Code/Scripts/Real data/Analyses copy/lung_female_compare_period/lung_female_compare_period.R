@@ -119,8 +119,8 @@ write.table(list(MDSS.all = MDSS.all.rw2,
 
 
 p.Y.age.rw2 <- ggplot(Y.inlabru.rw2 %>% filter(year %in% 2011:2016)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
@@ -132,8 +132,8 @@ p.Y.age.rw2 <- ggplot(Y.inlabru.rw2 %>% filter(year %in% 2011:2016)) +
 ggsave("Y_by_age_rw2.pdf", p.Y.age.rw2, path = output.path, dpi = "retina", height = 5, width = 8)  
 
 p.Y.age.in.data.rw2 <- ggplot(Y.inlabru.rw2 %>% filter(year %in% 1999:2010)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
@@ -146,8 +146,8 @@ ggsave("Y_by_age_in_data_rw2.pdf", p.Y.age.in.data.rw2, path = output.path, dpi 
 
 
 p.Y.year.rw2 <- ggplot(Y.inlabru.rw2 %>% filter(age.int >= 50)) + 
-  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = year, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = year, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = year, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   geom_vline(aes(xintercept = 2011, color="Predicted period", fill = "Predicted period", shape = "Predicted period")) + 
   facet_wrap(~ as.factor(age), ncol = 4) + 
@@ -324,8 +324,8 @@ write.table(list(MDSS.all = MDSS.all.drift,
                  contained.all = contained.all.drift), file = file.path(output.path, "DSS_drift.txt"))
 
 p.Y.age.drift <- ggplot(Y.inlabru.drift %>% filter(year %in% 2011:2016)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
@@ -337,8 +337,8 @@ p.Y.age.drift <- ggplot(Y.inlabru.drift %>% filter(year %in% 2011:2016)) +
 ggsave("Y_by_age_drift.pdf", p.Y.age.drift, path = output.path, dpi = "retina", height = 5, width = 8)  
 
 p.Y.age.in.data.drift <- ggplot(Y.inlabru.drift %>% filter(year %in% 1999:2010)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
@@ -350,8 +350,8 @@ p.Y.age.in.data.drift <- ggplot(Y.inlabru.drift %>% filter(year %in% 1999:2010))
 ggsave("Y_by_age_in_data_drift.pdf", p.Y.age.in.data.drift, path = output.path, dpi = "retina", height = 5, width = 8)  
 
 p.Y.year.drift <- ggplot(Y.inlabru.drift %>% filter(age.int >= 50)) + 
-  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = year, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = year, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = year, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   geom_vline(aes(xintercept = 2011, color="Predicted period", fill = "Predicted period", shape = "Predicted period")) + 
   facet_wrap(~ as.factor(age), ncol = 4) + 

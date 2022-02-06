@@ -115,42 +115,44 @@ write.table(list(MDSS.all = MDSS.all,
                  contained.all = contained.all), file = file.path(output.path, "DSS.txt"))
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
   geom_point(aes(x = age.int, y = male, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
-  scale_shape_manual(name = "", values = c(16,4)) + 
+  scale_shape_manual(name = "", values = c(4,16)) + 
   theme_classic() + 
   labs(x = "Age", y = "")
 
 ggsave("Y_by_age.pdf", p.Y.age, path = output.path, dpi = "retina", height = 5, width = 8)  
 
 p.Y.age.in.data <- ggplot(Y.inlabru %>% filter(year %in% 1999:2010)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
   geom_point(aes(x = age.int, y = male, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
-  scale_shape_manual(name = "", values = c(16,4)) + 
+  scale_shape_manual(name = "", values = c(4,16)) + 
   theme_classic() + 
   labs(x = "Age", y = "")
 
 ggsave("Y_by_age_in_data.pdf", p.Y.age.in.data, path = output.path, dpi = "retina", height = 5, width = 8)  
 
-p.Y.year <- ggplot(Y.inlabru %>% filter(age.int >= 30)) + 
-  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = year, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
+
+p.Y.year <- ggplot(Y.inlabru %>% filter(age.int >= 50)) + 
+  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = year, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
   geom_point(aes(x = year, y = male, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   geom_vline(aes(xintercept = 2011, color="Predicted period", fill = "Predicted period", shape = "Predicted period")) + 
-  facet_wrap(~ as.factor(age)) + 
+  facet_wrap(~ as.factor(age), ncol = 4) + 
   scale_color_manual(name="", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
-  scale_shape_manual(name = "", values = c(16,4,3)) + 
+  scale_shape_manual(name = "", values = c(4,16,3)) + 
   theme_classic() + 
-  labs(x = "Year", y = "")
+  labs(x = "Year", y = "") + 
+  theme(legend.position="bottom")
 
 ggsave("Y_by_year.pdf", p.Y.year, path = output.path, dpi = "retina", height = 5, width = 8)  
 
@@ -186,7 +188,7 @@ p.gamma <- ggplot(data.frame(res.inlabru$summary.random$gamma), aes(x = ID)) +
   geom_ribbon(aes(ymin = X0.025quant, ymax = X0.975quant), color = palette[1], fill = palette[1], alpha = 0.3) + 
   geom_point(aes(y = mean), color = palette[1]) + 
   theme_classic() + 
-  labs(x = "cs", y = "", title = "Gamma")
+  labs(x = "c", y = "", title = "Gamma")
 
 p.random <- (p.alpha | p.beta)/(p.kappa | p.gamma) + plot_layout(guides = "collect")
 ggsave("random.pdf", p.random, path = output.path, dpi = "retina", height = 5, width = 8)

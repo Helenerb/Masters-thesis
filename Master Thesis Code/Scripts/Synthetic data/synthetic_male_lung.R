@@ -4,6 +4,7 @@
 
 library("tidyverse")
 library("ggplot2")
+library("patchwork")
 
 load("Data/population-germany.Rda")
 
@@ -19,6 +20,7 @@ lung.cancer.male <- lung.cancer %>%
 
 #   ----   perform inlabru analyses   ----
 source("Scripts/Functions/inlabru_analyses.R")
+source("Scripts/Misc/palette.R")
 
 res.lung.lc.m <- inlabru.rw2.lc.2(lung.cancer.male)
 
@@ -103,6 +105,31 @@ underlying.effects.4 <- list(obs = obs.4, nx = 18, nt = 18,
                              tau.kappa.true = unique(obs.4$tau.kappa),
                              tau.epsilon.true = unique(obs.4$tau.epsilon))
 
+####   Plot data   ####
+p.eta.4 <- ggplot(obs.4) +
+  geom_point(aes(x = xt, y = eta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Eta, Full.1 data", x = "x, t", y = "")
+ggsave("eta_v4.pdf", p.eta.4, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
+p.alpha.4 <- ggplot(obs.4) + 
+  geom_point(aes(x = x, y = alpha), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Alpha", x = "x", y = "")
+
+p.beta.4 <- ggplot(obs.4) + 
+  geom_point(aes(x = x, y = beta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Beta", x = "x", y = "")
+
+p.kappa.4 <- ggplot(obs.4) + 
+  geom_point(aes(x = t, y = kappa), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Kappa", x = "t", y = "")
+
+p.random.4 <- (p.alpha.4 | p.beta.4)/(p.kappa.4) + plot_annotation(title = "Full.1 data")
+ggsave("random_v4.pdf", p.random.4, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
 source("Scripts/Functions/inlabru_analyses.R")
 
 inlabru.synthetic.male.lung.lc.4 <- inlabru.rw2.lc.2(obs.4, max_iter = 100)
@@ -146,7 +173,7 @@ ggplot(obs.5) + geom_line(aes(x = x, y = alpha))
 ggplot(obs.5) + geom_line(aes(x = x, y = beta))
 ggplot(obs.5) + geom_line(aes(x = t, y = kappa))
 
-write.csv(obs.5, "Data/synthetic_male_lung_5.csv")
+#write.csv(obs.5, "Data/synthetic_male_lung_5.csv")
 
 underlying.effects.5 <- list(obs = obs.5, nx = 18, nt = 18,
                              alpha.true = {obs.5 %>% filter(t == 0)}$alpha,
@@ -307,6 +334,32 @@ underlying.effects.7 <- list(obs = obs.7, nx = 9, nt = 18,
                              tau.kappa.true = unique(obs.7$tau.kappa),
                              tau.epsilon.true = unique(obs.7$tau.epsilon))
 
+####   Plot data   ####
+p.eta.7 <- ggplot(obs.7) +
+  geom_point(aes(x = xt, y = eta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Eta, Reduced.1 data", x = "x, t", y = "")
+ggsave("eta_v7.pdf", p.eta.7, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
+p.alpha.7 <- ggplot(obs.7) + 
+  geom_point(aes(x = x, y = alpha), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Alpha", x = "x", y = "")
+
+p.beta.7 <- ggplot(obs.7) + 
+  geom_point(aes(x = x, y = beta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Beta", x = "x", y = "")
+
+p.kappa.7 <- ggplot(obs.7) + 
+  geom_point(aes(x = t, y = kappa), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Kappa", x = "t", y = "")
+
+p.random.7 <- (p.alpha.7 | p.beta.7)/(p.kappa.7) + plot_annotation(title = "Reduced.1 data")
+ggsave("random_v7.pdf", p.random.7, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
+
 inlabru.synthetic.male.lung.lc.7<- inlabru.rw2.lc.2(obs.7, max_iter = 100)
 
 plots.summaries.inlabru <- plot.inlabru.vs.underlying.synthetic.cancer(
@@ -417,7 +470,7 @@ obs.9 <- data.frame(x = lung.cancer.male.above.10$x, t = lung.cancer.male.above.
   mutate(tau.kappa = inlabru.tau.kappa.a10) %>%
   mutate(tau.epsilon = inlabru.tau.epsilon.a10)
 
-write.csv(obs.9, "Data/synthetic_male_lung_9.csv")
+#write.csv(obs.9, "Data/synthetic_male_lung_9.csv")
 obs.9 <- read.csv("Data/synthetic_male_lung_9.csv")
 obs.9 <- obs.9 %>% mutate(year.str = as.character(year))
 
@@ -436,6 +489,32 @@ underlying.effects.9 <- list(obs = obs.9, nx = 16, nt = 18,
                              tau.beta.true = unique(obs.9$tau.beta),
                              tau.kappa.true = unique(obs.9$tau.kappa),
                              tau.epsilon.true = unique(obs.9$tau.epsilon))
+
+####   Plot data   ####
+p.eta.9 <- ggplot(obs.9) +
+  geom_point(aes(x = xt, y = eta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Eta, Reduced.2 data", x = "x, t", y = "")
+ggsave("eta_v9.pdf", p.eta.9, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
+p.alpha.9 <- ggplot(obs.9) + 
+  geom_point(aes(x = x, y = alpha), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Alpha", x = "x", y = "")
+
+p.beta.9 <- ggplot(obs.9) + 
+  geom_point(aes(x = x, y = beta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Beta", x = "x", y = "")
+
+p.kappa.9 <- ggplot(obs.9) + 
+  geom_point(aes(x = t, y = kappa), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Kappa", x = "t", y = "")
+
+p.random.9 <- (p.alpha.9 | p.beta.9)/(p.kappa.9) + plot_annotation(title = "Reduced.2 data")
+ggsave("random_v9.pdf", p.random.9, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
 
 inlabru.synthetic.male.lung.lc.9<- inlabru.rw2.lc.2(obs.9, max_iter = 100)
 
@@ -487,7 +566,7 @@ obs.10 <- data.frame(x = lung.cancer.male.above.45$x, t = lung.cancer.male.above
   mutate(tau.kappa = inlabru.tau.kappa.a45) %>%
   mutate(tau.epsilon = inlabru.tau.epsilon.a45)
 
-write.csv(obs.10, "Data/synthetic_male_lung_10.csv")
+#write.csv(obs.10, "Data/synthetic_male_lung_10.csv")
 obs.10 <- read.csv("Data/synthetic_male_lung_10.csv")
 obs.10 <- obs.10 %>% mutate(year.str = as.character(year))
 
@@ -547,7 +626,7 @@ ggplot(obs.11) + geom_line(aes(x = x, y = alpha))
 ggplot(obs.11) + geom_line(aes(x = x, y = beta))
 ggplot(obs.11) + geom_line(aes(x = t, y = kappa))
 
-write.csv(obs.11, "Data/synthetic_male_lung_11.csv")
+#write.csv(obs.11, "Data/synthetic_male_lung_11.csv")
 obs.11 <- read.csv("Data/synthetic_male_lung_11.csv")
 
 underlying.effects.11 <- list(obs = obs.11, nx = 18, nt = 18,
@@ -559,6 +638,32 @@ underlying.effects.11 <- list(obs = obs.11, nx = 18, nt = 18,
                              tau.beta.true = unique(obs.11$tau.beta),
                              tau.kappa.true = unique(obs.11$tau.kappa),
                              tau.epsilon.true = unique(obs.11$tau.epsilon))
+
+####   Plot data   ####
+p.eta.11 <- ggplot(obs.11) +
+  geom_point(aes(x = xt, y = eta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Eta, Full.1 data", x = "x, t", y = "")
+ggsave("eta_v11.pdf", p.eta.11, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
+p.alpha.11 <- ggplot(obs.11) + 
+  geom_point(aes(x = x, y = alpha), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Alpha", x = "x", y = "")
+
+p.beta.11 <- ggplot(obs.11) + 
+  geom_point(aes(x = x, y = beta), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Beta", x = "x", y = "")
+
+p.kappa.11 <- ggplot(obs.11) + 
+  geom_point(aes(x = t, y = kappa), color = palette[1]) + 
+  theme_classic() + 
+  labs(title = "Kappa", x = "t", y = "")
+
+p.random.11 <- (p.alpha.11 | p.beta.11)/(p.kappa.11) + plot_annotation(title = "Full.1 data")
+ggsave("random_v11.pdf", p.random.11, path = "Scripts/Synthetic\ data/Plots_synthetic_male_lung", width = 8, height = 5, dpi = "retina")
+
 
 source("Scripts/Functions/inlabru_analyses.R")
 

@@ -2,6 +2,7 @@
 library("ggplot2")
 library("tidyverse")
 library("patchwork")
+library("scales")
 
 source("Scripts/Misc/palette.R")
 source("Scripts/Functions/plotters.R")
@@ -209,7 +210,8 @@ p.all.total.by.year <- ggplot(data = lung.cancer.by.period) +
   scale_color_manual(name = "", values = palette) +
   scale_shape_manual(name = "", values = c(16, 17)) + 
   theme_classic() + 
-  labs(x= "Year", y = "")
+  labs(x= "Year", y = "") + 
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))
 
 ggsave("all_total_by_year.pdf", p.all.total.by.year, path = output.path, height = 3, width = 4.8, dpi = "retina")
 
@@ -278,7 +280,9 @@ p.3.year.total.by.age <- ggplot(data = lung.cancer.3.years) +
   scale_shape_manual(name = "", values = c(1, 2)) + 
   scale_linetype_manual(name = "", values= c(1,5,3)) + 
   theme_classic() + 
-  labs(x= "Year", y = "")
+  labs(x= "Year", y = "") + 
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))
+  
 
 ggsave("all_total_by_age.pdf", p.3.year.total.by.age, path = output.path, height = 3, width = 4.8, dpi = "retina")
 

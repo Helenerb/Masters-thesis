@@ -70,22 +70,10 @@ observed <- male.lung.cancer
 
 source("Scripts/Misc/palette.R")
 
-# look at fitted values:
-ggplot(data.frame(mean = res.inlabru$summary.fitted.values$mean[1:324],
-                  x = male.lung.cancer$x,
-                  year = male.lung.cancer$year,
-                  true = male.lung.cancer$Y/male.lung.cancer$E)) + 
-  geom_point(aes(x = x, y = mean, color = "Inlabru")) + 
-  geom_point(aes(x = x, y = true, color = "True")) + 
-  facet_wrap(~as.factor(year)) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette)  +
-  labs(title = "Fitted values")
-
 #   ----   Generate samples for Y   ----
 
-#Y.samples <- generate(res.inlabru, male.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 1000)
-Y.samples <- generate(res.inlabru, male.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma), n.samples = 1000)
+lambda.samples <- generate(res.inlabru, male.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma), n.samples = 10000)
+Y.samples <- matrix(rpois(lambda = lambda.samples, n = 324*10000), nrow = 324, ncol = 10000)
 Y.samples.df <- data.frame(Y.samples) 
 
 Y.inlabru <- male.lung.cancer %>%
@@ -93,35 +81,44 @@ Y.inlabru <- male.lung.cancer %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
   mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
   mutate(Y.sd = apply(Y.samples.df, 1, sd)) %>%
-  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd))
+  mutate(DSS = ((male - Y.mean)/Y.sd)^2 + 2*log(Y.sd)) %>%
+  mutate(contained = if_else(male >= Y.0.025 & male < Y.0.975, 1, 0))
 
 MDSS.all <- mean(Y.inlabru$DSS)
 MDSS.x.above.5 <- mean({Y.inlabru %>% filter(x > 5)}$DSS)
-write.table(list(MDSS.all = MDSS.all, MDSS.x.above.5 = MDSS.x.above.5), file = file.path(output.path, "DSS.txt"))
+
+contained.95 <- mean(Y.inlabru$contained)
+contained.95.a.5 <- mean({Y.inlabru %>% filter(x > 5)}$contained)
+
+write.table(list(MDSS.all = MDSS.all,
+                 MDSS.x.above.5 = MDSS.x.above.5,
+                 contained.95 = contained.95,
+                 contained.95.a.5 = contained.95.a.5), file = file.path(output.path, "DSS.txt"))
 
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% c(1999, 2004, 2009, 2016))) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
-  geom_point(aes(x = age.int, y = Y, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_point(aes(x = age.int, y = Y, color = "Observed", fill = "Observed", shape = "Observed")) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
-  scale_shape_manual(name = "", values = c(16,4)) + 
+  scale_shape_manual(name = "", values = c(4,16)) + 
   theme_classic() + 
   labs(x = "Age", y = "")
 
 ggsave("Y_by_age.pdf", p.Y.age, path = output.path, dpi = "retina", height = 5, width = 8)  
 
-p.Y.year <- ggplot(Y.inlabru %>% filter(age.int >= 30)) + 
-  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = year, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
-  geom_point(aes(x = year, y = Y, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
-  facet_wrap(~ as.factor(age)) + 
+p.Y.year <- ggplot(Y.inlabru %>% filter(age.int >= 50)) + 
+  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = year, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_point(aes(x = year, y = Y, color = "Observed", fill = "Observed", shape = "Observed")) + 
+  facet_wrap(~ as.factor(age), ncol = 4) + 
   scale_color_manual(name="", values = palette) + 
   scale_fill_manual(name = "", values = palette) + 
-  scale_shape_manual(name = "", values = c(16,4)) + 
+  scale_shape_manual(name = "", values = c(4, 16)) + 
   theme_classic() + 
-  labs(x = "Year", y = "")
+  labs(x = "Year", y = "") + 
+  theme(legend.position="bottom")
 
 ggsave("Y_by_year.pdf", p.Y.year, path = output.path, dpi = "retina", height = 5, width = 8)  
 
@@ -193,3 +190,4 @@ p.gamma.prec <- ggplot(data.frame(res.inlabru$marginals.hyperpar$`Precision for 
 
 p.prec <- (p.alpha.prec | p.beta.prec)/(p.kappa.prec | p.gamma.prec ) + plot_layout(guides = "collect")
 ggsave("precisions.pdf", p.prec, path = output.path, dpi = "retina", height = 5, width = 8)
+

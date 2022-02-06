@@ -13,36 +13,23 @@ library("INLA")
 library("patchwork")
 library("rstan")
 
-# on Markov:
-#   ----   Load libraries and set workspace   ----
-set_workdirectory <- function(markov=TRUE){
-  if(markov){
-    .libPaths("~/Documents/R_libraries")
-    setwd("~/Documents/GitHub/Masteroppgave/Masters-thesis/Master Thesis Code")
-  } else {
-    setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code")
-  }
-}
+#TODO: Change to the location of the folder
+setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code/Scripts/Synthetic\ data/Step_by_step_results_2/poiss_gp_rw1_stand_alones")
 
-set_workdirectory(markov=F)
-
-investigation.name <- "gauss_gp_rw1"
-investigation.path <- file.path(investigation.name, "v4")
-output.path <- file.path("Scripts/Synthetic\ data/Step_by_step_results_2", investigation.path)
+# setting paths, some are deprecated
+investigation.path <- file.path("v7") #TODO: "v4" should be changed to the name of the folder where you store all files for the v4 data. 
+output.path <- investigation.path
 stan.output <- output.path  # deprecated
 
 #   ----    Retrieve the data   ----
 
-synthetic.male.lung.v4 <- function(){
-  obs <- read.csv("Data/synthetic_male_lung_4.csv")
+synthetic.male.lung.v7 <- function(){
+  obs <- read.csv(file.path(investigation.path, "synthetic_male_lung_7.csv"))
   
   obs.trad <- obs %>% 
     select(c(x, t, xt, age.int, year, x.c, alpha, beta, kappa, intercept, epsilon,
-             eta, tau.alpha, tau.beta, tau.kappa, tau.epsilon, E)) %>%
-    mutate(eta.no.error = intercept + alpha + beta*kappa) %>%
-    mutate(mr_gaussian = exp(eta)) %>%
-    mutate(Y_gaussian  = mr_gaussian * E) %>%
-    mutate(x = x+1, x.c = x.c + 1, t = t + 1, xt = xt + 1)
+             eta, tau.alpha, tau.beta, tau.kappa, tau.epsilon, E, Y)) %>%
+    mutate(x = x - 9 + 1, x.c = x.c  - 9 + 1, t = t + 1)
   
   underlying.effects <- list(obs = obs.trad, nx = 18, nt = 18,
                              alpha.true = {obs %>% filter(t == 0)}$alpha,
@@ -59,9 +46,25 @@ synthetic.male.lung.v4 <- function(){
 }
 
 # We use this data for both inlabru and stan
-config.data <- synthetic.male.lung.v4()
+config.data <- synthetic.male.lung.v7()
 obs <- config.data$obs
 underlying.effects <- config.data$underlying.effects
+
+####   ----    Plot the data   ----
+
+obs.zeroes <- obs %>% filter(Y == 0)
+print("Number of zero counts of data v7: ")
+print(length(obs.zeroes$Y))
+
+p.Y <- ggplot(obs) + 
+  geom_tile(aes(x = x, y = t, fill = Y)) + 
+  labs(title = "Observed deaths Y of v7", x = "x", y = "t")
+p.Y; ggsave("data_Y.pdf", p.Y, path = output.path)
+
+p.Y.2 <- ggplot(obs) + 
+  geom_line(aes(x = xt, y = Y)) + 
+  labs(title = "Observed deaths Y of v7", x = "x,t", y = "")
+p.Y.2; ggsave("data_Y_2.pdf", p.Y.2, path = output.path)
 
 #   ----   Run STAN analysis   ----
 # Running traditional lc version of stan, 
@@ -69,16 +72,13 @@ underlying.effects <- config.data$underlying.effects
 
 run_stan <- function(stan_program, obs, chains, warmup, iter, output.path){
   
-  # stan_fit <- run_stan_program_gaussian(
-  #   list(obs = obs), chains=chains,warmup=warmup,
-  #   iter=iter, stan_program=stan_program)
-  
   input_stan <- list(
     X=length(unique(obs$x)),
     T=length(unique(obs$t)),
     x = obs$x,
     t = obs$t,
-    log_mr = obs$eta,
+    E = as.integer(obs$E),
+    Y = as.integer(obs$Y),
     nx = length(unique(obs$x)),
     nt = length(unique(obs$t))
   )
@@ -100,18 +100,17 @@ run_stan <- function(stan_program, obs, chains, warmup, iter, output.path){
   write.table(list(program = stan_program, chains = chains, iter = iter, warmup = warmup), file = file.path(output.path, "info_stan.txt"))
   write.table(summary(stan.run.time), file= file.path(output.path, "stan_run_time.txt"))
   
-  # store_stan_results_gaus_linear(
-  #   fit=stan_fit, output.path=output.path, config=config.name,
-  #   chains=chains, warmup=warmup, iter=iter, stan_program=stan_program)
-  
   return(stan_fit)
 }
 
 stan_fit <- run_stan(
-  stan_program = file.path(output.path, "stan_gauss_gp_rw1_4.stan"),
-  obs = obs, chains=4, warmup = 2500, iter = 25000, output.path = stan.output)
+  stan_program = file.path(output.path, "stan_poiss_gp_rw1_7.stan"),
+  obs = obs, chains=4, warmup = 1000, iter = 10000, output.path = stan.output)
 
-ggsave("trace.pdf", traceplot(stan_fit, pars = c("tau_alpha", "tau_beta", "tau_kappa", "tau_epsilon", "eta[1]", "alpha[1]", "beta[1]", "kappa[1]", "eta[54]", "alpha[9]", "beta[9]", "kappa[9]")),
+ggsave("trace.pdf", traceplot(stan_fit, pars = c("tau_alpha", "tau_beta", "tau_kappa",
+                                                 "tau_epsilon", "eta[1]", "alpha[1]",
+                                                 "beta[1]", "kappa[1]", "eta[54]",
+                                                 "alpha[9]", "beta[9]", "kappa[9]")),
        path = output.path, dpi = "retina", width = 8, height = 5)
 
 stan.summary <- data.frame(summary(stan_fit))
@@ -121,7 +120,8 @@ list_of_draws <- rstan::extract(stan_fit)
 save(list_of_draws, file = file.path(output.path, "list_of_draws.RData"))
 #load(file = file.path(output.path, "list_of_draws.RData"))
 
-inlabru.gaus.gp.rw1 <- function(obs, output.path, max_iter=30, write = T){
+
+inlabru.poiss.fh.rw1 <- function(obs, output.path, max_iter=30, write = T){
   #'Implements inlabru analysis for lc model, fixing the precisions and modelling all random effects as iid
   #'
   #'@param obs: Contains the observed data and the real underlying random effects
@@ -138,29 +138,27 @@ inlabru.gaus.gp.rw1 <- function(obs, output.path, max_iter=30, write = T){
   e.beta = 1
   
   comp = ~ -1 +
-    #Int(1, prec.linear = 0.001, mean.linear = 0) +
     alpha(x, model = "rw1", hyper = loggamma.prior, constr = FALSE, scale.model = F) +
     beta(x.c, model = "iid", hyper = loggamma.prior, extraconstr = list(A = A.beta, e = e.beta)) +
-    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE, scale.model = F)
+    kappa(t, model = "rw1", hyper = loggamma.prior.high.variance, constr = TRUE, scale.model = F) +
+    epsilon(xt, model = "iid", hyper = loggamma.prior, constr = FALSE)
   
-  formula = eta ~ alpha + beta*kappa
+  formula = Y ~ alpha + beta*kappa + epsilon
   
-  likelihood = like(formula = formula, family = "gaussian", data = obs)
+  likelihood = like(formula = formula, family = "poisson", data = obs, E = obs$E)
   
   c.compute <- list(cpo = TRUE, dic = TRUE, waic = TRUE, config = TRUE, return.marginals.predictor = TRUE)  # control.compute
-  c.family <- list(hyper = loggamma.prior)
   
   inlabru.run.time <- system.time(
     {
       res.inlabru = bru(components = comp,
-                        likelihood, 
+                        likelihood,
                         options = list(verbose = F,
-                                       bru_verbose = 1, 
+                                       bru_verbose = 4,
                                        num.threads = "1:1",
                                        control.compute = c.compute,
                                        bru_max_iter=max_iter,
-                                       #control.predictor = list(compute = TRUE),
-                                       control.family  = c.family
+                                       control.predictor = list(link = 1)
                         ))
     }
   )
@@ -172,10 +170,10 @@ inlabru.gaus.gp.rw1 <- function(obs, output.path, max_iter=30, write = T){
   return(res.inlabru)
 }
 
-res.inlabru <- inlabru.gaus.gp.rw1(obs, output.path = output.path, max_iter = 100, write = T)
 
-source("Scripts/Functions/plotters.R")
-source("Scripts/Misc/palette.R")
+res.inlabru <- inlabru.poiss.fh.rw1(obs, output.path = output.path, max_iter = 100, write = T)
+
+source(file.path(investigation.path, "plotters.R"))
 
 #   ----   Produce stan summaries    ----
 
@@ -209,14 +207,17 @@ summary_eta <- stan.summary %>%
 
 #   ----   Plot Random effects and summary of predictor   ----
 
+palette <- c('#70A4D4', '#ECC64B', '#93AD80', '#da9124', '#696B8D',
+             '#3290c1', '#5d8060', '#D7B36A', '#826133', '#A85150')
+
 p.predictor.summary <- ggplot(data = data.frame(xt = obs$xt,
-                                                mean = res.inlabru$summary.linear.predictor$mean[1:324],
-                                                X0.025quant = res.inlabru$summary.linear.predictor$`0.025quant`[1:324],
-                                                X0.975quant = res.inlabru$summary.linear.predictor$`0.975quant`[1:324])) + 
-  geom_point(data = underlying.effects$obs, aes(x = xt, y = eta.no.error, color = "True", fill = "True"), alpha = 0.5) + 
+                                                mean = res.inlabru$summary.linear.predictor$mean[1:162],
+                                                X0.025quant = res.inlabru$summary.linear.predictor$`0.025quant`[1:162],
+                                                X0.975quant = res.inlabru$summary.linear.predictor$`0.975quant`[1:162])) + 
+  geom_point(data = underlying.effects$obs, aes(x = xt, y = eta, color = "True", fill = "True"), alpha = 0.5) + 
   geom_ribbon(aes(x = xt, ymin = X0.025quant, ymax = X0.975quant, color = "Inlabru", fill = "Inlabru"), alpha = 0.3) + 
   geom_ribbon(data = summary_eta, aes(x = index, ymin = summary.2.5., ymax = summary.97.5., color = "Stan", fill = "Stan"), alpha = 0.3) + 
-  geom_point(aes(x = xt, y = mean, fill = "Inlabru", color = "Inlabru")) + 
+  geom_point(aes(x = xt, y = mean, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
   geom_point(data = summary_eta, aes(x = index, y = summary.mean, fill = "Stan", color = "Stan"), alpha = 0.5) + 
   theme_classic() + 
   scale_color_manual(name = "", values = palette) + 
@@ -224,27 +225,6 @@ p.predictor.summary <- ggplot(data = data.frame(xt = obs$xt,
   labs(title = "Predictor", x = "x, t", y = "")
 
 ggsave("predictor.pdf", p.predictor.summary, path = output.path, dpi = "retina", height = 5, width = 8)
-
-# plot summary for the first values:
-p.predictor.summary.low <- ggplot(data = data.frame(xt = obs$xt,
-                                                mean = res.inlabru$summary.linear.predictor$mean[1:324],
-                                                X0.025quant = res.inlabru$summary.linear.predictor$`0.025quant`[1:324],
-                                                X0.975quant = res.inlabru$summary.linear.predictor$`0.975quant`[1:324]) %>%
-                                left_join(summary_eta %>% select(c(index, summary.mean, summary.2.5., summary.97.5.)), by = c("xt" = "index")) %>%
-                                filter(xt <= 55)) + 
-  geom_point(data = underlying.effects$obs %>% filter(xt <= 55), aes(x = xt, y = eta.no.error, color = "True", fill = "True"), alpha = 0.5) + 
-  geom_ribbon(aes(x = xt, ymin = X0.025quant, ymax = X0.975quant, color = "Inlabru", fill = "Inlabru"), alpha = 0.3) + 
-  geom_ribbon(aes(x = xt, ymin = summary.2.5., ymax = summary.97.5., color = "Stan", fill = "Stan"), alpha = 0.3) + 
-  geom_hline(aes(yintercept = -13.8, color = "Line", fill = "Line")) + 
-  geom_hline(aes(yintercept = -14.0, color = "Line", fill = "Line")) + 
-  geom_point(aes(x = xt, y = mean, fill = "Inlabru", color = "Inlabru")) + 
-  geom_point(aes(x = xt, y = summary.mean, fill = "Stan", color = "Stan"), alpha = 0.5) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
-  labs(title = "Predictor, low values of xt", x = "x, t", y = "")
-
-ggsave("predictor_low.pdf", p.predictor.summary.low, path = output.path, dpi = "retina", height = 5, width = 8)
 
 p.alpha <- ggplot() + 
   geom_ribbon(data = data.frame(res.inlabru$summary.random$alpha), aes(x = ID, ymin = X0.025quant, ymax = X0.975quant, fill = "Inlabru", color = "Inlabru"), alpha = 0.3) + 
@@ -257,16 +237,17 @@ p.alpha <- ggplot() +
   scale_fill_manual(name = "", values = palette) + 
   labs(title = "Alpha", x = "x", y = "")
 
-p.beta <- ggplot() + 
-  geom_errorbar(data = data.frame(res.inlabru$summary.random$beta), aes(x = ID, ymin = X0.025quant, ymax = X0.975quant, fill = "Inlabru", color = "Inlabru"), alpha = 0.7) + 
+p.beta <- ggplot() +
+  geom_errorbar(data = data.frame(res.inlabru$summary.random$beta), aes(x = ID, ymin = X0.025quant, ymax = X0.975quant, fill = "Inlabru", color = "Inlabru"), alpha = 0.7) +
   geom_errorbar(data = summary_beta, aes(x = index, ymin = summary.2.5., ymax = summary.97.5., fill = "Stan", color = "Stan"), alpha = 0.7) +
-  geom_point(data = obs %>% filter(t == 1), aes(x = x, y = beta, color = "True", fill = "True"), alpha = 0.7) + 
-  geom_point(data = data.frame(res.inlabru$summary.random$beta), aes(x = ID, y = mean, fill = "Inlabru", color = "Inlabru"), alpha = 0.7) + 
-  geom_point(data = summary_beta, aes(x = index, y = summary.mean, color = "Stan", fill = "Stan"), alpha = 0.7) + 
-  theme_classic() + 
-  scale_color_manual(name = "", values = palette) + 
-  scale_fill_manual(name = "", values = palette) + 
+  geom_point(data = obs %>% filter(t == 1), aes(x = x, y = beta, color = "True", fill = "True"), alpha = 0.7) +
+  geom_point(data = data.frame(res.inlabru$summary.random$beta), aes(x = ID, y = mean, fill = "Inlabru", color = "Inlabru"), alpha = 0.7) +
+  geom_point(data = summary_beta, aes(x = index, y = summary.mean, color = "Stan", fill = "Stan"), alpha = 0.7) +
+  theme_classic() +
+  scale_color_manual(name = "", values = palette) +
+  scale_fill_manual(name = "", values = palette) +
   labs(title = "Beta", x = "x", y = "")
+
 
 p.kappa <- ggplot() +
   geom_ribbon(data = data.frame(res.inlabru$summary.random$kappa), aes(x = ID, ymin = X0.025quant, ymax = X0.975quant, fill = "Inlabru", color = "Inlabru"), alpha = 0.3) + 
@@ -287,7 +268,7 @@ ggsave("random.pdf", p.random, path = output.path, dpi = "retina", height = 4, w
 #   ----   Sample predictor   ----
 
 stan.predictor.df <- data.frame(list_of_draws$eta)
-plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=F)
+plot.predictor.inlabru.stan.compared(res.inlabru, stan.predictor.df, path.to.storage = output.path, a45=T)
 
 #   ----   Plot marginals of random effects   ----
 
@@ -295,10 +276,13 @@ stan.kappa.df <- data.frame(list_of_draws$kappa)
 plot.kappa.inlabru.stan.compared(res.inlabru, stan.kappa.df, path.to.storage = output.path)
 
 stan.alpha.df <- data.frame(list_of_draws$alpha)
-plot.alpha.inlabru.stan.compared(res.inlabru, stan.alpha.df, path.to.storage = output.path)
+plot.alpha.inlabru.stan.compared(res.inlabru, stan.alpha.df, path.to.storage = output.path, a45=T)
+
+stan.epsilon.df <- data.frame(list_of_draws$epsilon)
+plot.epsilon.inlabru.stan.compared(res.inlabru, stan.epsilon.df, path.to.storage = output.path, a45=T)
 
 stan.beta.df <- data.frame(list_of_draws$beta)
-plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = output.path)
+plot.beta.inlabru.stan.compared(res.inlabru, stan.beta.df, path.to.storage = output.path, a45=T)
 
 #   ----   Specifically check the predictors at xt = 54:   ----
 
@@ -328,11 +312,24 @@ p.pred.36
 
 save.figure(p.pred.36, name = "predictor_36", path = output.path, png= F)
 
+pred.1.inlabru <- data.frame(res.inlabru$marginals.linear.predictor$APredictor.001)
+
+p.pred.1 <- ggplot(pred.1.inlabru) + 
+  geom_area(aes(x = x, y = y, fill = "Inlabru", color = "Inlabru"), alpha = 0.5) + 
+  geom_density(data = stan.predictor.df, aes(x = X1, fill = "Stan", color = "Stan"), alpha = 0.5) + 
+  theme_classic() + 
+  scale_color_manual(name = "", values = palette) + 
+  scale_fill_manual(name = "", values = palette) + 
+  labs(title = "Predictor at xt=1", x = "", y = "")
+p.pred.1
+
+save.figure(p.pred.1, name = "predictor_1", path = output.path, png= F)
+
 #   ----   Plot densities of hyperparameters   ----
 
 p.tau.alpha <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_alpha), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% filter(x < 7), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for alpha`) %>% filter(x < 50), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
@@ -348,7 +345,7 @@ p.theta.alpha <- ggplot() +
 
 p.tau.beta <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_beta), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>% filter(x < 350), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for beta`) %>% filter(x < 300), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
@@ -363,9 +360,9 @@ p.theta.beta <- ggplot() +
   labs(title = "Theta beta", x = "", y = "")
 
 p.tau.kappa <- ggplot() +
-  geom_density(data=data.frame("x" = list_of_draws$tau_kappa), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>% filter(x < 400), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
-  theme_classic() +
+  geom_density(data=data.frame("x" = list_of_draws$tau_kappa) %>% filter(x < 750), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for kappa`) %>% filter(x < 200), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  theme_classic() + 
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
   labs(title = "Tau kappa", x = "", y = "")
@@ -380,7 +377,7 @@ p.theta.kappa <- ggplot() +
 
 p.tau.eta <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$tau_epsilon), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for the Gaussian observations`) %>% filter(x < 1000), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$marginals.hyperpar$`Precision for epsilon`) %>% filter(x < 800), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +
@@ -388,7 +385,7 @@ p.tau.eta <- ggplot() +
 
 p.theta.eta <- ggplot() +
   geom_density(data=data.frame("x" = list_of_draws$theta_epsilon), aes(x = x, color = "Stan", fill = "Stan"), alpha = 0.2) +
-  geom_area(data = data.frame(res.inlabru$internal.marginals.hyperpar$`Log precision for the Gaussian observations`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
+  geom_area(data = data.frame(res.inlabru$internal.marginals.hyperpar$`Log precision for epsilon`), aes(x = x, y = y, color = "Inlabru", fill = "Inlabru"), alpha = 0.2) +
   theme_classic() +
   scale_color_manual(name = "", values = palette) +
   scale_fill_manual(name = "", values = palette) +

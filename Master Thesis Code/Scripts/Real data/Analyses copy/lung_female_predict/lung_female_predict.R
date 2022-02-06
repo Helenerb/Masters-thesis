@@ -1,10 +1,10 @@
-# Running full inlabru analysis on female stomach cancer data
+# Running full inlabru analysis on female lung cancer data
 
 #   ----   Load libraries and set workspace   ----
 
 setwd("~/Desktop/Masteroppgave/Masters-thesis/Master Thesis Code")
 
-output.path = file.path("Scripts/Real\ Data/Analyses", "stomach_female_predict")
+output.path = file.path("Scripts/Real\ Data/Analyses", "lung_female_predict")
 
 library("tidyverse")
 library("inlabru")
@@ -15,10 +15,10 @@ library("rstan")
 
 #    ----    Load data   ----
 load("Data/population-germany.Rda")
-load("Data/stomachCancer-germany.Rda")
+load("Data/lungCancer-germany.Rda")
 
 #   ----   Format data   ----
-female.stomach.cancer <- cancer.data %>% select(c(age, year, female, t, age.int, x, x.c, xt, cohort, c, birth.year, female.t)) %>%
+female.lung.cancer <- cancer.data %>% select(c(age, year, female, t, age.int, x, x.c, xt, cohort, c, birth.year, female.t)) %>%
   mutate(Y = replace(female, year %in% 2011:2016, NA), E = female.t) %>%
   mutate(pred = "In data") %>% mutate(pred = replace(pred, year %in% 2011:2016, "Out of data")) %>%
   mutate(year = parse_integer(year))
@@ -65,19 +65,19 @@ run.inlabru <- function(obs, max_iter = 100){
   return(result)
 }
 
-res.inlabru <- run.inlabru(female.stomach.cancer)
+res.inlabru <- run.inlabru(female.lung.cancer)
 
-observed <- female.stomach.cancer
+observed <- female.lung.cancer
 
 source("Scripts/Misc/palette.R")
 
 #   ----   Generate samples for Y   ----
 
-lambda.samples <- generate(res.inlabru, female.stomach.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 10000)
+lambda.samples <- generate(res.inlabru, female.lung.cancer, ~ E*exp(alpha + beta*kappa + gamma + epsilon), n.samples = 10000)
 Y.samples <- matrix(rpois(lambda.samples, n = 324*10000), nrow = 324, ncol = 10000)
 Y.samples.df <- data.frame(Y.samples) 
 
-Y.inlabru <- female.stomach.cancer %>%
+Y.inlabru <- female.lung.cancer %>%
   mutate(Y.mean = apply(Y.samples.df, 1, mean)) %>%
   mutate(Y.0.025 = apply(Y.samples.df, 1, quantile, 0.025)) %>%
   mutate(Y.0.975 = apply(Y.samples.df, 1, quantile, 0.975)) %>%
@@ -115,9 +115,10 @@ write.table(list(MDSS.all = MDSS.all,
                  contained.all = contained.all), file = file.path(output.path, "DSS.txt"))
 
 
+
 p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
@@ -129,8 +130,8 @@ p.Y.age <- ggplot(Y.inlabru %>% filter(year %in% 2011:2016)) +
 ggsave("Y_by_age.pdf", p.Y.age, path = output.path, dpi = "retina", height = 5, width = 8)  
 
 p.Y.age.in.data <- ggplot(Y.inlabru %>% filter(year %in% 1999:2010)) + 
-  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = age.int, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = age.int, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = age.int, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = age.int, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   facet_wrap(~ as.factor(year)) + 
   scale_color_manual(name="", values = palette) + 
@@ -143,8 +144,8 @@ ggsave("Y_by_age_in_data.pdf", p.Y.age.in.data, path = output.path, dpi = "retin
 
 
 p.Y.year <- ggplot(Y.inlabru %>% filter(age.int >= 50)) + 
-  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Estimated", fill = "Estimated", shape = "Estimated"), alpha = 0.2, size = 0.5) + 
-  geom_point(aes(x = year, y = Y.mean, color = "Estimated", fill = "Estimated", shape = "Estimated")) + 
+  geom_ribbon(aes(x = year, ymin = Y.0.025, ymax = Y.0.975, color = "Inlabru", fill = "Inlabru", shape = "Inlabru"), alpha = 0.2, size = 0.5) + 
+  geom_point(aes(x = year, y = Y.mean, color = "Inlabru", fill = "Inlabru", shape = "Inlabru")) + 
   geom_point(aes(x = year, y = female, color = "Observed", fill = "Observed", shape = "Observed"), size = 2) + 
   geom_vline(aes(xintercept = 2011, color="Predicted period", fill = "Predicted period", shape = "Predicted period")) + 
   facet_wrap(~ as.factor(age), ncol = 4) + 
